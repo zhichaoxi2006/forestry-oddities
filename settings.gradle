@@ -1,0 +1,10 @@
+pluginManagement {
+    repositories {
+        // Forestry: CE dev jars are installed here on this machine (see README).
+        mavenLocal()
+        gradlePluginPortal()
+        maven { url = 'https://maven.neoforged.net/releases' }
+    }
+}
+
+rootProject.name = 'forestry-tweaks'

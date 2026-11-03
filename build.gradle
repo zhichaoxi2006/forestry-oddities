@@ -1,0 +1,259 @@
+plugins {
+    id 'idea'
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.140'
+}
+
+group = project.mod_group_id
+version = project.mod_version
+base {
+    archivesName = "${project.mod_id}-${project.minecraft_version}"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(project.java_version as int)
+    }
+    withSourcesJar()
+}
+
+// Minecraft 1.21.1 / NeoForge 21.1.x -------------------------------------------------------------
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        // Parameter names + javadoc for the Minecraft/NeoForge sources.
+        minecraftVersion = project.parchment_minecraft_version
+        mappingsVersion = project.parchment_mappings_version
+    }
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        data {
+            data()
+            programArguments.addAll(
+                    '--mod', project.mod_id,
+                    '--all',
+                    '--output', file('src/generated/resources/').absolutePath,
+                    '--existing', file('src/main/resources/').absolutePath
+            )
+        }
+    }
+
+    mods {
+        // Must match mod_id: this binds the source set to the mod for the dev runs.
+        create(project.mod_id) {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    // Forestry: CE 3.0.0-alpha9 is installed into Maven Local on this machine by the ForestryCE
+    // build (`./gradlew publishToMavenLocal`), so resolving the Forestry dependency needs no network.
+    mavenLocal {
+        name = 'HostMavenLocal'
+        content { includeGroup project.forestry_group }
+    }
+    maven {
+        name = 'ModMaven'
+        url = 'https://modmaven.dev/'
+        content { includeGroup project.forestry_group }
+    }
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com/'
+        content {
+            includeGroup 'mezz.jei'
+            includeGroup 'vazkii.patchouli'
+        }
+    }
+    // Create (机械动力), Ponder, Flywheel and Registrate. These are the repositories Create's own
+    // development setup uses; no content filter is set so the artifacts stay identical to the ones
+    // Create publishes (and to the ones already in this machine's Gradle cache, which matters when
+    // building with --offline).
+    maven {
+        url = 'https://maven.createmod.net'
+    }
+    maven {
+        url = 'https://mvn.devos.one/snapshots'
+    }
+    mavenCentral()
+}
+
+// Some machines (including this one) cannot reach maven.neoforged.net. If a local Maven-format
+// mirror of the NeoForge artifacts is available, add it as an extra repository so that dependency
+// resolution and `createMinecraftArtifacts` work without network access.
+// Configure it with `neoforge_local_mirror` in gradle.properties (empty = disabled).
+def neoforgeMirror = (project.findProperty('neoforge_local_mirror') ?: '').toString().trim()
+if (!neoforgeMirror.isEmpty()) {
+    def mirrorDir = file(neoforgeMirror)
+    if (mirrorDir.isDirectory()) {
+        repositories {
+            maven {
+                name = 'NeoForgeLocalMirror'
+                url = mirrorDir.toURI()
+                content { includeGroup 'net.neoforged' }
+            }
+        }
+    } else {
+        logger.warn("neoforge_local_mirror points to a missing directory, ignoring it: ${mirrorDir}")
+    }
+}
+
+dependencies {
+    // == Forestry: Community Edition (required dependency) =====================================
+    // compileOnly: compile against the Forestry API/classes without bundling them.
+    // runtimeOnly: put the same jar on the development runtime so the dev client/server load it.
+    compileOnly("${project.forestry_group}:${project.forestry_artifact}:${project.forestry_version}") {
+        transitive = false
+    }
+    runtimeOnly("${project.forestry_group}:${project.forestry_artifact}:${project.forestry_version}") {
+        transitive = false
+    }
+
+    // Optional Forestry content modules are separate mod jars. They are added to the development
+    // runtime only, so this mod keeps working for players that do not install them.
+    project.forestry_optional_modules.split(',').each { module ->
+        def moduleName = module.trim()
+        if (!moduleName.isEmpty()) {
+            runtimeOnly("${project.forestry_group}:forestry${moduleName}-${project.minecraft_version}:${project.forestry_version}") {
+                transitive = false
+            }
+        }
+    }
+
+    // Patchouli is a REQUIRED dependency of Forestry itself.
+    runtimeOnly "vazkii.patchouli:Patchouli:${project.patchouli_version}"
+
+    // JEI (optional in the mod metadata, but very useful in a development client).
+    compileOnly "mezz.jei:jei-${project.minecraft_version}-neoforge-api:${project.jei_version}"
+    if (!(project.skip_jei_runtime as String).toBoolean()) {
+        runtimeOnly "mezz.jei:jei-${project.minecraft_version}-neoforge:${project.jei_version}"
+    }
+
+    // == Create (机械动力), OPTIONAL dependency ===================================================
+    // Only the item-attribute integration needs Create. compileOnly + runtimeOnly mirror the
+    // Forestry setup above: players without Create never have to care about it (see the "optional"
+    // dependency in META-INF/neoforge.mods.toml), and the development runtime still gets it.
+    // The Create artifact is `slim` (no bundled libraries) and `transitive = false`, exactly like
+    // Create's own dev setup, so its libraries are declared explicitly below.
+    // `skip_create_runtime=true` (gradle.properties, or `-Pskip_create_runtime=true`) keeps all of it
+    // off the development runtime, to test that the mod still loads without Create.
+    compileOnly("com.simibubi.create:create-${project.minecraft_version}:${project.create_version}:slim") {
+        transitive = false
+    }
+    // Ponder carries Catnip (Create's GUI/util library) inside its jar.
+    compileOnly("net.createmod.ponder:Ponder-NeoForge-${project.minecraft_version}:${project.ponder_version}") {
+        transitive = false
+    }
+    // Flywheel: API stub for compiling, implementation for the development client.
+    compileOnly "dev.engine-room.flywheel:flywheel-neoforge-api-${project.minecraft_version}:${project.flywheel_api_version}"
+    compileOnly "com.tterrag.registrate:Registrate:${project.registrate_version}"
+
+    if (!(project.skip_create_runtime as String).toBoolean()) {
+        runtimeOnly("com.simibubi.create:create-${project.minecraft_version}:${project.create_version}:slim") {
+            transitive = false
+        }
+        // Ponder's POM pulls Ponder-Common and ForgeConfigAPIPort, neither of which is referenced by
+        // the published jar and neither of which is available, hence `transitive = false`.
+        runtimeOnly("net.createmod.ponder:Ponder-NeoForge-${project.minecraft_version}:${project.ponder_version}") {
+            transitive = false
+        }
+        runtimeOnly "dev.engine-room.flywheel:flywheel-neoforge-${project.minecraft_version}:${project.flywheel_version}"
+        runtimeOnly "com.tterrag.registrate:Registrate:${project.registrate_version}"
+    }
+}
+
+// Mod metadata (`META-INF/neoforge.mods.toml`) template expansion --------------------------------
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version      : project.minecraft_version,
+            minecraft_version_range: project.minecraft_version_range,
+            neo_version            : project.neo_version,
+            neo_version_range      : project.neo_version_range,
+            loader_version_range   : project.loader_version_range,
+            forestry_version       : project.forestry_version,
+            forestry_version_range : project.forestry_version_range,
+            patchouli_version      : project.patchouli_version,
+            patchouli_version_range: project.patchouli_version_range,
+            jei_version            : project.jei_version,
+            jei_version_range      : project.jei_version_range,
+            create_version_range   : project.create_version_range,
+            mod_id                 : project.mod_id,
+            mod_name               : project.mod_name,
+            mod_license            : project.mod_license,
+            mod_version            : project.mod_version,
+            mod_authors            : project.mod_authors,
+            mod_description        : project.mod_description
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+// Datagen output lives in the source tree so it can be committed.
+sourceSets.main.resources.srcDir 'src/generated/resources'
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = project.java_version as int
+}
+
+// Fail fast (with a clear message) when the Forestry dependency is missing ------------------------
+tasks.register('verifyForestryDependency') {
+    group = 'verification'
+    description = 'Resolves the Forestry: CE artifacts and prints the jars the dev runtime will load.'
+
+    def forestryGroup = project.forestry_group
+    def runtimeClasspath = configurations.runtimeClasspath
+    def expectedCount = 1 + (project.forestry_optional_modules as String)
+            .split(',').count { !it.trim().isEmpty() }
+
+    outputs.upToDateWhen { false }
+
+    doLast {
+        def files = runtimeClasspath.incoming.artifactView {
+            componentFilter { id ->
+                id instanceof org.gradle.api.artifacts.component.ModuleComponentIdentifier && id.group == forestryGroup
+            }
+        }.files.files.sort { it.name }
+
+        if (files.size() != expectedCount) {
+            throw new GradleException("""\
+                    Expected ${expectedCount} Forestry: CE artifacts but resolved ${files.size()}.
+                    Install the ForestryCE dev jars into Maven Local first, for example:
+                      cd ../ForestryCE && ./gradlew publishToMavenLocal
+                    (or adjust forestry_version / forestry_optional_modules in gradle.properties)."""
+                    .stripIndent())
+        }
+
+        logger.lifecycle("Forestry: CE ${project.forestry_version} artifacts on the development runtime:")
+        files.each { logger.lifecycle("  - ${it.name}") }
+    }
+}
+
+tasks.named('compileJava').configure { dependsOn 'verifyForestryDependency' }
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            name = 'local'
+            url = layout.buildDirectory.dir('repo')
+        }
+    }
+}

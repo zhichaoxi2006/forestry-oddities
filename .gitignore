@@ -1,0 +1,43 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Development runtime (worlds, logs, options)
+run/
+runs/
+logs/
+
+# Development server state: world saves, generated config, copied-in mods and the
+# whitelist/op/banned lists that the game writes into its own game directory.
+# Anchored to the repository root so package directories such as
+# src/main/java/com/forestrytweaks/config stay tracked.
+/world/
+/config/
+/defaultconfigs/
+/mods/
+/patchouli_books/
+/server.properties
+/session.lock
+/eula.txt
+/ops.json
+/whitelist.json
+/banned-ips.json
+/banned-players.json
+/usercache.json
+*.log
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+eclipse/
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+Thumbs.db
+.DS_Store
