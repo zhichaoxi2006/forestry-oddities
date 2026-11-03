@@ -9,6 +9,7 @@
   "mixins": [
     "AbstractBeeHousingBlockEntityMixin",
     "AlvearyControllerMixin",
-    "BeeMixin"
+    "BeeMixin",
+    "EventHandlerApicultureMixin"
   ]
 }

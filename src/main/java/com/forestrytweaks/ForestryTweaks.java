@@ -1,11 +1,13 @@
 package com.forestrytweaks;
 
+import com.forestrytweaks.apiculture.BeekeeperEvents;
 import com.forestrytweaks.config.ForestryTweaksConfig;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,11 @@ public final class ForestryTweaks {
         // config/forestrytweaks-common.toml. COMMON (not SERVER) so singleplayer clients and
         // dedicated servers both read it locally; values are re-read on use, so edits apply live.
         modContainer.registerConfig(ModConfig.Type.COMMON, ForestryTweaksConfig.SPEC);
+
+        // Smarter beekeeper villagers (Tweaks): the goal is attached here for every villager that
+        // joins a level, and mixin.EventHandlerApicultureMixin keeps Forestry from adding its own
+        // apiary AI next to it.
+        NeoForge.EVENT_BUS.addListener(BeekeeperEvents::onEntityJoinLevel);
 
         // Register content, tweak hooks and config here. Forestry-only hooks belong to
         // integration.ForestryTweaksPlugin; NeoForge events can be subscribed on `modBus` / the
