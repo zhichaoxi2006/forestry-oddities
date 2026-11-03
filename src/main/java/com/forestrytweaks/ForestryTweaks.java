@@ -2,6 +2,7 @@ package com.forestrytweaks;
 
 import com.forestrytweaks.apiculture.BeekeeperEvents;
 import com.forestrytweaks.config.ForestryTweaksConfig;
+import com.forestrytweaks.integration.create.CreateIntegration;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
@@ -19,6 +20,10 @@ import org.slf4j.LoggerFactory;
  * directly. Content registration goes through
  * {@link com.forestrytweaks.integration.ForestryTweaksPlugin}, which Forestry discovers with
  * {@link java.util.ServiceLoader}.</p>
+ *
+ * <p>Create (机械动力) is an optional dependency: it is only needed for the item attribute filter
+ * integration in {@link com.forestrytweaks.integration.create}, which is wired up below only when
+ * Create is actually installed.</p>
  */
 @Mod(ForestryTweaks.MOD_ID)
 public final class ForestryTweaks {
@@ -43,6 +48,14 @@ public final class ForestryTweaks {
         // config/forestrytweaks-common.toml. COMMON (not SERVER) so singleplayer clients and
         // dedicated servers both read it locally; values are re-read on use, so edits apply live.
         modContainer.registerConfig(ModConfig.Type.COMMON, ForestryTweaksConfig.SPEC);
+
+        // Optional Create integration. Referencing CreateIntegration in the guarded branch keeps the
+        // Create classes from ever being loaded when Create is not installed.
+        if (ModList.get().isLoaded(CreateIntegration.CREATE_MOD_ID)) {
+            CreateIntegration.init(modBus);
+        } else {
+            LOGGER.info("Create is not installed; the item attribute filter integration stays disabled");
+        }
 
         // Smarter beekeeper villagers (Tweaks): the goal is attached here for every villager that
         // joins a level, and mixin.EventHandlerApicultureMixin keeps Forestry from adding its own
