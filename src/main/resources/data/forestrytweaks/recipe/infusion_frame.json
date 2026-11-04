@@ -1,0 +1,24 @@
+{
+  "type": "forestrytweaks:crafting_infusion_frame",
+  "category": "misc",
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "B": {
+      "item": "minecraft:blaze_powder"
+    },
+    "P": {
+      "tag": "forestrytweaks:potions"
+    }
+  },
+  "pattern": [
+    "SSS",
+    "BPB",
+    "SSS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "forestrytweaks:infusion_frame"
+  }
+}

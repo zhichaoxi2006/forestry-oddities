@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "forestrytweaks:item/infusion_frame",
+    "layer1": "forestrytweaks:item/infusion_frame_overlay"
+  }
+}
