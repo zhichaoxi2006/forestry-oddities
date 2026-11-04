@@ -3,28 +3,12 @@
 build/
 !gradle/wrapper/gradle-wrapper.jar
 
-# Development runtime (worlds, logs, options)
+# Development runtime. ModDevGradle runs the game with ./run as its game directory (the IDE run
+# configurations use $PROJECT_DIR$/run), so the world save, logs, generated config, copied-in mods
+# and the whitelist/op/banned lists all live inside run/ and never in the repository root.
+# `runs/` is ignored as well, for checkouts that use the runs/<name> layout.
 run/
 runs/
-logs/
-
-# Development server state: world saves, generated config, copied-in mods and the
-# whitelist/op/banned lists that the game writes into its own game directory.
-# Anchored to the repository root so package directories such as
-# src/main/java/com/forestrytweaks/config stay tracked.
-/world/
-/config/
-/defaultconfigs/
-/mods/
-/patchouli_books/
-/server.properties
-/session.lock
-/eula.txt
-/ops.json
-/whitelist.json
-/banned-ips.json
-/banned-players.json
-/usercache.json
 *.log
 
 # IDE
