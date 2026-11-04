@@ -407,6 +407,559 @@ The same self-test was run again against the `3.0.0-alpha9` jars (dev server, de
 * NeoForge puts Mixin (`sponge-mixin`) on the compile classpath, so `build.gradle` needs no extra
   dependency or annotation processor.
 
+## Frames (框架)
+
+Two apiary frames. Both implement `forestry.api.apiculture.hives.IHiveFrame`, so they go into the
+apiary's three frame slots and Forestry wears them through exactly the same call as its own frames:
+`BeeHousingBeekeepingLogic#doProduction` → `IBeeListener#wearOutEquipment(1)` →
+`ApiaryInventory#wearOutFrames` → `IHiveFrame#frameUsed`. That call happens once per **work cycle**,
+which is `IBeekeepingLogic.DEFAULT_WORK_THROTTLE` = 550 ticks. The apiary is the only housing
+Forestry: CE 3.0.0-alpha9 gives a frame slot to; the alveary gets one through the
+[frame housing part](#alveary-frame-housing-蜂房组框架外壳) below, and the bee house still has none.
+
+Both items are in the `forestry:apiculture` creative tab, right after Forestry's own frames, and both
+are registered with stack size 1 because the state they carry (charge, potion, durability) is per
+stack.
+
+### 柔光框架 / Soft Light Frame
+
+| Recipe | | |
+|:---:|:---:|:---:|
+| | 红石灯 | |
+| 铜锭 | 标定框架 | 铜锭 |
+| | 铁锭 | |
+
+```text
+ L
+CFC
+ I
+```
+
+`L` = `minecraft:redstone_lamp`, `C` = `minecraft:copper_ingot`, `I` = `minecraft:iron_ingot`,
+`F` = `forestry:proven_frame` (标定框架).
+
+The frame is a sunlight simulation. Forestry refuses to let a queen work when the housing cannot see
+the sky unless the bee has the `CAVE_DWELLING` gene or a modifier answers `true` from
+`IBeeModifier#isSunlightSimulated()`; this frame does the latter, so an apiary underground, in a cave
+or under a solid roof works without breeding cave-dwelling into the line. It is the only modifier the
+frame contributes - production speed, territory, aging and so on are untouched, so the apiary's own
+`0.1x` production modifier still applies.
+
+It is not free:
+
+* The frame holds up to **1 000 000 FE (1 MFE)**, and **every work cycle costs 80 FE**. A full buffer
+  is 12 500 cycles, i.e. about 95 hours of an apiary that never idles.
+* **Newly crafted frames are empty.** The buffer is exposed as a NeoForge item energy storage
+  (`Capabilities.EnergyStorage.ITEM`, receive only, `canExtract() == false`), so any FE item charger
+  fills it; the frame spends the energy itself and nothing can pull it back out.
+* The modifier reports `true` while the stack holds at least 1 FE. The cycle that drains the last
+  charge still counts as simulated, after that the frame is inert until it is charged again.
+* The frame has no durability at all: it never wears out and is never destroyed. Running dry only
+  switches the sunlight simulation off.
+
+State is visible without a tooltip:
+
+* The icon is a **标定框架 with a redstone lamp set into its opening**: the proven frame's silhouette
+  is copied pixel for pixel from `assets/forestry/textures/item/proven_frame.png` (every solid pixel
+  is identical), and the 8x6 window the frame leaves empty - including the cream mesh strip in the
+  middle of that window - is filled with vanilla's lamp block texture, so the lamp's lattice shows
+  through the frame instead of the frame being replaced by a lamp icon. The lamp texture is sampled
+  at half scale (an 8x8 crop of it, its middle six rows) because a 1:1 crop of a 16x16 block face
+  would show one corner of the lattice blown up; at half scale the whole lamp pattern stays
+  recognisable. Two textures ship, `item/soft_light_frame.png` (built from
+  `minecraft:block/redstone_lamp`, the charge is empty) and `item/soft_light_frame_on.png` (built
+  from `minecraft:block/redstone_lamp_on`, charged); they differ only inside the window.
+  `models/item/soft_light_frame.json` has one override on the mod's own `forestrytweaks:charged` item
+  model property (registered client side, `1.0` while the charge is above zero) that switches to
+  `soft_light_frame_on`, which is the same frame with the lit lamp.
+* The item bar is the charge, 13 segments wide, in amber.
+* The tooltip prints `energy / capacity FE`, whether sunlight is currently simulated, the per-cycle
+  cost and - when the frame is empty - a reminder that it needs charging.
+
+The charge lives in the `forestrytweaks:soft_light_frame_energy` data component (persistent and
+network-synchronised), so it survives a save/load and a container sync; the client needs it to pick
+the model.
+
+### 灌注框架 / Infusion Frame
+
+| Recipe | | |
+|:---:|:---:|:---:|
+| 木棍 | 木棍 | 木棍 |
+| 烈焰粉 | 药水 | 烈焰粉 |
+| 木棍 | 木棍 | 木棍 |
+
+```text
+SSS
+BPB
+SSS
+```
+
+`S` = `minecraft:stick`, `B` = `minecraft:blaze_powder`, `P` = any potion
+(`forestrytweaks:potions`: `minecraft:potion`, `minecraft:splash_potion`, `minecraft:lingering_potion`).
+
+The potion is stored on the frame as vanilla's `minecraft:potion_contents` component, which gives the
+frame everything it needs:
+
+* **Durability = the potion's duration in whole seconds.** A 3:00 potion gives a 180-use frame, 8:00
+  gives 480, and 1:30 gives 90. The frame wears one point per apiary work cycle and breaks like any
+  other frame. The maximum damage depends on the potion, so it is written onto the crafted stack
+  (`DataComponents.MAX_DAMAGE`) instead of being a property of the item type - that is why the item
+  is registered with stack size 1 and why the item cannot be crafted without a potion.
+* **Modifiers = the potion's effects.** The mapping is read from the stored `PotionContents` every
+  time Forestry asks for the frame's `IBeeModifier`, so a frame from an old save keeps working when
+  the table below changes:
+
+| Potion | Modifier |
+|---|---|
+| 速度 Speed | `+2 x level` production speed (Speed I `+2`, Speed II `+4`) |
+| 中毒 Poison | `+10^level` aging, i.e. the queen loses that much more lifespan per work cycle |
+| 再生 Regeneration | cancels aging entirely (`modifyAging` returns `0`) |
+| 虚弱 Weakness | `+10^level` percentage points of mutation chance |
+| 水下呼吸 Water Breathing | sealed housing: bees work in the rain without `TOLERATES_RAIN` (`isSealed()`) |
+
+Details that follow from that:
+
+* "Level" is the level the potion tooltip shows, `amplifier + 1`.
+* A potion with several of the effects (custom or splash potions) gets all of them; bonuses of the
+  same effect stack. Regeneration wins over Poison, so poison + regeneration does not age the queen.
+* Exponents are capped at `10^6` and the mutation chance at `100` so a hacked amplifier cannot
+  overflow the float or the percentage scale. Weakness II is therefore already a guaranteed mutation.
+* Speed is an additive bonus, not a multiplier: the apiary's own `0.1x` modifier is first in
+  `ApiaryBlockEntity#getBeeModifiers`, then the frames are applied, so a bee whose `SPEED` allele is
+  `1` produces at `0.1 + 2 = 2.1` with a Speed I frame. The bonus scales with the potion level only,
+  it does not multiply the bee's own speed. (Forestry's own frames multiply, but that is a different
+  design: `+2 x level` is what the design note asks for.)
+* **Colour = the potion's colour.** The icon is the same 标定框架 silhouette as the soft light
+  frame, with its opening filled by liquid and nothing else: no bottle, no cork, the whole 8x6
+  window is liquid. The liquid is vanilla's still-water texture sampled exactly like the lamp (half
+  scale, middle rows), with its grey range `[165, 255]` stretched to `[197, 255]` - `0xC5` is the
+  midtone of `minecraft:item/potion_overlay` - so the tinted window is as bright as the liquid
+  inside a vanilla potion instead of darker than the potion it is named after. The icon is split
+  over two layers so only the liquid takes the tint: `item/infusion_frame.png` holds the frame with
+  an empty opening, and `item/infusion_frame_overlay.png` holds the 48 liquid pixels of that
+  opening in pure grey. An item colour handler registered on the mod bus tints `layer1` (the
+  liquid) with `PotionContents#getColor()`, the same colour vanilla uses for the potion item, so the
+  frame visually carries its potion; `layer0` returns `-1` and stays untinted. Generated item
+  models number their tint indices by layer (`ItemModelGenerator` passes the layer index as the
+  face's `tintindex`), so "layer1" really is tint index 1. A frame without potion data shows
+  vanilla's default potion colour (the water blue).
+* The tooltip is the kind Forestry's own frames have, not the kind a potion item has. Copying what
+  `forestry.apiculture.apiary.HiveFrameItem` does (disassembled from 3.0.0-alpha9): one unstyled line
+  per modifier, then `item.forestry.durability` with the maximum uses - and only while the frame is
+  undamaged, because a worn frame shows the vanilla durability bar instead. A proven frame therefore
+  reads `Production: 2.0x / Genetic Decay: 0.3x / Durability: 720` and an infusion frame reads
+  `Work speed: +2 / Durability: 180`, the durability line in Forestry's own words. The potion's
+  effect list (vanilla's `addPotionTooltip`) is **not** repeated: on an apiary those effects *are* the
+  modifier lines, and the tinted window already shows which potion it was. A frame whose potion
+  contributes none of the table's effects (the empty creative-tab frame, a water bottle) gets one
+  grey line saying so.
+* A frame without potion data (the plain creative-tab entry, `/give`) has no durability and no
+  modifiers, and `frameUsed` leaves it alone instead of dividing by a zero maximum damage.
+
+Recipe mechanics: a vanilla `crafting_shaped` recipe cannot do this, because the potion's data has to
+travel from the ingredient to the result. `content/InfusionFrameRecipe` is therefore a proper shaped
+recipe with its own serializer (`forestrytweaks:crafting_infusion_frame`) and the same JSON layout as
+the vanilla shaped recipe; `assemble` finds the potion in the grid, copies its `PotionContents` onto
+the result and writes the matching maximum damage. Because it is an ordinary `CraftingRecipe` with a
+pattern and ingredients, JEI shows it like any other shaped recipe. Both recipes also ship recipe-book
+unlock advancements (`data/forestrytweaks/advancement/recipes/misc/`), so the recipe book lists them as
+soon as the player has held a 标定框架 (`forestry:proven_frame`) or blaze powder, respectively.
+
+Verification: on a dedicated development server a temporary self-test (100 checks, removed again
+afterwards) covered: both items and the data component registered under the expected ids; the
+`forestrytweaks:potions` tag resolving to the three potion items; both recipes loading from their
+JSON and the infusion recipe being found by `RecipeType.CRAFTING`; matching a normal and a splash
+potion grid and rejecting a non-potion and an empty grid; `assemble` producing an infusion frame with
+the potion component, `MAX_DAMAGE` 180 and damage 0 for a 3:00 swiftness potion; the recipe surviving a
+`RegistryFriendlyByteBuf` round trip; every potion row of the table (`swiftness` `+2`, strong
+swiftness `+4`, poison `+10` aging, strong poison `+100`, regeneration aging `0`, weakness `+10`
+mutation and its `100` clamp, water breathing `isSealed`); durability 180/45/90/180 for
+swiftness/poison/weakness/water breathing and 1 for a potion with no effects; a 180-cycle frame
+breaking exactly on its 180th use; a bare frame being left untouched; the soft light frame starting
+empty, its capability accepting and clamping energy, refusing extraction while simulation stored
+nothing, 80 FE per work cycle draining 100 FE to 20 and then to 0, the component being removed at 0,
+and the modifier switching off when it runs dry; and both stacks surviving NBT and network round trips
+with their component intact.
+
+The tooltip got its own temporary self-test on the same server (44 checks, removed again): a bare
+frame's tooltip lines are just the grey "no potion" line - no durability line, because it is not
+damageable; a swiftness frame's lines are `Work speed: +2` and then `item.forestry.durability` with
+`180`; a frame at damage 5 loses the durability line and keeps the modifier; each potion row of the
+table yields exactly one modifier line of its own and no vanilla potion effect line; a custom potion
+with speed + poison + weakness + water breathing yields the four lines in the table's order and the
+durability line after them, all of them unstyled; and the reference item `forestry:proven_frame` emits
+the same `item.forestry.durability` key unstyled, so both the key and the styling really are
+Forestry's. The line 0 of every tooltip (the display name) was excluded from the line comparisons.
+
+The icons were checked pixel by pixel against the vanilla sources they are built from (a one-off
+script, 55 assertions, all passing): every solid pixel of the three textures is identical to
+`forestry:item/proven_frame`, nothing is drawn outside that silhouette, all 48 window pixels of both
+soft light frames are the (half-scale) lamp texture and the two variants differ only inside the
+window with the lit one measurably brighter; the infusion frame's `layer0` leaves those same 48
+pixels empty while its overlay fills exactly them - every one of them pure grey in `[197, 255]` and
+equal to the remapped still-water sampling - so the overlay never overlaps the frame and the liquid
+covers the window without a gap; multiplying the overlay by `swiftness`, `poison`, `regeneration`
+and `water_breathing` keeps the potion's dominant colour channel and a visible brightness; and every
+texture the three models reference exists inside the built jar.
+
+## Alveary frame housing (蜂房组框架外壳)
+
+Forestry's alveary has **no frame slots**: only the apiary's three slots are worn out, which is why the
+Forester's Manual says "I still have not managed to stuff frames into a bee house or an alveary". This
+part adds the alveary's missing slot: a wall part that holds **one** frame.
+
+| Recipe | | |
+|:---:|:---:|:---:|
+| 木板 | 木棍 | 木板 |
+| 木棍 | 蜂房组 | 木棍 |
+| 木板 | 木棍 | 木板 |
+
+```text
+PSP
+SXS
+PSP
+```
+
+`P` = any `minecraft:planks`, `S` = `minecraft:stick`, `X` = `forestry:alveary_block`. The part sits in
+the `forestry:apiculture` creative tab directly after Forestry's own alveary parts, it is in
+`#minecraft:mineable/axe` like the rest of the structure, and the recipe ships a recipe-book unlock
+that fires once the player has held an alveary block.
+
+How it works:
+
+* Build it into an alveary like any other part: the exterior cells of the 3×3×3 box, not the top layer
+  and not the interior (those stay plain blocks). While the structure is incomplete a right-click
+  prints the pattern error, exactly like Forestry's own parts.
+* Right-click the part once the alveary is assembled to open a one-slot GUI. Only
+  `forestry.api.apiculture.hives.IHiveFrame` items fit - Forestry's untreated, impregnated, proven and
+  creative frames as well as this mod's 柔光框架 and 灌注框架. Everything else is refused by the slot
+  filter.
+* While a frame is in the slot its `IBeeModifier` is folded into the alveary's modifiers: production
+  speed, mutation chance, aging, territory, pollination, genetic decay, sealed, always active,
+  sunlight simulation, hellish, flowers and climate tolerance are all forwarded. The modifier reads the
+  slot on every query, so pulling the frame out stops its effect immediately and swapping frames needs
+  no reassembly.
+* Frames are worn by the alveary's work cycles, not by a timer:
+  `BeeHousingBeekeepingLogic#doProduction` calls `IBeeListener#wearOutEquipment(1)` once per cycle and
+  the part hands that point to `IHiveFrame#frameUsed` with the working queen - one point per cycle,
+  exactly what the apiary does. A frame that breaks on its last point leaves the slot empty; the mod's
+  soft light frame instead pays its 80 FE per cycle and stays in place.
+* The alveary has no production penalty of its own (the apiary multiplies by `0.1`), so a proven frame
+  (×2 production) doubles the alveary's production speed, while the same frame in an apiary takes its
+  `0.1` base to `0.2`.
+* The slot is persistent and drops with the part: `IMultiblockComponent.HasInventory` makes Forestry
+  save the frame in the part's NBT, and `BlockStructure` drops it when the part is broken. A NeoForge
+  item handler capability (`Capabilities.ItemHandler.BLOCK`) exposes the slot to automation, so pipes
+  and hoppers can insert and pull frames; the slot filter still applies.
+* The GUI is Forestry's `ContainerTile` + `GuiForestryTitled` pair, so it uses the same layout as the
+  other alveary part screens and shows the alveary's error ledger (no queen, no sky, ...). Its texture
+  is `assets/forestrytweaks/textures/gui/alveary_frame_housing.png`: Forestry's standard
+  player-inventory slice with a recessed 34×34 display that holds the one slot. The file is **256×256**
+  with the 176×166 GUI in its top-left corner, because
+  `GuiGraphics#blit(ResourceLocation, int, int, int, int, int, int)` always samples with a hardcoded
+  256×256 texture size - a 176×166 file gets stretched by 256/176 and every slot ends up next to its
+  drawn background instead of inside it.
+
+How the part joins the multiblock: it is an `AbstractAlvearyBlockEntity` (the "for addons"
+constructor) implementing `IAlvearyComponent.BeeModifier`, `IAlvearyComponent.BeeListener` and
+`IMultiblockComponent.HasInventory`. The declarative alveary pattern accepts every component whose
+pattern type id starts with `alveary_`, which the base class supplies (`alveary_part`), and
+`AlvearyController#bucketComponents` collects the modifier and listener by `instanceof` when the
+structure assembles, so no registration with Forestry is needed beyond the block and its block entity.
+
+Verification: a development self-test on a dedicated server (removed again afterwards), 30 checks, all
+passing:
+
+* the block, item, block entity type and menu register under `forestrytweaks:alveary_frame_housing`,
+  the block entity type accepts the block, and the menu type is the registered one;
+* a 3×3×3 alveary of plain blocks with a wooden slab cap assembles with the part in an exterior cell,
+  and the part's modifier and listener end up in the controller's sets;
+* the part's own inventory is the frame slot (one slot), it accepts a hive frame and rejects a stick;
+* no frame means no production bonus, a proven frame doubles production speed, and pulling it out
+  removes the bonus immediately;
+* one work cycle wears the frame by one point, no queen means no wear, and a frame that breaks on its
+  last point leaves the slot empty;
+* the frame survives a `saveAdditional`/`loadAdditional` round trip;
+* breaking the part drops the frame (checked on the world's item entities, in a ticking chunk);
+* the shaped recipe loads, matches its pattern and produces the part.
+
+The screen was also opened in the development client and screenshotted (that check is the reason the GUI
+texture is 256×256): the frame slot's 16×16 interior lands exactly on the menu's `(80,38)` slot inside
+the recessed display, the player inventory (rows at y=87/105/123, hotbar at 145) lines up with the drawn
+slot backgrounds, and the title is centred in the top row like Forestry's own part screens.
+
+## Alveary electrical parts (电刺激器 / 空中传输)
+
+Two more alveary wall parts, ported from Binnie's Mod - Extra Bees' **Electrical Stimulator**
+(电刺激器) and **Alveary Transmission** (空中传输) - through that mod's NeoForge 1.21.1 port. The pair
+is one feature in two blocks: the stimulator turns FE into bee modifiers by running a programmed
+**Forestry circuit board**, and the transmission is the part that feeds it from a single power line, so
+an alveary full of stimulators needs one cable instead of one per block face.
+
+Both are ordinary alveary parts: build them into the exterior of the assembled structure, like
+Forestry's own heater or sieve. They cannot go into the top layer or the interior, and they are in
+`#minecraft:mineable/axe` like the rest of the structure.
+
+### Recipes
+
+| 电刺激器 | | |
+|:---:|:---:|:---:|
+| 精制电路板 | 金粒 | 精制电路板 |
+| 金粒 | 蜂房组 | 金粒 |
+| | 闪耀电子管 | |
+
+```text
+KIK
+IXI
+ T
+```
+
+| 空中传输 | | |
+|:---:|:---:|:---:|
+| | 锡齿轮 | |
+| 锡齿轮 | 蜂房组 | 锡齿轮 |
+| | 锡齿轮 | |
+
+```text
+ G
+GXG
+ G
+```
+
+`K` = `forestry:refined_circuit_board`, `I` = `c:nuggets/gold`, `X` = `forestry:alveary_block`,
+`T` = `forestry:golden_electron_tube`, `G` = `c:gears/tin`. Both are the reference implementation's
+recipes; the tags are the common tags NeoForge and Forestry already fill (`c:gears/tin` holds
+`forestry:tin_gear`), as are all the ingredients. Each ships a recipe-book unlock that fires once the
+player has held an alveary block.
+
+### 电刺激器 / Alveary Stimulator
+
+The part is a **circuit socket fed by power**. Its one socket takes a circuit board programmed in this
+mod's *Electrical Stimulator* circuit layout, and while the part can pay the board's total draw, the
+board's programs are folded into the alveary's modifiers.
+
+**How a board is programmed.** Take a Forestry **Soldering Iron**, put an empty circuit board and
+electron tubes into its slots, and use the `<` / `>` buttons to select the *Electrical Stimulator*
+layout. The iron lists every registered layout, so the stimulator's layout appears next to Forestry's
+own farm/machine/engine layouts, and with it selected each of the fourteen tubes means one program. The
+board type decides how many programs fit, exactly as for a machine upgrade board: a basic board carries
+one tube, an intricate board four.
+
+| Electron tube | Circuit | Effect | FE / work cycle |
+|---|---|---|---|
+| 铁电子管 `iron_electron_tube` | Production Up I | production ×1.5 | 10 |
+| 钻石电子管 `diamantine_electron_tube` | Production Up II | production ×2.5 | 20 |
+| 青金石电子管 `lapis_electron_tube` | Flowering Up I | pollination ×1.5 | 10 |
+| 黑曜石电子管 `obsidian_electron_tube` | Lifespan Down I | aging ÷0.8, i.e. the queen lives 20% shorter | 10 |
+| 磷灰石电子管 `apatine_electron_tube` | Lifespan Up I | aging ÷1.5, i.e. the queen lives 50% longer | 10 |
+| 烈焰电子管 `blazing_electron_tube` | Hell | simulates a hellish climate (Nether bees work anywhere) | 15 |
+| 金电子管 `golden_electron_tube` | Mutation Up I | mutation chance ×1.5 | 15 |
+| 锡电子管 `tin_electron_tube` | Production Down I | territory ×0.4 and production ×0.9 | 10 |
+| 青铜电子管 `bronze_electron_tube` | Territory Up I | territory ×1.5 | 10 |
+| 铜电子管 `copper_electron_tube` | Rainproof | the bees work in the rain, like an alveary rain shield | 10 |
+| 硅电子管 `silicon_electron_tube` | Sunlight | simulates daylight, so a hive underground works like one in the open | 15 |
+| 末影电子管 `ender_electron_tube` | Night Shift | the bees work day and night | 15 |
+| 琥珀电子管 `amber_electron_tube` | Climate Control | ignores temperature and humidity (heater + fan + hygroregulator) | 25 |
+| 绿宝石电子管 `emerald_electron_tube` | Flower Source | provides flowers without a flower bed | 35 |
+
+The first nine are the reference implementation's, one program per tube. The last five are this mod's:
+they take the tubes Forestry's own circuits never use and give them the other half of `IBeeModifier` -
+the boolean questions about whether a place is *workable* at all, which the 1.12 machine never touched.
+That is also why they are priced higher than the numeric programs: a rain shield, a lighting block, a
+heater, a fan and a flower bed are things a player would otherwise build, so these tubes stand in for
+structure blocks instead of multiplying a number. Because they answer yes/no questions, two tubes that
+answer the same one do not stack, while two numeric programs do.
+
+Two rules apply to every program:
+
+* **Genetic decay ×1.5 per program.** A board with four programs raises the decay to `1.5^4 = 5.06x`,
+  so a stimulator is never free even when its programs look harmless. The circuit tooltips say so.
+* **The whole board is paid at once.** One work cycle (550 ticks, `IBeekeepingLogic.DEFAULT_WORK_THROTTLE`)
+  drains the *sum* of the fitted programs' draws, so a cheap program cannot ride along for free next to
+  an expensive one. The programs only apply while the buffer can pay that sum: at 59 FE a 60 FE board
+  does nothing, at 60 FE it runs, and after it has been drained it switches off until it is charged
+  again.
+
+The buffer is **1 000 FE**, accepts **500 FE** per offer and is **receive-only**: any FE source (cables,
+chargers, machine item slots) can fill it, but nothing can pull the energy back out - the part spends
+it itself. It is exposed as a NeoForge block energy capability, so no mod needs to know about the
+stimulator to charge it.
+
+The modifiers compose with the rest of the alveary in the usual way: Forestry folds every part's
+`IBeeModifier` into the housing's combined modifier, in sequence, so two Production Up boards multiply
+twice and a Lifespan Up board cancels part of a Lifespan Down board. The modifiers are re-read from the
+socket on every query (through a one-entry cache keyed on the socketed stack, because Forestry asks
+several times per bee tick), so a new board, a removed board and an empty buffer all take effect
+immediately.
+
+**The board is a Forestry socket, not an inventory slot** - the same widget a Forestry machine uses for
+its chipset. With a programmed board on the cursor, click the socket; it goes in and the cursor stack
+shrinks by one. To take it back out, click the socket with a **Soldering Iron** in hand: the board goes
+to the player inventory and the iron loses one point of durability. A board that is not programmed in
+the stimulator layout is refused (Forestry's own machine upgrade boards included), and no pipe or hopper
+can reach the socket in either direction. Breaking the part drops the socketed board.
+
+The board is not consumed; only the FE is spent - there was no board wear in 1.12 either.
+
+A socket is not a menu slot, so nothing syncs it for free: the part writes the socket into its chunk
+update tag (`getUpdateTag`, because the vanilla default is an *empty* tag and
+`MultiblockTileEntityBase` only adds the multiblock payload), and Forestry's `PacketSocketUpdate`
+carries every later change. Without that first half a reloaded chunk hands the client a part whose
+socket looks empty - and a board that is already inside then refuses a second click, because the
+server's socket is not empty at all. Forestry's own machines do not need it because their board is a
+slot.
+
+The GUI is the reference window itself: Binnie's 1.12 `guistimulator.png` - a 256×256 sheet whose
+top-left 176×144 is the GUI - copied into
+`assets/forestrytweaks/textures/gui/alveary_stimulator.png` and drawn the way that mod's 1.21.1 port
+draws it.
+
+* **Window.** The port keeps the legacy art and puts a 40-pixel header strip above it, so the window is
+  176×179 instead of Forestry's 176×166: the sheet's top border is blitted once, the strip's side columns
+  are stretched down it, the strip between them is plain panel, and the legacy body - from texture row 5,
+  so its border is not drawn twice - starts 35 pixels lower. Everything baked into the art moves with it:
+  the player inventory frames at the legacy rows 63/81/99/121 are drawn at **98/116/134/156**, which is
+  where the menu puts its slots. That header is also why the screen extends `GuiForestry` rather than
+  `GuiForestryTitled`: the port's title sits on the strip at **y=28**, not on Forestry's y=6 title row.
+* **Socket.** At `(44,72)` - legacy `(44,37)` - drawn by the window's own art, which is shipped exactly
+  as Binnie has it: that sheet already carries a socket cell there (a little lower and clipped compared
+  with the 1.12 original's 18×18 recess at `(43,36)`, whose 16×16 plate starts at the item origin), and
+  this mod does not retouch it. Forestry's `SocketWidget` paints the board over that cell; its tooltip is
+  the board's program list plus Forestry's *Removable with a Soldering Iron* line, or *Empty socket* when
+  it is empty, and its clicks are handled by Forestry's `ContainerSocketedHelper` on the server, so this
+  mod only validates what may be socketed.
+* **Energy gauge.** At `(70,72)` - legacy `(70,37)` - 72×16, exactly over the recess the art already has.
+  It is Binnie's `ControlEnergyBar` layering, ported in `GuiEnergyBar`: the dark frame, then the charge
+  tinted from red at empty through yellow at half to green at full, then the glass highlight, all cut as a
+  one-pixel nine-slice from Binnie's `craftgui-controls.png` (also copied verbatim, as
+  `assets/forestrytweaks/textures/gui/craftgui-controls.png`). Hovering it shows `Energy: x / 1000 FE`
+  and `Usage: n FE per work cycle`; like Forestry's own widget tooltips it stays hidden while the player
+  carries a stack.
+* **Ledger.** The error ledger belongs to the part, not to the alveary, and it carries the port's two
+  conditions in the port's order: an empty socket reports Forestry's `NO_CIRCUIT_BOARD`, and a board the
+  buffer cannot pay for reports `NO_POWER` - both with Forestry's own sprites, titles and help text. There
+  is no status line: the gauge shows the charge and the ledger shows what is missing, as in the original.
+* Both sheets are **256×256**, which is what `GuiGraphics#blit(ResourceLocation, int, int, int, int, int,
+  int)` samples with regardless of the file's size.
+
+Block art: both parts use **Binnie's Mod's own textures** - `stimulator_side.png` and
+`transmission_side.png` from that mod's 1.21.1 port, copied verbatim (byte-identical, SHA-256 checked) as
+`assets/forestrytweaks/textures/block/alveary_stimulator.png` and `.../alveary_transmission.png`. Each
+file is a complete 16×16 cube face - creviced wooden alveary side with the machine face worked into it,
+the stimulator's glowing coil and the transmission's grid - so there is no separate overlay and no plate
+to place. Binnie's part models point their `end` faces at a `*_top` file that is pixel-identical to the
+`*_side` one, so this mod uses the single file on all six faces (`minecraft:block/cube_all`), which
+renders exactly what Binnie's two files do. Binnie's Mods and Forestry Tweaks are both LGPL-3.0, so the
+art is redistributed under the same terms as the code.
+
+### 空中传输 / Alveary Transmission
+
+A power distributor and nothing else: it **never touches the bees**, so powering it changes no
+production, territory or lifespan by itself. It buffers up to **1 000 FE** (500 FE per offer, receive
+only) and hands what it holds to the other parts of the assembled alveary **once per tick**, through
+the NeoForge block energy capability, so any addon part with an FE buffer can be fed, not just this
+mod's stimulator.
+
+* Each sweep splits the output limit (500 FE) evenly over the parts that can receive, and stops when
+  the buffer is empty, so one transmission can run several stimulators at once.
+* A transmission **never feeds another transmission**: both buffers are receive-only, so two of them
+  would push the same energy back and forth forever. This is the one behavioural addition to the
+  reference implementation, which had the same infinite-bounce hole.
+* It only walks the multiblock while it actually holds energy, like the original, so an idle
+  transmission costs nothing.
+* It has **no GUI**: right-clicking it opens the alveary's own screen, exactly like Forestry's parts,
+  because there is nothing to show or configure.
+* Block art: `textures/block/alveary_transmission.png` is Binnie's own transmission face (see the
+  stimulator's note above): the same creviced alveary side with the power grid worked into it.
+
+### How the parts join the multiblock
+
+Both are `AbstractAlvearyBlockEntity` subclasses (this mod's third one is the frame housing) in
+`content/alveary`:
+
+* `AlvearyPartBlock` is the shared block plumbing: Forestry's `BlockStructure` (right-click opens the
+  part's menu once assembled, the placer becomes the owner, a part's inventory drops when it breaks)
+  plus the anchor-only multiblock ticker and the neighbour check that re-validates the structure.
+* The alveary discovers parts by interface while it collects its components: the stimulator is
+  `IAlvearyComponent.BeeModifier` + `IAlvearyComponent.BeeListener`, and the transmission is
+  `IAlvearyComponent.Active` (the hook that gives an alveary part a server tick). The stimulator's board
+  is a Forestry `ISocketable` socket - the interface Forestry's own machines implement - so the board is
+  neither a part inventory nor a menu slot: it is saved in the part's own NBT and dropped by
+  `AlvearyStimulatorBlock#onRemove`, which is the same thing `BlockBase` does for a Forestry machine.
+  No registration with Forestry is needed beyond the block, its block entity and - for the stimulator -
+  its menu.
+* The fourteen circuits and the layout are registered in `integration/ForestryTweaksPlugin#registerCircuits`,
+  which is Forestry's own extension point; the soldering iron therefore knows the layout without this
+  mod patching anything.
+
+### Verification
+
+Temporary development-server self-tests (removed again afterwards), all passing. The first run checked
+`148` assertions for the whole port - registration, layout and circuits, the programs' numbers, the
+buffers, persistence, a real 3×3×3 alveary and the recipes. When the board moved from a menu slot into a
+Forestry socket, a second run re-checked everything that touches the board (`46` assertions), and a third
+`11`-check run repeated the socket, refusal, buffer, work-cycle, NBT and drop checks against the build
+that ships:
+
+* the layout is registered with `forestrytweaks:stimulator` as its socket type, and a board soldered in
+  that layout parses back carrying the same socket type - which is exactly the value the stimulator
+  accepts and no Forestry machine does;
+* the part has one socket, it starts empty, its socket type is `StimulatorCircuit.SOCKET_TYPE`, a board
+  clicks in and stays a single item, and its programs are read in circuit order (two tubes -> two
+  programs, a 30 FE draw);
+* a Forestry machine upgrade board and a plain item are both refused and leave the socketed board
+  untouched;
+* the socket is **not** an item capability, so no pipe or hopper can reach it, while the energy
+  capability still takes 500 FE per offer, fills the 1 000 FE buffer, accepts nothing when full and
+  refuses extraction;
+* one work cycle drains the whole board's draw, a buffer that cannot pay stops at what it could not pay
+  and switches the programs off, and the next cycle empties it;
+* replacing the board changes the programs and the draw (15 FE for a Hell board), and the modifier
+  reports hellish only while 15 FE is in the buffer - so the socketed programs reach the alveary;
+* board and charge survive a `saveAdditional`/`loadAdditional` round trip;
+* the menu holds only the 36 player slots (the board is no longer a slot), `hasBoard()` follows the
+  socket, and charge, capacity and draw still read correctly;
+* breaking the part drops exactly one board as an item entity.
+
+The first run's multiblock checks are unaffected by the socket change: the part still joins as
+`IAlvearyComponent.BeeModifier` + `BeeListener`, and assembly, modifier chaining, the transmission's
+per-tick distribution and the recipes are untouched code paths.
+
+The socket's trip to the client got its own small run, because a socket is not a menu slot and 1.21's
+`BlockEntity#getUpdateTag` returns an empty tag - the board was in the save while the client showed an
+empty socket, and a second board was then refused because the server's socket was full. `5` assertions on
+the shipping build: the board goes into the socket, the chunk update tag carries `Sockets` and `Power`, and
+a freshly constructed part that runs `handleUpdateTag` on that tag - the client's own path - sees the board
+and reports `hasBoard()`.
+
+One detail the drop check has to account for: item entities only exist in a chunk that is *entity
+ticking*, and the test server has no players, so the world part of the test force-loads the test chunk
+and checks on tick 20. Without that, `Block.popResource` is never reached with an addable entity and the
+check sees an empty world - for a frame housing part, a vanilla dirt drop and a manual `addFreshEntity`
+alike, which is how the behaviour was pinned down.
+
+The GUI was verified geometrically and against a rendered mock rather than by screenshot
+(`build/preview_gui.py`, a development script, `20/20` assertions): both sheets are byte-identical to
+Binnie's files - the window sheet is that mod's own `guistimulator.png`, untouched, so the socket draws
+exactly the cell the port has at `(44,38)`-`(59,51)`, and the screen's own constants still mirror the 1.12
+original's recess at `(43,36)` with its 16×16 plate at the item origin `(44,37)`; the bar recess is
+exactly 72×16 at `(70,37)` with its dark top-left and light bottom-right bevel; the inventory frames start
+at `x=8+18k` on the legacy rows 63/81/99/121; and every geometry constant in the Java sources
+(`HEADER_HEIGHT=40`, `BORDER=5`, `CONTENT_OFFSET=35`, `IMAGE_HEIGHT=179`, the menu's
+`PLAYER_INVENTORY_Y=98`) agrees with those pixels. The script then renders the expanded window with the
+gauge at 0 %, 25 %, 60 % and 100 % from the same arithmetic `GuiEnergyBar` uses, so the layout cannot
+drift away from the art. Both block textures were verified as exact copies of Binnie's files (SHA-256 of
+each shipped PNG equals the source), and both block models resolve to `minecraft:block/cube_all` against
+them.
+
+The program table is checked against Forestry's own data instead of being trusted (`build/check_jar.py`):
+the fourteen electron tubes the thermionic fabricator can make and the fourteen programs match one for
+one, and no program shares an id or a tube - so the *Electrical Stimulator* layout owns every tube
+Forestry ships. The two names Forestry's language file still carries without an item
+(`electron_tube_rubber`, `electron_tube_orchid`) are deliberately left alone. `build/check_lang.mjs`
+reads the program ids off the enum and derives the runtime-built tooltip keys from the same file, so a
+new program that forgets a translation fails the check instead of printing a raw key in game.
+
 ## Offline / restricted network
 
 This machine cannot reach `maven.neoforged.net`, so the build is set up to work without it:
@@ -452,7 +1005,7 @@ gradle.properties                  versions, mod metadata, Forestry + Create coo
 build.gradle                       NeoForge/ModDevGradle setup, Forestry + Create dependencies, runs
 settings.gradle                    pluginManagement repositories + project name
 src/main/java/com/forestrytweaks/
-    ForestryTweaks.java            mod entry point (@Mod), registers the config, gates Create
+    ForestryTweaks.java            mod entry point (@Mod): registers config, content and Create gate
     config/ForestryTweaksConfig.java        common config (rainMode, biomeModeSkyLight,
                                             ignobleDecayStartGeneration, beekeeper.*)
     config/RainMode.java           VANILLA / POSITION / BIOME
@@ -465,6 +1018,39 @@ src/main/java/com/forestrytweaks/
     mixin/AlvearyControllerMixin.java              alveary rain check
     mixin/BeeMixin.java                            ignoble decay threshold
     mixin/EventHandlerApicultureMixin.java         keeps Forestry's beekeeper AI out
+    content/ModItems.java                  the two frames + their creative tab entries
+    content/ModDataComponents.java         soft_light_frame_energy (persistent + synced)
+    content/ModRecipes.java                the infusion frame recipe serializer
+    content/ModCapabilities.java           FE item capability of the soft light frame; frame slot of
+                                           the alveary frame housing; FE buffers of the stimulator and
+                                           the transmission (the stimulator's board is a socket, not an
+                                           inventory, so it has no item capability)
+    content/ModBlocks.java                 the three alveary part blocks + their block items
+    content/ModBlockEntities.java          their block entity types
+    content/ModMenus.java                  the frame housing and stimulator menu types
+    content/SoftLightFrameItem.java        柔光框架: sunlight simulation, 1 MFE buffer, 80 FE/cycle
+    content/InfusionFrameItem.java         灌注框架: potion component, durability, tooltip
+    content/InfusionModifiers.java         potion effect -> IBeeModifier mapping
+    content/InfusionFrameRecipe.java       shaped recipe that copies the potion into the result
+    content/alveary/AlvearyPartBlock.java                 shared part plumbing: ticker + neighbour check
+    content/alveary/AlvearyFrameHousingBlock.java        蜂房组框架外壳: block, GUI opening, drops
+    content/alveary/AlvearyFrameHousingBlockEntity.java  the part: one frame slot, modifier, wear
+    content/alveary/FrameHousingModifier.java            forwards the frame's IBeeModifier
+    content/alveary/AlvearyFrameHousingMenu.java         one-slot menu above the player inventory
+    content/alveary/AlvearyStimulatorBlock.java          电刺激器: block, socket drop, tooltip
+    content/alveary/AlvearyStimulatorBlockEntity.java    the part: board socket, 1 kFE buffer, per-cycle draw
+    content/alveary/StimulatorModifier.java              folds the board's programs into the alveary
+    content/alveary/AlvearyStimulatorMenu.java           socket + FE readouts for the screen
+    content/alveary/AlvearyTransmissionBlock.java        空中传输: block, tooltip
+    content/alveary/AlvearyTransmissionBlockEntity.java  the part: buffer + per-tick distribution
+    content/alveary/AlvearyPartEnergy.java               the receive-only FE buffer both parts use
+    content/alveary/circuit/StimulatorProgram.java       the fourteen programs (each an IBeeModifier)
+    content/alveary/circuit/StimulatorCircuit.java       one program as a Forestry circuit + the layout
+    content/alveary/circuit/StimulatorCircuits.java      circuit board -> mounted programs
+    client/ForestryTweaksClient.java       charged item model property + potion tint (client only)
+    client/AlvearyFrameHousingScreen.java  the frame housing GUI (client only)
+    client/AlvearyStimulatorScreen.java    the stimulator GUI: socket widget, charge bar, status line
+                                           (client only)
     integration/ForestryTweaksPlugin.java   Forestry plugin (ServiceLoader)
     integration/create/CreateIntegration.java       Create hook-up (RegisterEvent)
     integration/create/BeeItemAttributes.java       attribute type ids + the unit-attribute factory
@@ -480,7 +1066,27 @@ src/main/resources/
     forestrytweaks.mixins.json     mixin config (listed in neoforge.mods.toml)
     META-INF/neoforge.mods.toml    mod metadata + dependencies + mixin declarations
     META-INF/services/forestry.api.plugin.IForestryPlugin
-    assets/forestrytweaks/lang/en_us.json, zh_cn.json   Create attribute filter strings
+    assets/forestrytweaks/lang/en_us.json, zh_cn.json   filter + item + block strings
+    assets/forestrytweaks/models/item/soft_light_frame.json       unlit lamp in the frame, override on charge
+    assets/forestrytweaks/models/item/soft_light_frame_on.json    lit lamp in the frame
+    assets/forestrytweaks/models/item/infusion_frame.json         frame + liquid, liquid on layer1 (tinted)
+    assets/forestrytweaks/textures/item/soft_light_frame.png      proven frame + unlit lamp window
+    assets/forestrytweaks/textures/item/soft_light_frame_on.png   proven frame + lit lamp window
+    assets/forestrytweaks/textures/item/infusion_frame.png        proven frame, opening left empty
+    assets/forestrytweaks/textures/item/infusion_frame_overlay.png  the liquid that fills the opening, tinted by the potion
+    assets/forestrytweaks/blockstates/alveary_frame_housing.json  the part's block state
+    assets/forestrytweaks/models/block/alveary_frame_housing.json the part's block model
+    assets/forestrytweaks/models/item/alveary_frame_housing.json  the part's item model
+    assets/forestrytweaks/textures/block/alveary_frame_housing.png the part's side texture
+    assets/forestrytweaks/textures/gui/alveary_frame_housing.png   the part's GUI background
+    data/forestrytweaks/recipe/soft_light_frame.json              the soft light frame recipe
+    data/forestrytweaks/recipe/infusion_frame.json                infusion recipe (custom type)
+    data/forestrytweaks/recipe/alveary_frame_housing.json         the frame housing recipe
+    data/forestrytweaks/advancement/recipes/misc/*.json           recipe-book unlocks (frames)
+    data/forestrytweaks/advancement/recipes/building_blocks/alveary_frame_housing.json
+    data/forestrytweaks/loot_table/blocks/alveary_frame_housing.json   the part's block drop
+    data/forestrytweaks/tags/item/potions.json                     potion tag (normal/splash/lingering)
+    data/minecraft/tags/block/mineable/axe.json                    axes mine the part faster
     pack.mcmeta
 ```
 
