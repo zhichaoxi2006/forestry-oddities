@@ -25,7 +25,7 @@ public final class ForestryTweaksConfig {
     private static final ModConfigSpec.IntValue IGNOBLE_DECAY_START_GENERATION;
 
     private static final boolean DEFAULT_BEEKEEPER_ENABLED = true;
-    private static final boolean DEFAULT_BEEKEEPER_TEND_PLAYER_OWNED = false;
+    private static final boolean DEFAULT_BEEKEEPER_TEND_PLAYER_OWNED = true;
     private static final boolean DEFAULT_BEEKEEPER_REQUIRE_SAME_SPECIES = true;
     private static final int DEFAULT_BEEKEEPER_SEARCH_RADIUS = 16;
 
