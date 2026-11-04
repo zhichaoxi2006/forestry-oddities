@@ -22,17 +22,22 @@ import java.util.List;
  *
  * <table>
  *     <tr><th>Potion</th><th>Modifier</th></tr>
- *     <tr><td>Speed</td><td>{@code +2 x level} production speed</td></tr>
- *     <tr><td>Poison</td><td>{@code +10^level} aging, i.e. the queen loses that much more lifespan per work cycle</td></tr>
+ *     <tr><td>Speed</td><td>production speed {@code x (2 x level)}</td></tr>
+ *     <tr><td>Poison</td><td>aging {@code x 10^level}, i.e. the queen loses that many times more lifespan per work cycle</td></tr>
  *     <tr><td>Regeneration</td><td>no aging at all</td></tr>
- *     <tr><td>Weakness</td><td>{@code +10^level} percentage points of mutation chance</td></tr>
+ *     <tr><td>Weakness</td><td>mutation chance {@code x 10^level}</td></tr>
  *     <tr><td>Water Breathing</td><td>bees work in the rain without {@code TOLERATES_RAIN}</td></tr>
  * </table>
  *
- * <p>"Level" is the level the vanilla tooltip shows, i.e. {@code amplifier + 1}: Speed I gives
- * {@code +2}, Speed II gives {@code +4}. A potion with several of these effects (a custom potion, or
- * a splash potion with mixed effects) gets all of them; the exponents are capped so a hacked
- * amplifier cannot overflow the float.</p>
+ * <p>"Level" is the level the vanilla tooltip shows, i.e. {@code amplifier + 1}: Speed I multiplies
+ * production speed by {@code 2}, Speed II by {@code 4}. A potion with several of these effects (a
+ * custom potion, or a splash potion with mixed effects) gets all of them; the exponents are capped so
+ * a hacked amplifier cannot overflow the float.</p>
+ *
+ * <p>The modifiers are multipliers, so a bonus the potion does not provide stays at {@code 1.0} and
+ * changes nothing: only a frame that really carries a speed effect scales the production speed, and a
+ * poison-free frame leaves the aging alone. That is why the fields are initialised to {@code 1.0} and
+ * every "has this effect" test compares against {@code 1.0} rather than {@code 0.0}.</p>
  */
 public record InfusionModifiers(float speedBonus, float agingBonus, boolean ignoresAging, float mutationBonus, boolean rainProof)
     implements IBeeModifier {
@@ -40,9 +45,11 @@ public record InfusionModifiers(float speedBonus, float agingBonus, boolean igno
     private static final int MAX_EXPONENT = 6;
 
     public static InfusionModifiers of(PotionContents contents) {
-        float speed = 0.0F;
-        float aging = 0.0F;
-        float mutation = 0.0F;
+        // 1.0 is the neutral factor of a multiplier: an effect the potion does not carry must not
+        // touch the value Forestry passes in.
+        float speed = 1.0F;
+        float aging = 1.0F;
+        float mutation = 1.0F;
         boolean ignoresAging = false;
         boolean rainProof = false;
 
@@ -53,15 +60,15 @@ public record InfusionModifiers(float speedBonus, float agingBonus, boolean igno
             // The registry object is a singleton, so identity comparison avoids the deprecated
             // Holder#is(Holder) overload (and the tag/registry lookups it would need).
             if (effect == MobEffects.MOVEMENT_SPEED.value()) {
-                speed += 2.0F * level;
+                speed *= 2.0F * level;
             } else if (effect == MobEffects.POISON.value()) {
-                aging += powerOfTen(level);
+                aging *= powerOfTen(level);
             } else if (effect == MobEffects.REGENERATION.value()) {
                 // "Cancels the aging process" wins over any aging bonus, so a poison + regeneration
                 // potion does not age the queen at all.
                 ignoresAging = true;
             } else if (effect == MobEffects.WEAKNESS.value()) {
-                mutation += powerOfTen(level);
+                mutation *= powerOfTen(level);
             } else if (effect == MobEffects.WATER_BREATHING.value()) {
                 rainProof = true;
             }
@@ -75,8 +82,8 @@ public record InfusionModifiers(float speedBonus, float agingBonus, boolean igno
     }
 
     public boolean isEmpty() {
-        return this.speedBonus == 0.0F && this.agingBonus == 0.0F && !this.ignoresAging
-            && this.mutationBonus == 0.0F && !this.rainProof;
+        return this.speedBonus <= 1.0F && this.agingBonus <= 1.0F && !this.ignoresAging
+            && this.mutationBonus <= 1.0F && !this.rainProof;
     }
 
     @Override
@@ -109,15 +116,15 @@ public record InfusionModifiers(float speedBonus, float agingBonus, boolean igno
      * {@code HiveFrameItem.HiveFrameBeeModifier#addInformation} adds for Forestry's own frames.
      */
     public void appendTooltip(List<Component> tooltip) {
-        if (this.speedBonus > 0.0F) {
+        if (this.speedBonus > 1.0F) {
             tooltip.add(line("item.forestrytweaks.infusion_frame.modifier.speed", Math.round(this.speedBonus)));
         }
         if (this.ignoresAging) {
             tooltip.add(line("item.forestrytweaks.infusion_frame.modifier.no_aging"));
-        } else if (this.agingBonus > 0.0F) {
+        } else if (this.agingBonus > 1.0F) {
             tooltip.add(line("item.forestrytweaks.infusion_frame.modifier.aging", Math.round(this.agingBonus)));
         }
-        if (this.mutationBonus > 0.0F) {
+        if (this.mutationBonus > 1.0F) {
             tooltip.add(line("item.forestrytweaks.infusion_frame.modifier.mutation", Math.round(this.mutationBonus)));
         }
         if (this.rainProof) {
