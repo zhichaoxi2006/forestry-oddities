@@ -81,7 +81,7 @@ public record InfusionModifiers(float speedBonus, float agingBonus, boolean igno
 
     @Override
     public float modifyProductionSpeed(IGenome genome, float currentSpeed) {
-        return currentSpeed + this.speedBonus;
+        return currentSpeed * this.speedBonus;
     }
 
     @Override
@@ -89,14 +89,14 @@ public record InfusionModifiers(float speedBonus, float agingBonus, boolean igno
         if (this.ignoresAging) {
             return 0.0F;
         }
-        return currentAging + this.agingBonus;
+        return currentAging * this.agingBonus;
     }
 
     @Override
     public float modifyMutationChance(IGenome genome, IGenome mate, IMutation<IBeeSpecies> mutation, float currentChance) {
         // The chance is expressed in percent and Forestry treats anything at or below 100 as a
         // probability, so the bonus is clamped instead of overflowing the scale.
-        return Math.min(100.0F, currentChance + this.mutationBonus);
+        return Math.min(100.0F, currentChance * this.mutationBonus);
     }
 
     @Override
