@@ -80,7 +80,6 @@
   "block.forestrytweaks.alveary_stimulator.usage": "用电子增产器布局焊接电路板后点击装入插槽，并为部件充入 FE。",
   "block.forestrytweaks.alveary_transmission": "空中传输",
   "block.forestrytweaks.alveary_transmission.desc": "把 FE 交给蜂房组其他部件的蜂房组部件。",
-  "block.forestrytweaks.alveary_transmission.usage": "接入 FE 后，会把电力分配给同一蜂房组中的电刺激器。",
   "forestrytweaks.alveary_stimulator.energy": "能量：%1$s / %2$s FE",
   "forestrytweaks.alveary_stimulator.usage": "消耗：每工作周期 %1$s FE",
   "forestrytweaks.stimulator.increase": "将 %1$s 提高 %2$s %%",

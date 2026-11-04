@@ -41,7 +41,5 @@ public class AlvearyTransmissionBlock extends AlvearyPartBlock {
         super.appendHoverText(stack, context, tooltip, flag);
         tooltip.add(Component.translatable("block.forestrytweaks.alveary_transmission.desc")
             .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("block.forestrytweaks.alveary_transmission.usage")
-            .withStyle(ChatFormatting.DARK_GRAY));
     }
 }

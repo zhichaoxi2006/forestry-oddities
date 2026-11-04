@@ -78,7 +78,6 @@
   "block.forestrytweaks.alveary_stimulator.usage": "Solder a board with the Electrical Stimulator layout, click it into the socket, and charge the part with FE.",
   "block.forestrytweaks.alveary_transmission": "Alveary Transmission",
   "block.forestrytweaks.alveary_transmission.desc": "An alveary part that hands Forge Energy to the other parts of the alveary.",
-  "block.forestrytweaks.alveary_transmission.usage": "Feed it FE: it distributes the power among the alveary's stimulators.",
   "forestrytweaks.alveary_stimulator.energy": "Energy: %1$s / %2$s FE",
   "forestrytweaks.alveary_stimulator.usage": "Usage: %1$s FE per work cycle",
   "forestrytweaks.stimulator.increase": "Increases %1$s by %2$s%%",
