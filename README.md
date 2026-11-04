@@ -511,24 +511,25 @@ frame everything it needs:
 
 | Potion | Modifier |
 |---|---|
-| 速度 Speed | `+2 x level` production speed (Speed I `+2`, Speed II `+4`) |
-| 中毒 Poison | `+10^level` aging, i.e. the queen loses that much more lifespan per work cycle |
+| 速度 Speed | production speed `x (2 x level)` (Speed I `x2`, Speed II `x4`) |
+| 中毒 Poison | aging `x 10^level`, i.e. the queen loses that many times more lifespan per work cycle |
 | 再生 Regeneration | cancels aging entirely (`modifyAging` returns `0`) |
-| 虚弱 Weakness | `+10^level` percentage points of mutation chance |
+| 虚弱 Weakness | mutation chance `x 10^level` |
 | 水下呼吸 Water Breathing | sealed housing: bees work in the rain without `TOLERATES_RAIN` (`isSealed()`) |
 
 Details that follow from that:
 
 * "Level" is the level the potion tooltip shows, `amplifier + 1`.
-* A potion with several of the effects (custom or splash potions) gets all of them; bonuses of the
-  same effect stack. Regeneration wins over Poison, so poison + regeneration does not age the queen.
+* A potion with several of the effects (custom or splash potions) gets all of them; multipliers of
+  the same effect stack. Regeneration wins over Poison, so poison + regeneration does not age the queen.
 * Exponents are capped at `10^6` and the mutation chance at `100` so a hacked amplifier cannot
   overflow the float or the percentage scale. Weakness II is therefore already a guaranteed mutation.
-* Speed is an additive bonus, not a multiplier: the apiary's own `0.1x` modifier is first in
+* Speed is a multiplier, not an additive bonus: the apiary's own `0.1x` modifier is first in
   `ApiaryBlockEntity#getBeeModifiers`, then the frames are applied, so a bee whose `SPEED` allele is
-  `1` produces at `0.1 + 2 = 2.1` with a Speed I frame. The bonus scales with the potion level only,
-  it does not multiply the bee's own speed. (Forestry's own frames multiply, but that is a different
-  design: `+2 x level` is what the design note asks for.)
+  `1` produces at `0.1 x 2 = 0.2` with a Speed I frame (`0.1 x 4 = 0.4` with Speed II). A potion that
+  carries none of the table's effects leaves every value at its neutral `x1`, so the frame never
+  zeroes anything out: `of()` starts the multipliers at `1.0`, and the tooltip and `isEmpty()` ask
+  `> 1.0` / `<= 1.0` for the same reason.
 * **Colour = the potion's colour.** The icon is the same 标定框架 silhouette as the soft light
   frame, with its opening filled by liquid and nothing else: no bottle, no cork, the whole 8x6
   window is liquid. The liquid is vanilla's still-water texture sampled exactly like the lamp (half
@@ -548,7 +549,7 @@ Details that follow from that:
   per modifier, then `item.forestry.durability` with the maximum uses - and only while the frame is
   undamaged, because a worn frame shows the vanilla durability bar instead. A proven frame therefore
   reads `Production: 2.0x / Genetic Decay: 0.3x / Durability: 720` and an infusion frame reads
-  `Work speed: +2 / Durability: 180`, the durability line in Forestry's own words. The potion's
+  `Work speed: x2 / Durability: 180`, the durability line in Forestry's own words. The potion's
   effect list (vanilla's `addPotionTooltip`) is **not** repeated: on an apiary those effects *are* the
   modifier lines, and the tinted window already shows which potion it was. A frame whose potion
   contributes none of the table's effects (the empty creative-tab frame, a water bottle) gets one
@@ -571,8 +572,8 @@ afterwards) covered: both items and the data component registered under the expe
 JSON and the infusion recipe being found by `RecipeType.CRAFTING`; matching a normal and a splash
 potion grid and rejecting a non-potion and an empty grid; `assemble` producing an infusion frame with
 the potion component, `MAX_DAMAGE` 180 and damage 0 for a 3:00 swiftness potion; the recipe surviving a
-`RegistryFriendlyByteBuf` round trip; every potion row of the table (`swiftness` `+2`, strong
-swiftness `+4`, poison `+10` aging, strong poison `+100`, regeneration aging `0`, weakness `+10`
+`RegistryFriendlyByteBuf` round trip; every potion row of the table (`swiftness` `x2`, strong
+swiftness `x4`, poison `x10` aging, strong poison `x100`, regeneration aging `0`, weakness `x10`
 mutation and its `100` clamp, water breathing `isSealed`); durability 180/45/90/180 for
 swiftness/poison/weakness/water breathing and 1 for a potion with no effects; a 180-cycle frame
 breaking exactly on its 180th use; a bare frame being left untouched; the soft light frame starting
@@ -583,7 +584,7 @@ with their component intact.
 
 The tooltip got its own temporary self-test on the same server (44 checks, removed again): a bare
 frame's tooltip lines are just the grey "no potion" line - no durability line, because it is not
-damageable; a swiftness frame's lines are `Work speed: +2` and then `item.forestry.durability` with
+damageable; a swiftness frame's lines are `Work speed: x2` and then `item.forestry.durability` with
 `180`; a frame at damage 5 loses the durability line and keeps the modifier; each potion row of the
 table yields exactly one modifier line of its own and no vanilla potion effect line; a custom potion
 with speed + poison + weakness + water breathing yields the four lines in the table's order and the
