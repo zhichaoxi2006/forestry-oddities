@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "forestrytweaks:block/alveary_stimulator"
+  }
+}
