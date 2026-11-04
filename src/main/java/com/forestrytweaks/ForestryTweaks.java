@@ -1,13 +1,22 @@
 package com.forestrytweaks;
 
 import com.forestrytweaks.apiculture.BeekeeperEvents;
+import com.forestrytweaks.client.ForestryTweaksClient;
 import com.forestrytweaks.config.ForestryTweaksConfig;
+import com.forestrytweaks.content.ModBlockEntities;
+import com.forestrytweaks.content.ModBlocks;
+import com.forestrytweaks.content.ModCapabilities;
+import com.forestrytweaks.content.ModDataComponents;
+import com.forestrytweaks.content.ModItems;
+import com.forestrytweaks.content.ModMenus;
+import com.forestrytweaks.content.ModRecipes;
 import com.forestrytweaks.integration.create.CreateIntegration;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +26,9 @@ import org.slf4j.LoggerFactory;
  *
  * <p>Forestry: Community Edition is a hard dependency (see {@code gradle.properties} and
  * {@code META-INF/neoforge.mods.toml}), so its API is always available here and can be referenced
- * directly. Content registration goes through
+ * directly. Content is registered below through this mod's own {@code DeferredRegister}s
+ * ({@link com.forestrytweaks.content.ModItems}, {@link com.forestrytweaks.content.ModDataComponents},
+ * {@link com.forestrytweaks.content.ModRecipes}); Forestry-specific hooks belong to
  * {@link com.forestrytweaks.integration.ForestryTweaksPlugin}, which Forestry discovers with
  * {@link java.util.ServiceLoader}.</p>
  *
@@ -49,6 +60,21 @@ public final class ForestryTweaks {
         // dedicated servers both read it locally; values are re-read on use, so edits apply live.
         modContainer.registerConfig(ModConfig.Type.COMMON, ForestryTweaksConfig.SPEC);
 
+        // Content: the apiary frames from TODO.md (content.*) and the three alveary parts
+        // (content.alveary): the frame housing plus the stimulator and transmission ported from
+        // Binnie's Mod. Data components and the recipe serializer have to be registered before the
+        // items are built, hence the order; blocks before their block entities so the block entity
+        // type can name an already registered block.
+        ModDataComponents.register(modBus);
+        ModRecipes.register(modBus);
+        ModItems.register(modBus);
+        ModBlocks.register(modBus);
+        ModBlockEntities.register(modBus);
+        ModMenus.register(modBus);
+        modBus.addListener(ModItems::addToCreativeTabs);
+        modBus.addListener(ModBlocks::addToCreativeTabs);
+        modBus.addListener(ModCapabilities::registerCapabilities);
+
         // Optional Create integration. Referencing CreateIntegration in the guarded branch keeps the
         // Create classes from ever being loaded when Create is not installed.
         if (ModList.get().isLoaded(CreateIntegration.CREATE_MOD_ID)) {
@@ -62,8 +88,13 @@ public final class ForestryTweaks {
         // apiary AI next to it.
         NeoForge.EVENT_BUS.addListener(BeekeeperEvents::onEntityJoinLevel);
 
-        // Register content, tweak hooks and config here. Forestry-only hooks belong to
-        // integration.ForestryTweaksPlugin; NeoForge events can be subscribed on `modBus` / the
-        // game bus as usual.
+        // Client-only registration (item model property and item colour). The guard keeps the class
+        // out of a dedicated server's class loading, where ItemProperties does not exist.
+        if (FMLEnvironment.dist.isClient()) {
+            ForestryTweaksClient.init(modBus);
+        }
+
+        // Forestry-only hooks belong to integration.ForestryTweaksPlugin; further NeoForge events can
+        // be subscribed on `modBus` / the game bus as usual.
     }
 }
