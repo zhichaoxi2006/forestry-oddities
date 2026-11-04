@@ -9,10 +9,10 @@ displayName = "${mod_name}"
 authors = "${mod_authors}"
 description = '''${mod_description}'''
 
-# Mixin configuration: patches Forestry's bee housing rain checks (see forestrytweaks.mixins.json).
+# Mixin configuration: patches Forestry's bee housing rain checks (see forestry_oddities.mixins.json).
 # `requiredMods` makes NeoForge skip the config when Forestry is not installed (it is required anyway).
 [[mixins]]
-config = "forestrytweaks.mixins.json"
+config = "forestry_oddities.mixins.json"
 requiredMods = ["forestry"]
 
 [[dependencies.${mod_id}]]

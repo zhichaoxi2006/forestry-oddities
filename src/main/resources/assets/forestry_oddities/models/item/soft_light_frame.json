@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "forestry_oddities:item/soft_light_frame"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "forestry_oddities:charged": 0.5
+      },
+      "model": "forestry_oddities:item/soft_light_frame_on"
+    }
+  ]
+}

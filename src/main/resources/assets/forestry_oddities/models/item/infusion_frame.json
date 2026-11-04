@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "forestry_oddities:item/infusion_frame",
+    "layer1": "forestry_oddities:item/infusion_frame_overlay"
+  }
+}

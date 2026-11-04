@@ -1,4 +1,4 @@
-# Forestry Tweaks
+# Forestry Oddities
 
 A Minecraft **1.21.1 / NeoForge** mod development environment for add-ons and tweaks to
 [Forestry: Community Edition](https://github.com/thedarkcolour/ForestryCE) (ForestryCE).
@@ -56,7 +56,7 @@ How it is wired up:
   `ordering = "AFTER"`. This is the in-game half of the dependency: NeoForge refuses to load this
   mod without Forestry. `patchouli` is required because Forestry itself requires it; `jei` is
   optional and client-side.
-* `ForestryTweaksPlugin` — implements `forestry.api.plugin.IForestryPlugin` and is registered via
+* `ForestryOdditiesPlugin` — implements `forestry.api.plugin.IForestryPlugin` and is registered via
   `META-INF/services/forestry.api.plugin.IForestryPlugin`. That is the compile-time proof that the
   dependency works, and the entry point for registering Forestry content/tweaks.
 
@@ -88,7 +88,7 @@ How it is wired up:
 * `META-INF/neoforge.mods.toml` — declares `create` as `type = "optional"` with
   `versionRange = "[6.0.4,7)"` and `ordering = "AFTER"`: 6.0.4 is the first Create with the attribute
   filter API this integration uses, and 7 would be a new, unchecked major version.
-* `ForestryTweaks` — checks `ModList.get().isLoaded("create")` and only then calls
+* `ForestryOddities` — checks `ModList.get().isLoaded("create")` and only then calls
   `CreateIntegration.init(modBus)`. That guarded call is the only place the mod names a Create class,
   so the JVM never loads `integration/create/*` when Create is missing.
   `skip_create_runtime=true` (in `gradle.properties`, or `-Pskip_create_runtime=true`) keeps Create and
@@ -111,31 +111,31 @@ differs only in the genome data component. This mod registers these attribute ty
 
 | Registry id | What the GUI shows | Matches |
 |---|---|---|
-| `forestrytweaks:bee_species` | "is of species Imperial" | bees whose active species is that species (any of the four life stages) |
-| `forestrytweaks:bee_species_recessive` | "carries Forest recessively" | bees whose recessive species allele is that species, i.e. what their offspring can turn into |
-| `forestrytweaks:bee_life_stage` | "is a Queen" | drone, princess, queen or larvae |
-| `forestrytweaks:bee_stock` | "is pristine stock" / "is ignoble stock" | whether the bee descends from naturally spawned (pristine) or bred (ignoble) stock |
-| `forestrytweaks:bee_activity` | "has Diurnal activity" | the bee's activity allele: diurnal, nocturnal, crepuscular, metaturnal, ... |
-| `forestrytweaks:bee_activity_recessive` | "has Diurnal activity recessively" | the activity allele the bee carries recessively |
-| `forestrytweaks:bee_flower_type` | "has flower type Cacti" | the flowers the bee needs (Flowers, Cacti, Jungle, Nether, ...) |
-| `forestrytweaks:bee_flower_type_recessive` | "has flower type Cacti recessively" | the flower type allele the bee carries recessively |
-| `forestrytweaks:bee_effect` | "has the Creeper effect" | the bee's effect allele (Creeper, Radioactive, Flammable, ...) |
-| `forestrytweaks:bee_effect_recessive` | "has the Creeper effect recessively" | the effect allele the bee carries recessively |
-| `forestrytweaks:bee_temperature_tolerance` | "has Up 3 temperature tolerance" | how far the bee's ideal temperature may deviate |
-| `forestrytweaks:bee_temperature_tolerance_recessive` | "has Up 3 temperature tolerance recessively" | the temperature tolerance allele the bee carries recessively |
-| `forestrytweaks:bee_humidity_tolerance` | "has Both 2 humidity tolerance" | how far the bee's ideal humidity may deviate |
-| `forestrytweaks:bee_humidity_tolerance_recessive` | "has Both 2 humidity tolerance recessively" | the humidity tolerance allele the bee carries recessively |
-| `forestrytweaks:bee_speed` | "has Fastest speed" | the production speed allele |
-| `forestrytweaks:bee_speed_recessive` | "has Fastest speed recessively" | the speed allele the bee carries recessively |
-| `forestrytweaks:bee_lifespan` | "has a Longest lifespan" | the queen's lifespan allele |
-| `forestrytweaks:bee_lifespan_recessive` | "has a Longest lifespan recessively" | the lifespan allele the bee carries recessively |
-| `forestrytweaks:bee_cave_dwelling` | "can work underground" | bees with the `CAVE_DWELLING` gene |
-| `forestrytweaks:bee_cave_dwelling_recessive` | "carries the underground gene recessively" | bees whose recessive `CAVE_DWELLING` allele is set |
-| `forestrytweaks:bee_tolerates_rain` | "works in the rain" | bees with the `TOLERATES_RAIN` gene |
-| `forestrytweaks:bee_tolerates_rain_recessive` | "carries the rain-tolerance gene recessively" | bees whose recessive `TOLERATES_RAIN` allele is set |
-| `forestrytweaks:bee_analyzed` | "is analyzed" | bee items that have been scanned by an analyzer |
-| `forestrytweaks:bee_mated` | "is mated" | princesses and queens that already carry a mate genome |
-| `forestrytweaks:bee_product` | "produces Honey Comb" / "has the specialty X" | items in the species' product list, and its jubilant-state specialties |
+| `forestry_oddities:bee_species` | "is of species Imperial" | bees whose active species is that species (any of the four life stages) |
+| `forestry_oddities:bee_species_recessive` | "carries Forest recessively" | bees whose recessive species allele is that species, i.e. what their offspring can turn into |
+| `forestry_oddities:bee_life_stage` | "is a Queen" | drone, princess, queen or larvae |
+| `forestry_oddities:bee_stock` | "is pristine stock" / "is ignoble stock" | whether the bee descends from naturally spawned (pristine) or bred (ignoble) stock |
+| `forestry_oddities:bee_activity` | "has Diurnal activity" | the bee's activity allele: diurnal, nocturnal, crepuscular, metaturnal, ... |
+| `forestry_oddities:bee_activity_recessive` | "has Diurnal activity recessively" | the activity allele the bee carries recessively |
+| `forestry_oddities:bee_flower_type` | "has flower type Cacti" | the flowers the bee needs (Flowers, Cacti, Jungle, Nether, ...) |
+| `forestry_oddities:bee_flower_type_recessive` | "has flower type Cacti recessively" | the flower type allele the bee carries recessively |
+| `forestry_oddities:bee_effect` | "has the Creeper effect" | the bee's effect allele (Creeper, Radioactive, Flammable, ...) |
+| `forestry_oddities:bee_effect_recessive` | "has the Creeper effect recessively" | the effect allele the bee carries recessively |
+| `forestry_oddities:bee_temperature_tolerance` | "has Up 3 temperature tolerance" | how far the bee's ideal temperature may deviate |
+| `forestry_oddities:bee_temperature_tolerance_recessive` | "has Up 3 temperature tolerance recessively" | the temperature tolerance allele the bee carries recessively |
+| `forestry_oddities:bee_humidity_tolerance` | "has Both 2 humidity tolerance" | how far the bee's ideal humidity may deviate |
+| `forestry_oddities:bee_humidity_tolerance_recessive` | "has Both 2 humidity tolerance recessively" | the humidity tolerance allele the bee carries recessively |
+| `forestry_oddities:bee_speed` | "has Fastest speed" | the production speed allele |
+| `forestry_oddities:bee_speed_recessive` | "has Fastest speed recessively" | the speed allele the bee carries recessively |
+| `forestry_oddities:bee_lifespan` | "has a Longest lifespan" | the queen's lifespan allele |
+| `forestry_oddities:bee_lifespan_recessive` | "has a Longest lifespan recessively" | the lifespan allele the bee carries recessively |
+| `forestry_oddities:bee_cave_dwelling` | "can work underground" | bees with the `CAVE_DWELLING` gene |
+| `forestry_oddities:bee_cave_dwelling_recessive` | "carries the underground gene recessively" | bees whose recessive `CAVE_DWELLING` allele is set |
+| `forestry_oddities:bee_tolerates_rain` | "works in the rain" | bees with the `TOLERATES_RAIN` gene |
+| `forestry_oddities:bee_tolerates_rain_recessive` | "carries the rain-tolerance gene recessively" | bees whose recessive `TOLERATES_RAIN` allele is set |
+| `forestry_oddities:bee_analyzed` | "is analyzed" | bee items that have been scanned by an analyzer |
+| `forestry_oddities:bee_mated` | "is mated" | princesses and queens that already carry a mate genome |
+| `forestry_oddities:bee_product` | "produces Honey Comb" / "has the specialty X" | items in the species' product list, and its jubilant-state specialties |
 
 Usage: right-click an Attribute Filter, drop a bee into the reference slot on the left, pick one of
 the bee attributes from the dropdown and add it (or its inverted variant). The filter then works in
@@ -182,9 +182,9 @@ Notes on the semantics:
 * Inverted attributes follow Create's rule (the negation of the predicate, so they also match
   non-bee items). Combine them with "was added by Forestry" in *whitelist (AND)* mode if a filter must
   only ever accept bees.
-* The strings live in `assets/forestrytweaks/lang/{en_us,zh_cn}.json`; Create renders an attribute as
+* The strings live in `assets/forestry_oddities/lang/{en_us,zh_cn}.json`; Create renders an attribute as
   `create.item_attributes.<key>` and appends `.inverted` for the inverted variant, and the stage names
-  come from `forestrytweaks.item_attributes.bee_stage.*`.
+  come from `forestry_oddities.item_attributes.bee_stage.*`.
 
 Verification: `.\gradlew.bat runServer` logs
 `Registered Create attribute filter types for bees: [...]` (all twenty-five ids) while Create's
@@ -239,7 +239,7 @@ do the work; both keep the sample position Forestry already uses:
 | `AbstractBeeHousingBlockEntity#isRaining` (apiary, bee house) | the block above the housing |
 | `AlvearyController#isRaining` (alveary) | top centre of the multiblock, two blocks up |
 
-`rainMode` selects the rule (`com.forestrytweaks.tweak.RainChecks`):
+`rainMode` selects the rule (`com.zhichaoxi.forestryoddities.tweak.RainChecks`):
 
 | Mode | Rule | Roofed | Desert / snow | Cave |
 |---|---|---|---|---|
@@ -265,7 +265,7 @@ Consequences of the default:
 * When rain counts, the original rule still applies: bees need `TOLERATES_RAIN` (or a sealed housing
   such as one with a creative frame), and the apiary GUI still shows the "is raining" error.
 
-Configuration (`config/forestrytweaks-common.toml`):
+Configuration (`config/forestry_oddities-common.toml`):
 
 ```toml
 [apiculture]
@@ -310,7 +310,7 @@ single exact generation:
 | `0` | decay can start right away (generations 1-11) |
 | `-1` | decay disabled: an ignoble queen never dies out |
 
-Configuration (`config/forestrytweaks-common.toml`):
+Configuration (`config/forestry_oddities-common.toml`):
 
 ```toml
 [apiculture]
@@ -350,7 +350,7 @@ the bee items from the product slots into the villager's inventory - and only wh
 so a full villager does not keep walking to apiaries it cannot help. The alveary is deliberately not a
 target: its inventory belongs to a multiblock controller a villager cannot reach.
 
-Configuration (`config/forestrytweaks-common.toml`):
+Configuration (`config/forestry_oddities-common.toml`):
 
 ```toml
 [beekeeper]
@@ -400,9 +400,9 @@ The same self-test was run again against the `3.0.0-alpha9` jars (dev server, de
 
 ### Mixin setup
 
-* `src/main/resources/forestrytweaks.mixins.json` — the mixin config. It has no `refmap`: NeoForge runs
+* `src/main/resources/forestry_oddities.mixins.json` — the mixin config. It has no `refmap`: NeoForge runs
   on Mojang's official names, so its mixins do not need remapping.
-* `META-INF/neoforge.mods.toml` — `[[mixins]] config = "forestrytweaks.mixins.json"` with
+* `META-INF/neoforge.mods.toml` — `[[mixins]] config = "forestry_oddities.mixins.json"` with
   `requiredMods = ["forestry"]`.
 * NeoForge puts Mixin (`sponge-mixin`) on the compile classpath, so `build.gradle` needs no extra
   dependency or annotation processor.
@@ -469,14 +469,14 @@ State is visible without a tooltip:
   recognisable. Two textures ship, `item/soft_light_frame.png` (built from
   `minecraft:block/redstone_lamp`, the charge is empty) and `item/soft_light_frame_on.png` (built
   from `minecraft:block/redstone_lamp_on`, charged); they differ only inside the window.
-  `models/item/soft_light_frame.json` has one override on the mod's own `forestrytweaks:charged` item
+  `models/item/soft_light_frame.json` has one override on the mod's own `forestry_oddities:charged` item
   model property (registered client side, `1.0` while the charge is above zero) that switches to
   `soft_light_frame_on`, which is the same frame with the lit lamp.
 * The item bar is the charge, 13 segments wide, in amber.
 * The tooltip prints `energy / capacity FE`, whether sunlight is currently simulated, the per-cycle
   cost and - when the frame is empty - a reminder that it needs charging.
 
-The charge lives in the `forestrytweaks:soft_light_frame_energy` data component (persistent and
+The charge lives in the `forestry_oddities:soft_light_frame_energy` data component (persistent and
 network-synchronised), so it survives a save/load and a container sync; the client needs it to pick
 the model.
 
@@ -495,7 +495,7 @@ SSS
 ```
 
 `S` = `minecraft:stick`, `B` = `minecraft:blaze_powder`, `P` = any potion
-(`forestrytweaks:potions`: `minecraft:potion`, `minecraft:splash_potion`, `minecraft:lingering_potion`).
+(`forestry_oddities:potions`: `minecraft:potion`, `minecraft:splash_potion`, `minecraft:lingering_potion`).
 
 The potion is stored on the frame as vanilla's `minecraft:potion_contents` component, which gives the
 frame everything it needs:
@@ -559,16 +559,16 @@ Details that follow from that:
 
 Recipe mechanics: a vanilla `crafting_shaped` recipe cannot do this, because the potion's data has to
 travel from the ingredient to the result. `content/InfusionFrameRecipe` is therefore a proper shaped
-recipe with its own serializer (`forestrytweaks:crafting_infusion_frame`) and the same JSON layout as
+recipe with its own serializer (`forestry_oddities:crafting_infusion_frame`) and the same JSON layout as
 the vanilla shaped recipe; `assemble` finds the potion in the grid, copies its `PotionContents` onto
 the result and writes the matching maximum damage. Because it is an ordinary `CraftingRecipe` with a
 pattern and ingredients, JEI shows it like any other shaped recipe. Both recipes also ship recipe-book
-unlock advancements (`data/forestrytweaks/advancement/recipes/misc/`), so the recipe book lists them as
+unlock advancements (`data/forestry_oddities/advancement/recipes/misc/`), so the recipe book lists them as
 soon as the player has held a 标定框架 (`forestry:proven_frame`) or blaze powder, respectively.
 
 Verification: on a dedicated development server a temporary self-test (100 checks, removed again
 afterwards) covered: both items and the data component registered under the expected ids; the
-`forestrytweaks:potions` tag resolving to the three potion items; both recipes loading from their
+`forestry_oddities:potions` tag resolving to the three potion items; both recipes loading from their
 JSON and the infusion recipe being found by `RecipeType.CRAFTING`; matching a normal and a splash
 potion grid and rejecting a non-potion and an empty grid; `assemble` producing an infusion frame with
 the potion component, `MAX_DAMAGE` 180 and damage 0 for a 3:00 swiftness potion; the recipe surviving a
@@ -654,7 +654,7 @@ How it works:
   and hoppers can insert and pull frames; the slot filter still applies.
 * The GUI is Forestry's `ContainerTile` + `GuiForestryTitled` pair, so it uses the same layout as the
   other alveary part screens and shows the alveary's error ledger (no queen, no sky, ...). Its texture
-  is `assets/forestrytweaks/textures/gui/alveary_frame_housing.png`: Forestry's standard
+  is `assets/forestry_oddities/textures/gui/alveary_frame_housing.png`: Forestry's standard
   player-inventory slice with a recessed 34×34 display that holds the one slot. The file is **256×256**
   with the 176×166 GUI in its top-left corner, because
   `GuiGraphics#blit(ResourceLocation, int, int, int, int, int, int)` always samples with a hardcoded
@@ -671,7 +671,7 @@ structure assembles, so no registration with Forestry is needed beyond the block
 Verification: a development self-test on a dedicated server (removed again afterwards), 30 checks, all
 passing:
 
-* the block, item, block entity type and menu register under `forestrytweaks:alveary_frame_housing`,
+* the block, item, block entity type and menu register under `forestry_oddities:alveary_frame_housing`,
   the block entity type accepts the block, and the menu type is the registered one;
 * a 3×3×3 alveary of plain blocks with a wooden slab cap assembles with the part in an exterior cell,
   and the part's modifier and listener end up in the controller's sets;
@@ -812,7 +812,7 @@ slot.
 
 The GUI is the reference window itself: Binnie's 1.12 `guistimulator.png` - a 256×256 sheet whose
 top-left 176×144 is the GUI - copied into
-`assets/forestrytweaks/textures/gui/alveary_stimulator.png` and drawn the way that mod's 1.21.1 port
+`assets/forestry_oddities/textures/gui/alveary_stimulator.png` and drawn the way that mod's 1.21.1 port
 draws it.
 
 * **Window.** The port keeps the legacy art and puts a 40-pixel header strip above it, so the window is
@@ -833,7 +833,7 @@ draws it.
   It is Binnie's `ControlEnergyBar` layering, ported in `GuiEnergyBar`: the dark frame, then the charge
   tinted from red at empty through yellow at half to green at full, then the glass highlight, all cut as a
   one-pixel nine-slice from Binnie's `craftgui-controls.png` (also copied verbatim, as
-  `assets/forestrytweaks/textures/gui/craftgui-controls.png`). Hovering it shows `Energy: x / 1000 FE`
+  `assets/forestry_oddities/textures/gui/craftgui-controls.png`). Hovering it shows `Energy: x / 1000 FE`
   and `Usage: n FE per work cycle`; like Forestry's own widget tooltips it stays hidden while the player
   carries a stack.
 * **Ledger.** The error ledger belongs to the part, not to the alveary, and it carries the port's two
@@ -845,12 +845,12 @@ draws it.
 
 Block art: both parts use **Binnie's Mod's own textures** - `stimulator_side.png` and
 `transmission_side.png` from that mod's 1.21.1 port, copied verbatim (byte-identical, SHA-256 checked) as
-`assets/forestrytweaks/textures/block/alveary_stimulator.png` and `.../alveary_transmission.png`. Each
+`assets/forestry_oddities/textures/block/alveary_stimulator.png` and `.../alveary_transmission.png`. Each
 file is a complete 16×16 cube face - creviced wooden alveary side with the machine face worked into it,
 the stimulator's glowing coil and the transmission's grid - so there is no separate overlay and no plate
 to place. Binnie's part models point their `end` faces at a `*_top` file that is pixel-identical to the
 `*_side` one, so this mod uses the single file on all six faces (`minecraft:block/cube_all`), which
-renders exactly what Binnie's two files do. Binnie's Mods and Forestry Tweaks are both LGPL-3.0, so the
+renders exactly what Binnie's two files do. Binnie's Mods and Forestry Oddities are both LGPL-3.0, so the
 art is redistributed under the same terms as the code.
 
 ### 空中传输 / Alveary Transmission
@@ -889,7 +889,7 @@ Both are `AbstractAlvearyBlockEntity` subclasses (this mod's third one is the fr
   `AlvearyStimulatorBlock#onRemove`, which is the same thing `BlockBase` does for a Forestry machine.
   No registration with Forestry is needed beyond the block, its block entity and - for the stimulator -
   its menu.
-* The fourteen circuits and the layout are registered in `integration/ForestryTweaksPlugin#registerCircuits`,
+* The fourteen circuits and the layout are registered in `integration/ForestryOdditiesPlugin#registerCircuits`,
   which is Forestry's own extension point; the soldering iron therefore knows the layout without this
   mod patching anything.
 
@@ -902,7 +902,7 @@ Forestry socket, a second run re-checked everything that touches the board (`46`
 `11`-check run repeated the socket, refusal, buffer, work-cycle, NBT and drop checks against the build
 that ships:
 
-* the layout is registered with `forestrytweaks:stimulator` as its socket type, and a board soldered in
+* the layout is registered with `forestry_oddities:stimulator` as its socket type, and a board soldered in
   that layout parses back carrying the same socket type - which is exactly the value the stimulator
   accepts and no Forestry machine does;
 * the part has one socket, it starts empty, its socket type is `StimulatorCircuit.SOCKET_TYPE`, a board
@@ -1005,9 +1005,9 @@ cache.
 gradle.properties                  versions, mod metadata, Forestry + Create coordinates
 build.gradle                       NeoForge/ModDevGradle setup, Forestry + Create dependencies, runs
 settings.gradle                    pluginManagement repositories + project name
-src/main/java/com/forestrytweaks/
-    ForestryTweaks.java            mod entry point (@Mod): registers config, content and Create gate
-    config/ForestryTweaksConfig.java        common config (rainMode, biomeModeSkyLight,
+src/main/java/com/zhichaoxi/forestryoddities/
+    ForestryOddities.java            mod entry point (@Mod): registers config, content and Create gate
+    config/ForestryOdditiesConfig.java        common config (rainMode, biomeModeSkyLight,
                                             ignobleDecayStartGeneration, beekeeper.*)
     config/RainMode.java           VANILLA / POSITION / BIOME
     tweak/RainChecks.java          the rain rule shared by both mixins
@@ -1048,11 +1048,11 @@ src/main/java/com/forestrytweaks/
     content/alveary/circuit/StimulatorProgram.java       the fourteen programs (each an IBeeModifier)
     content/alveary/circuit/StimulatorCircuit.java       one program as a Forestry circuit + the layout
     content/alveary/circuit/StimulatorCircuits.java      circuit board -> mounted programs
-    client/ForestryTweaksClient.java       charged item model property + potion tint (client only)
+    client/ForestryOdditiesClient.java       charged item model property + potion tint (client only)
     client/AlvearyFrameHousingScreen.java  the frame housing GUI (client only)
     client/AlvearyStimulatorScreen.java    the stimulator GUI: socket widget, charge bar, status line
                                            (client only)
-    integration/ForestryTweaksPlugin.java   Forestry plugin (ServiceLoader)
+    integration/ForestryOdditiesPlugin.java   Forestry plugin (ServiceLoader)
     integration/create/CreateIntegration.java       Create hook-up (RegisterEvent)
     integration/create/BeeItemAttributes.java       attribute type ids + the unit-attribute factory
     integration/create/BeeSpeciesAttribute.java     "is of species X" / "carries X recessively"
@@ -1064,35 +1064,35 @@ src/main/java/com/forestrytweaks/
     integration/create/BeeProductAttribute.java     "produces X" / "has the specialty X"
     integration/create/Bees.java                    bee/stack helpers over the Forestry API
 src/main/resources/
-    forestrytweaks.mixins.json     mixin config (listed in neoforge.mods.toml)
+    forestry_oddities.mixins.json     mixin config (listed in neoforge.mods.toml)
     META-INF/neoforge.mods.toml    mod metadata + dependencies + mixin declarations
     META-INF/services/forestry.api.plugin.IForestryPlugin
-    assets/forestrytweaks/lang/en_us.json, zh_cn.json   filter + item + block strings
-    assets/forestrytweaks/models/item/soft_light_frame.json       unlit lamp in the frame, override on charge
-    assets/forestrytweaks/models/item/soft_light_frame_on.json    lit lamp in the frame
-    assets/forestrytweaks/models/item/infusion_frame.json         frame + liquid, liquid on layer1 (tinted)
-    assets/forestrytweaks/textures/item/soft_light_frame.png      proven frame + unlit lamp window
-    assets/forestrytweaks/textures/item/soft_light_frame_on.png   proven frame + lit lamp window
-    assets/forestrytweaks/textures/item/infusion_frame.png        proven frame, opening left empty
-    assets/forestrytweaks/textures/item/infusion_frame_overlay.png  the liquid that fills the opening, tinted by the potion
-    assets/forestrytweaks/blockstates/alveary_frame_housing.json  the part's block state
-    assets/forestrytweaks/models/block/alveary_frame_housing.json the part's block model
-    assets/forestrytweaks/models/item/alveary_frame_housing.json  the part's item model
-    assets/forestrytweaks/textures/block/alveary_frame_housing.png the part's side texture
-    assets/forestrytweaks/textures/gui/alveary_frame_housing.png   the part's GUI background
-    data/forestrytweaks/recipe/soft_light_frame.json              the soft light frame recipe
-    data/forestrytweaks/recipe/infusion_frame.json                infusion recipe (custom type)
-    data/forestrytweaks/recipe/alveary_frame_housing.json         the frame housing recipe
-    data/forestrytweaks/advancement/recipes/misc/*.json           recipe-book unlocks (frames)
-    data/forestrytweaks/advancement/recipes/building_blocks/alveary_frame_housing.json
-    data/forestrytweaks/loot_table/blocks/alveary_frame_housing.json   the part's block drop
-    data/forestrytweaks/tags/item/potions.json                     potion tag (normal/splash/lingering)
+    assets/forestry_oddities/lang/en_us.json, zh_cn.json   filter + item + block strings
+    assets/forestry_oddities/models/item/soft_light_frame.json       unlit lamp in the frame, override on charge
+    assets/forestry_oddities/models/item/soft_light_frame_on.json    lit lamp in the frame
+    assets/forestry_oddities/models/item/infusion_frame.json         frame + liquid, liquid on layer1 (tinted)
+    assets/forestry_oddities/textures/item/soft_light_frame.png      proven frame + unlit lamp window
+    assets/forestry_oddities/textures/item/soft_light_frame_on.png   proven frame + lit lamp window
+    assets/forestry_oddities/textures/item/infusion_frame.png        proven frame, opening left empty
+    assets/forestry_oddities/textures/item/infusion_frame_overlay.png  the liquid that fills the opening, tinted by the potion
+    assets/forestry_oddities/blockstates/alveary_frame_housing.json  the part's block state
+    assets/forestry_oddities/models/block/alveary_frame_housing.json the part's block model
+    assets/forestry_oddities/models/item/alveary_frame_housing.json  the part's item model
+    assets/forestry_oddities/textures/block/alveary_frame_housing.png the part's side texture
+    assets/forestry_oddities/textures/gui/alveary_frame_housing.png   the part's GUI background
+    data/forestry_oddities/recipe/soft_light_frame.json              the soft light frame recipe
+    data/forestry_oddities/recipe/infusion_frame.json                infusion recipe (custom type)
+    data/forestry_oddities/recipe/alveary_frame_housing.json         the frame housing recipe
+    data/forestry_oddities/advancement/recipes/misc/*.json           recipe-book unlocks (frames)
+    data/forestry_oddities/advancement/recipes/building_blocks/alveary_frame_housing.json
+    data/forestry_oddities/loot_table/blocks/alveary_frame_housing.json   the part's block drop
+    data/forestry_oddities/tags/item/potions.json                     potion tag (normal/splash/lingering)
     data/minecraft/tags/block/mineable/axe.json                    axes mine the part faster
     pack.mcmeta
 ```
 
 ## Mod properties
 
-`mod_id=forestrytweaks`, `mod_name=Forestry Tweaks`, group `com.forestrytweaks`, license
+`mod_id=forestry_oddities`, `mod_name=Forestry Oddities`, group `com.zhichaoxi.forestryoddities`, license
 LGPL-3.0 (the same license as ForestryCE). Rename these in `gradle.properties` and the package
 names if you want different identifiers.

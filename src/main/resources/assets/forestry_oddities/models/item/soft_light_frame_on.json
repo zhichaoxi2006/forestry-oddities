@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "forestry_oddities:item/soft_light_frame_on"
+  }
+}

@@ -1,18 +1,18 @@
 # TODO
 
-> **状态：已实现。** 两项内容都在 `com.forestrytweaks.content` 中实现，配方、机制、材质与验证结果见
+> **状态：已实现。** 两项内容都在 `com.zhichaoxi.forestryoddities.content` 中实现，配方、机制、材质与验证结果见
 > README 的 “Frames (框架)” 一节。实现时敲定的细节：
 >
 > * 柔光框架合成后能量为 **0 FE**，需要用任意 FE 充电设备充能；它只注册充能能力
 >   （`Capabilities.EnergyStorage.ITEM`，`canExtract() == false`），不对外放电。
 > * 柔光框架的图标是标定框架轮廓 + 中空处填入原版红石灯材质，有电/没电切换亮、灭两张材质，
->   靠物品模型谓词 `forestrytweaks:charged` 切换；物品条显示剩余电量。它没有耐久，永不损坏。
+>   靠物品模型谓词 `forestry_oddities:charged` 切换；物品条显示剩余电量。它没有耐久，永不损坏。
 > * 灌注框架的图标同样是标定框架轮廓 + 中空处填满液体材质（只有液体，不画瓶身和软木塞），
 >   液体单独一层 `layer1`，由药水颜色染色；框架 `layer0` 不染色。
 > * 灌注框架的耐久为药水时长（取整秒，如 3:00 → 180），每个工作周期磨损 1 点，耗尽即损坏。
 > * 灌注框架的 Tooltip 与林业原版框架同一套：先逐行列出修正（白色，不额外染色），再列出
 >   `item.forestry.durability`（只显示耐久上限，且只在未磨损时显示），不再像药水物品那样列出药水效果。
-> * 灌注框架的药水槽匹配 `forestrytweaks:potions` 标签，即普通、喷溅、滞留药水都可用。
+> * 灌注框架的药水槽匹配 `forestry_oddities:potions` 标签，即普通、喷溅、滞留药水都可用。
 > * 药水效果等级 = `amplifier + 1`；多种效果可叠加；再生使老化归零（优先于中毒）；
 >   毒/虚弱的指数封顶 `10^6`，突变概率封顶 100。
 > * “工作周期”指 `IBeekeepingLogic.DEFAULT_WORK_THROTTLE` = 550 tick 的结算周期，与框架磨损同一时机。
@@ -118,7 +118,7 @@
 * 单个框架槽位于 `(80, 38)`，上方是一个 34×34 的凹陷展示区，玩家背包各行的位置与 Forestry 其他部件界面一致
   （`y = 87 / 105 / 123`，快捷栏 145）。
 
-> **状态：已实现。** 代码在 `com.forestrytweaks.content.alveary`，材质、材质来源与 30 项验证结果见
+> **状态：已实现。** 代码在 `com.zhichaoxi.forestryoddities.content.alveary`，材质、材质来源与 30 项验证结果见
 > README 的 “Alveary frame housing (蜂房组框架外壳)” 一节。
 
 ## 电刺激器与空中传输（移植自 Binnie's Mod）
@@ -146,7 +146,7 @@
   且同一个布尔问题重复装不叠加。每个程序额外把基因衰退乘以 1.5（所以四程序的电路板是 `1.5^4 = 5.06x`）。
 * **程序只在缓存付得起整块电路板的消耗时生效**：一个工作周期（550 tick）扣掉所有已装程序消耗之和，
   付不起就全部关闭，直到重新充能。
-* **电路板用林业焊接台在本模组的“电子增产器”（`forestrytweaks.stimulator`）布局下焊接**；
+* **电路板用林业焊接台在本模组的“电子增产器”（`forestry_oddities.stimulator`）布局下焊接**；
   布局与十四个电路通过 `IForestryPlugin#registerCircuits` 注册，不需要改动 Forestry。
 * **电路板放在林业原生插槽（socket）里**，和林业机器装芯片一样：光标拿着电路板点插槽装进去，
   手持**电烙铁**点插槽取出（烙铁掉 1 点耐久）；管道/漏斗都碰不到这个插槽，插槽只接受本布局的
@@ -179,5 +179,5 @@
   Binnie 的 `_top` 与 `_side` 逐像素相同，所以本模组用同一张图铺满六面（`minecraft:block/cube_all`），
   效果与其模型一致。
 
-> **状态：已实现。** 代码在 `com.forestrytweaks.content.alveary`（`circuit` 子包放十四个程序与电路），
+> **状态：已实现。** 代码在 `com.zhichaoxi.forestryoddities.content.alveary`（`circuit` 子包放十四个程序与电路），
 > 材质、机制与验证结果见 README 的 “Alveary electrical parts (电刺激器 / 空中传输)” 一节。

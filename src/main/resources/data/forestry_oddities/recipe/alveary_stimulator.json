@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "alveary",
+  "key": {
+    "I": {
+      "tag": "c:nuggets/gold"
+    },
+    "K": {
+      "item": "forestry:refined_circuit_board"
+    },
+    "T": {
+      "item": "forestry:golden_electron_tube"
+    },
+    "X": {
+      "item": "forestry:alveary_block"
+    }
+  },
+  "pattern": [
+    "KIK",
+    "IXI",
+    " T "
+  ],
+  "result": {
+    "count": 1,
+    "id": "forestry_oddities:alveary_stimulator"
+  }
+}
