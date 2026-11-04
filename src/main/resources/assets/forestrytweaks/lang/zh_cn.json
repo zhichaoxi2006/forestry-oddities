@@ -63,8 +63,6 @@
   "item.forestrytweaks.soft_light_frame.active": "正在模拟日光",
   "item.forestrytweaks.soft_light_frame.inactive": "能量耗尽，未模拟日光",
   "item.forestrytweaks.soft_light_frame.desc": "使蜜蜂无需穴居基因即可在遮蔽处工作。",
-  "item.forestrytweaks.soft_light_frame.usage": "每个工作周期消耗 %1$s FE。",
-  "item.forestrytweaks.soft_light_frame.charge_hint": "需用 FE 充电设备充能。",
   "item.forestrytweaks.infusion_frame": "灌注框架",
   "item.forestrytweaks.infusion_frame.no_potion": "无药水：无修正，也无耐久",
   "item.forestrytweaks.infusion_frame.modifier.speed": "工作速度：x%1$s",
