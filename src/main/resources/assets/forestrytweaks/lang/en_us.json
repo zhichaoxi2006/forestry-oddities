@@ -75,7 +75,6 @@
   "block.forestrytweaks.alveary_frame_housing.usage": "The frame's modifiers apply to the whole alveary, and it wears out as in an apiary.",
   "block.forestrytweaks.alveary_stimulator": "Alveary Stimulator",
   "block.forestrytweaks.alveary_stimulator.desc": "An alveary part that runs a programmed circuit board for Forge Energy.",
-  "block.forestrytweaks.alveary_stimulator.usage": "Solder a board with the Electrical Stimulator layout, click it into the socket, and charge the part with FE.",
   "block.forestrytweaks.alveary_transmission": "Alveary Transmission",
   "block.forestrytweaks.alveary_transmission.desc": "An alveary part that hands Forge Energy to the other parts of the alveary.",
   "forestrytweaks.alveary_stimulator.energy": "Energy: %1$s / %2$s FE",

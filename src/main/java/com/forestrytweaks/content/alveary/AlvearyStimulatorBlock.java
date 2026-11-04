@@ -68,7 +68,5 @@ public class AlvearyStimulatorBlock extends AlvearyPartBlock {
         super.appendHoverText(stack, context, tooltip, flag);
         tooltip.add(Component.translatable("block.forestrytweaks.alveary_stimulator.desc")
             .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("block.forestrytweaks.alveary_stimulator.usage")
-            .withStyle(ChatFormatting.DARK_GRAY));
     }
 }

@@ -75,7 +75,6 @@
   "block.forestrytweaks.alveary_frame_housing.usage": "框架的修正会作用于整个蜂房组，并随蜂房组的工作周期一同磨损。",
   "block.forestrytweaks.alveary_stimulator": "电刺激器",
   "block.forestrytweaks.alveary_stimulator.desc": "消耗 FE 运行已编程电路板的蜂房组部件。",
-  "block.forestrytweaks.alveary_stimulator.usage": "用电子增产器布局焊接电路板后点击装入插槽，并为部件充入 FE。",
   "block.forestrytweaks.alveary_transmission": "空中传输",
   "block.forestrytweaks.alveary_transmission.desc": "把 FE 交给蜂房组其他部件的蜂房组部件。",
   "forestrytweaks.alveary_stimulator.energy": "能量：%1$s / %2$s FE",
