@@ -170,6 +170,24 @@ dependencies {
         runtimeOnly "dev.engine-room.flywheel:flywheel-neoforge-${project.minecraft_version}:${project.flywheel_version}"
         runtimeOnly "com.tterrag.registrate:Registrate:${project.registrate_version}"
     }
+
+    // == Optional long energy integrations (long 能量适配) =========================================
+    // compileOnly API jars of the mods the compat bridges in
+    // com.zhichaoxi.forestryoddities.compat.energy talk to. There is no runtime dependency on any of
+    // them: each integration class is only loaded when its mod is actually present (see
+    // EnergyIntegrations), so players without these mods never load a single one of their classes.
+    // The files are those mods' own jars, used as they are, and they live outside the repository:
+    // libs/compat/*.jar is ignored, and libs/compat/README.md lists what has to be dropped in there.
+    // Without them `compileJava` fails on an unresolved dependency; with them the build stays offline.
+    compileOnly files(
+            'libs/compat/grandpower.jar',
+            'libs/compat/modern-industrialization.jar',
+            'libs/compat/flux-networks.jar',
+            'libs/compat/Mekanism-api.jar',
+            'libs/compat/mekanism.jar',
+            'libs/compat/applied-flux.jar',
+            'libs/compat/ae2.jar'
+    )
 }
 
 // Mod metadata (`META-INF/neoforge.mods.toml`) template expansion --------------------------------

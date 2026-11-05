@@ -2,6 +2,7 @@ package com.zhichaoxi.forestryoddities;
 
 import com.zhichaoxi.forestryoddities.apiculture.BeekeeperEvents;
 import com.zhichaoxi.forestryoddities.client.ForestryOdditiesClient;
+import com.zhichaoxi.forestryoddities.compat.energy.EnergyIntegrations;
 import com.zhichaoxi.forestryoddities.config.ForestryOdditiesConfig;
 import com.zhichaoxi.forestryoddities.content.ModBlockEntities;
 import com.zhichaoxi.forestryoddities.content.ModBlocks;
@@ -82,6 +83,13 @@ public final class ForestryOddities {
         } else {
             LOGGER.info("Create is not installed; the item attribute filter integration stays disabled");
         }
+
+        // Optional long energy bridges for mainstream tech mods (Modern Industrialization, GrandPower,
+        // Flux Networks, Mekanism, Applied Flux), ported from Career Bees. The integrations are
+        // compiled against those mods' API jars but each class is loaded only when its mod is
+        // installed, so an absent mod is simply skipped. The insert side is offered through the API
+        // in api.energy; nothing of this mod owns a long storage yet, so nothing registers a source.
+        EnergyIntegrations.install();
 
         // Smarter beekeeper villagers (Tweaks): the goal is attached here for every villager that
         // joins a level, and mixin.EventHandlerApicultureMixin keeps Forestry from adding its own
