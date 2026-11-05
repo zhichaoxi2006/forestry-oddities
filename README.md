@@ -689,13 +689,20 @@ texture is 256×256): the frame slot's 16×16 interior lands exactly on the menu
 the recessed display, the player inventory (rows at y=87/105/123, hotbar at 145) lines up with the drawn
 slot backgrounds, and the title is centred in the top row like Forestry's own part screens.
 
-## Alveary electrical parts (电刺激器 / 空中传输)
+## Alveary electrical parts (蜂房组电路巢础 / 蜂房组配电)
 
 Two more alveary wall parts, ported from Binnie's Mod - Extra Bees' **Electrical Stimulator**
-(电刺激器) and **Alveary Transmission** (空中传输) - through that mod's NeoForge 1.21.1 port. The pair
-is one feature in two blocks: the stimulator turns FE into bee modifiers by running a programmed
+(电刺激器) and **Alveary Transmission** (蜂房组配电) - through that mod's NeoForge 1.21.1 port. The pair
+is one feature in two blocks: the circuit foundation turns FE into bee modifiers by running a
 **Forestry circuit board**, and the transmission is the part that feeds it from a single power line, so
-an alveary full of stimulators needs one cable instead of one per block face.
+an alveary full of circuit foundations needs one cable instead of one per block face.
+
+**Why it is called the circuit foundation.** Binnie's Mod and this mod would otherwise ship two
+blocks called *Alveary Stimulator* (电刺激器) and two soldering-iron layouts called *Electrical
+Stimulator* (电子增产器): the same two entries in the alveary's part list and the same two in the
+iron's layout list, with no way to tell them apart. The port therefore takes a name of its own - the
+rest of the machine is unchanged, down to the layout's programs and the art it draws. Its layout is
+*Circuit Foundation* (电路巢础).
 
 Both are ordinary alveary parts: build them into the exterior of the assembled structure, like
 Forestry's own heater or sieve. They cannot go into the top layer or the interior, and they are in
@@ -703,7 +710,7 @@ Forestry's own heater or sieve. They cannot go into the top layer or the interio
 
 ### Recipes
 
-| 电刺激器 | | |
+| 蜂房组电路巢础 | | |
 |:---:|:---:|:---:|
 | 精制电路板 | 金粒 | 精制电路板 |
 | 金粒 | 蜂房组 | 金粒 |
@@ -715,7 +722,7 @@ IXI
  T
 ```
 
-| 空中传输 | | |
+| 蜂房组配电 | | |
 |:---:|:---:|:---:|
 | | 锡齿轮 | |
 | 锡齿轮 | 蜂房组 | 锡齿轮 |
@@ -733,15 +740,15 @@ recipes; the tags are the common tags NeoForge and Forestry already fill (`c:gea
 `forestry:tin_gear`), as are all the ingredients. Each ships a recipe-book unlock that fires once the
 player has held an alveary block.
 
-### 电刺激器 / Alveary Stimulator
+### 蜂房组电路巢础 / Alveary Circuit Foundation
 
 The part is a **circuit socket fed by power**. Its one socket takes a circuit board programmed in this
-mod's *Electrical Stimulator* circuit layout, and while the part can pay the board's total draw, the
+mod's *Circuit Foundation* layout, and while the part can pay the board's total draw, the
 board's programs are folded into the alveary's modifiers.
 
 **How a board is programmed.** Take a Forestry **Soldering Iron**, put an empty circuit board and
-electron tubes into its slots, and use the `<` / `>` buttons to select the *Electrical Stimulator*
-layout. The iron lists every registered layout, so the stimulator's layout appears next to Forestry's
+electron tubes into its slots, and use the `<` / `>` buttons to select the *Circuit Foundation* layout.
+The iron lists every registered layout, so the circuit foundation's layout appears next to Forestry's
 own farm/machine/engine layouts, and with it selected each of the fourteen tubes means one program. The
 board type decides how many programs fit, exactly as for a machine upgrade board: a basic board carries
 one tube, an intricate board four.
@@ -774,7 +781,7 @@ answer the same one do not stack, while two numeric programs do.
 Two rules apply to every program:
 
 * **Genetic decay ×1.5 per program.** A board with four programs raises the decay to `1.5^4 = 5.06x`,
-  so a stimulator is never free even when its programs look harmless. The circuit tooltips say so.
+  so a circuit foundation is never free even when its programs look harmless. The circuit tooltips say so.
 * **The whole board is paid at once.** One work cycle (550 ticks, `IBeekeepingLogic.DEFAULT_WORK_THROTTLE`)
   drains the *sum* of the fitted programs' draws, so a cheap program cannot ride along for free next to
   an expensive one. The programs only apply while the buffer can pay that sum: at 59 FE a 60 FE board
@@ -784,7 +791,7 @@ Two rules apply to every program:
 The buffer is **1 000 FE**, accepts **500 FE** per offer and is **receive-only**: any FE source (cables,
 chargers, machine item slots) can fill it, but nothing can pull the energy back out - the part spends
 it itself. It is exposed as a NeoForge block energy capability, so no mod needs to know about the
-stimulator to charge it.
+circuit foundation to charge it.
 
 The modifiers compose with the rest of the alveary in the usual way: Forestry folds every part's
 `IBeeModifier` into the housing's combined modifier, in sequence, so two Production Up boards multiply
@@ -797,7 +804,7 @@ immediately.
 its chipset. With a programmed board on the cursor, click the socket; it goes in and the cursor stack
 shrinks by one. To take it back out, click the socket with a **Soldering Iron** in hand: the board goes
 to the player inventory and the iron loses one point of durability. A board that is not programmed in
-the stimulator layout is refused (Forestry's own machine upgrade boards included), and no pipe or hopper
+the circuit foundation layout is refused (Forestry's own machine upgrade boards included), and no pipe or hopper
 can reach the socket in either direction. Breaking the part drops the socketed board.
 
 The board is not consumed; only the FE is spent - there was no board wear in 1.12 either.
@@ -812,7 +819,7 @@ slot.
 
 The GUI is the reference window itself: Binnie's 1.12 `guistimulator.png` - a 256×256 sheet whose
 top-left 176×144 is the GUI - copied into
-`assets/forestry_oddities/textures/gui/alveary_stimulator.png` and drawn the way that mod's 1.21.1 port
+`assets/forestry_oddities/textures/gui/alveary_circuit_foundation.png` and drawn the way that mod's 1.21.1 port
 draws it.
 
 * **Window.** The port keeps the legacy art and puts a 40-pixel header strip above it, so the window is
@@ -845,24 +852,24 @@ draws it.
 
 Block art: both parts use **Binnie's Mod's own textures** - `stimulator_side.png` and
 `transmission_side.png` from that mod's 1.21.1 port, copied verbatim (byte-identical, SHA-256 checked) as
-`assets/forestry_oddities/textures/block/alveary_stimulator.png` and `.../alveary_transmission.png`. Each
+`assets/forestry_oddities/textures/block/alveary_circuit_foundation.png` and `.../alveary_transmission.png`. Each
 file is a complete 16×16 cube face - creviced wooden alveary side with the machine face worked into it,
-the stimulator's glowing coil and the transmission's grid - so there is no separate overlay and no plate
+the glowing coil and the transmission's grid - so there is no separate overlay and no plate
 to place. Binnie's part models point their `end` faces at a `*_top` file that is pixel-identical to the
 `*_side` one, so this mod uses the single file on all six faces (`minecraft:block/cube_all`), which
 renders exactly what Binnie's two files do. Binnie's Mods and Forestry Oddities are both LGPL-3.0, so the
 art is redistributed under the same terms as the code.
 
-### 空中传输 / Alveary Transmission
+### 蜂房组配电 / Alveary Transmission
 
 A power distributor and nothing else: it **never touches the bees**, so powering it changes no
 production, territory or lifespan by itself. It buffers up to **1 000 FE** (500 FE per offer, receive
 only) and hands what it holds to the other parts of the assembled alveary **once per tick**, through
 the NeoForge block energy capability, so any addon part with an FE buffer can be fed, not just this
-mod's stimulator.
+mod's circuit foundation.
 
 * Each sweep splits the output limit (500 FE) evenly over the parts that can receive, and stops when
-  the buffer is empty, so one transmission can run several stimulators at once.
+  the buffer is empty, so one transmission can run several circuit foundations at once.
 * A transmission **never feeds another transmission**: both buffers are receive-only, so two of them
   would push the same energy back and forth forever. This is the one behavioural addition to the
   reference implementation, which had the same infinite-bounce hole.
@@ -871,7 +878,7 @@ mod's stimulator.
 * It has **no GUI**: right-clicking it opens the alveary's own screen, exactly like Forestry's parts,
   because there is nothing to show or configure.
 * Block art: `textures/block/alveary_transmission.png` is Binnie's own transmission face (see the
-  stimulator's note above): the same creviced alveary side with the power grid worked into it.
+  circuit foundation's note above): the same creviced alveary side with the power grid worked into it.
 
 ### How the parts join the multiblock
 
@@ -881,13 +888,13 @@ Both are `AbstractAlvearyBlockEntity` subclasses (this mod's third one is the fr
 * `AlvearyPartBlock` is the shared block plumbing: Forestry's `BlockStructure` (right-click opens the
   part's menu once assembled, the placer becomes the owner, a part's inventory drops when it breaks)
   plus the anchor-only multiblock ticker and the neighbour check that re-validates the structure.
-* The alveary discovers parts by interface while it collects its components: the stimulator is
+* The alveary discovers parts by interface while it collects its components: the circuit foundation is
   `IAlvearyComponent.BeeModifier` + `IAlvearyComponent.BeeListener`, and the transmission is
-  `IAlvearyComponent.Active` (the hook that gives an alveary part a server tick). The stimulator's board
+  `IAlvearyComponent.Active` (the hook that gives an alveary part a server tick). The circuit foundation's board
   is a Forestry `ISocketable` socket - the interface Forestry's own machines implement - so the board is
   neither a part inventory nor a menu slot: it is saved in the part's own NBT and dropped by
-  `AlvearyStimulatorBlock#onRemove`, which is the same thing `BlockBase` does for a Forestry machine.
-  No registration with Forestry is needed beyond the block, its block entity and - for the stimulator -
+  `AlvearyCircuitFoundationBlock#onRemove`, which is the same thing `BlockBase` does for a Forestry machine.
+  No registration with Forestry is needed beyond the block, its block entity and - for the circuit foundation -
   its menu.
 * The fourteen circuits and the layout are registered in `integration/ForestryOdditiesPlugin#registerCircuits`,
   which is Forestry's own extension point; the soldering iron therefore knows the layout without this
@@ -902,10 +909,10 @@ Forestry socket, a second run re-checked everything that touches the board (`46`
 `11`-check run repeated the socket, refusal, buffer, work-cycle, NBT and drop checks against the build
 that ships:
 
-* the layout is registered with `forestry_oddities:stimulator` as its socket type, and a board soldered in
-  that layout parses back carrying the same socket type - which is exactly the value the stimulator
+* the layout is registered with `forestry_oddities:circuit_foundation` as its socket type, and a board soldered in
+  that layout parses back carrying the same socket type - which is exactly the value the circuit foundation
   accepts and no Forestry machine does;
-* the part has one socket, it starts empty, its socket type is `StimulatorCircuit.SOCKET_TYPE`, a board
+* the part has one socket, it starts empty, its socket type is `CircuitFoundationCircuit.SOCKET_TYPE`, a board
   clicks in and stays a single item, and its programs are read in circuit order (two tubes -> two
   programs, a 30 FE draw);
 * a Forestry machine upgrade board and a plain item are both refused and leave the socketed board
@@ -955,11 +962,242 @@ them.
 
 The program table is checked against Forestry's own data instead of being trusted (`build/check_jar.py`):
 the fourteen electron tubes the thermionic fabricator can make and the fourteen programs match one for
-one, and no program shares an id or a tube - so the *Electrical Stimulator* layout owns every tube
+one, and no program shares an id or a tube - so the *Circuit Foundation* layout owns every tube
 Forestry ships. The two names Forestry's language file still carries without an item
 (`electron_tube_rubber`, `electron_tube_orchid`) are deliberately left alone. `build/check_lang.mjs`
 reads the program ids off the enum and derives the runtime-built tooltip keys from the same file, so a
 new program that forgets a translation fails the check instead of printing a raw key in game.
+
+## Long energy (long 能量适配)
+
+Ported from Career Bees (`CareerBees-CE`), so that a part that needs to move more than an `int` of FE
+in one call does not have to invent the plumbing first. The API and the adapters are in place and the
+insert side is in use: the Voltaic Bee's effect offers each tick's discharge through `LongEnergy`. No
+block of this mod offers a long *source* yet.
+
+### Why
+
+NeoForge's `IEnergyStorage` moves at most `Integer.MAX_VALUE` FE per call, while Modern
+Industrialization (EU), Mekanism (Joules), Flux Networks (FE) and GrandPower all carry energy as a
+`long` and routinely store more than the int range. `api.energy` is the long-valued view of a block:
+
+| type | role |
+|---|---|
+| `LongEnergyStorage` | sink: `long receiveEnergy(long maxReceive, boolean simulate)` |
+| `LongEnergySource` | source: `extractEnergy` / `getEnergyStored` / `getMaxEnergyStored` - the extraction side, for exposing a buffer to other mods |
+| `LongEnergyProvider` | `(Level, BlockPos, Direction) -> LongEnergyStorage`, for energy systems that have no NeoForge capability |
+| `LongEnergy` | facade: the `forestry_oddities:long_energy` block capability (`LongEnergy.BLOCK`), the provider registry and `find(...)` |
+| `NeoForgeEnergyStorage` | package-private adapter from the int-valued `IEnergyStorage`, used by the FE fallback |
+
+`LongEnergy.find(level, pos, side)` resolves one block in three steps: the
+`forestry_oddities:long_energy` capability, then the registered providers in registration order, then
+the plain FE capability, wrapped so that a larger amount is offered in int-sized pieces (up to 64 calls
+per block and tick, so a storage beyond the int range still takes more than 2.1e9 FE per tick). A
+provider that throws is disabled permanently and logged once, so one broken optional integration cannot
+break a transfer tick.
+
+### The adapters
+
+`compat/energy/EnergyIntegrations` registers one provider per supported mod, but only when that mod is
+installed: each integration class is loaded inside its `ModList.isLoaded` branch, so the mod runs with
+none of them, and `libs/compat`'s jars are `compileOnly`. There is no reflection in this path.
+
+| mod id | lookup | conversion |
+|---|---|---|
+| `modern_industrialization` | `EnergyApi.SIDED` (native EU storage), skipped when the block already exposes FE | FE / `forgeEnergyPerEu` (default 10) |
+| `grandpower` (or `modern_industrialization`, which jar-in-jars it) | `ILongEnergyStorage.BLOCK`; wrappers of plain FE storages are skipped so the FE path keeps handling them | 1:1 FE |
+| `fluxnetworks` | `FluxCapabilities.BLOCK` (`IFNEnergyStorage`) | 1:1 FE |
+| `mekanism` | `Capabilities.STRICT_ENERGY.block()` (`IStrictEnergyHandler`), also retried with a null side because Mekanism registers its machines without one | FE ↔ J via `EnergyUnit.FORGE_ENERGY` |
+| `appflux` | the Flux Accessor block entity, or any `PartFluxAccessor` on an AE2 `IPartHost` (AE2 only exposes a part's capability on the cable side it sits on) | 1:1 FE |
+
+The reverse direction is `EnergyIntegrations.registerSourceCapabilities(event, type, sourceOf)`: it
+registers a block entity type's `LongEnergySource` as the energy storage of every supported mod, so
+their cables can drain it in one long call. Career Bees hard-wired that side to its bee housings; here
+it takes a source callback, with a `BiFunction` overload for a per-side answer. (Career Bees refused
+the unsided lookup so the display mods would not draw an energy bar on a housing - whether a block
+should answer that lookup is the caller's decision now.)
+
+### Wiring
+
+* `ForestryOddities`' constructor calls `EnergyIntegrations.install()` once, after mod discovery.
+* `build.gradle` adds the seven API jars in `libs/compat` as `compileOnly` - the same jars Career Bees'
+  integrations compile against. They are not on the development runtime, and players need none of
+  them. Those jars are third-party binaries, so they are not in the repository (`libs/compat/*.jar` is
+  git-ignored): `libs/compat/README.md` lists the seven files, the versions and the classes each bridge
+  touches, and a fresh clone has to drop them in before `compileJava` can resolve.
+* No block entity registers a `LongEnergySource` yet; the call that would do it is noted in
+  `content/ModCapabilities`. The *insert* side is in use: the Voltaic Bee's effect (see the next
+  section) offers every tick's discharge through `LongEnergy.find`.
+
+### Verification
+
+`.\gradlew.bat --offline compileJava` and `--offline build` succeed with the port, so every integration
+class really compiles against those seven API jars. The development server boots with the mod and no
+new errors or warnings (the world-gen `Unprimed heightmap` errors in that log are older than this
+change and are in the previous session's log too), and its log has none of the
+`Enabled long energy transfer for ...` lines - expected, since none of the five mods is installed on
+this machine's development runtime. Real transfers through an MI / Mekanism / Flux Networks cable are
+untested: no block of this mod owns a long source yet.
+
+## Voltaic Bee (伏打蜂)
+
+A bee that turns a hive's spare work speed into Forge Energy. The effect and the transfer follow
+Career Bees' energy bee (`careerbees:power`); the species, the numbers, the mutation and the backflow
+into this mod's own alveary parts are this mod's. Design document: `docs/voltaic-bee-design.md`.
+Implementation: `content/apiculture/VoltaicBeeEffect`.
+
+### The species
+
+`data/forestry_oddities/bee_species/voltaicus.json` - id `forestry_oddities:voltaicus`, genus
+`electrapis` (琥珀 / Electrum), species `voltaicus` (伏打 / Voltaic). Genus data:
+`data/forestry_oddities/taxon/electrapis.json`.
+
+| field | value | why |
+|---|---|---|
+| speed | 0.8, dominant | the discharge is squared in it, so this is the balance knob |
+| lifespan / fertility | 40 / 2 | it earns by working, not by living long |
+| tolerances | none / none | deliberately fussy: an alveary or a circuit foundation program has to fix it |
+| activity / cave / rain | diurnal, no, no | night, a roof and rain all stop the discharge |
+| effect | `forestry_oddities:voltaic`, recessive | a hybrid can carry it without working |
+| flowers | `forestry_oddities:flower_type_redstone` | it eats redstone: ore, deepslate ore or a block; the emerald program skips the check |
+| products | `forestry:honey_comb` 0.30 | it is not a product bee |
+| specialties | `minecraft:redstone` 0.20, `minecraft:copper_ingot` 0.08 | static charge, enamelled wire |
+| colours | body `0xD97C1E`, stripes `0x5FD8FF`, outline `0x2B1608` | matte copper, arc-blue band |
+| territory / pollination | 9/6/9, 15 | the box for pollination and FX only |
+
+No texture, model or client registration: Forestry tints its default bee sprite through the three
+colour numbers. `docs/previews/voltaic-bee-tint.png` is the offline preview that picked the stripe
+colour (`#9BE8FF` blurred into the fixed cream abdomen band, `#5FD8FF` reads as a separate colour).
+
+### Acquisition
+
+`forestry:anachrone` × `forestry:glacial`, chance **0.04**, gated on one condition in
+`data/forestry_oddities/recipe/bee_mutation/voltaic_1.json`: the level has to be in a thunderstorm
+(`forestry_oddities:thunderstorm`, a condition type this mod registers because Forestry's seven types
+do not cover weather). The condition is the level's weather, so it never passes in the Nether or the
+End - and rain stops bees, so the housing has to be rain-proof too: a `tolerates_rain` queen, the
+alveary's `SEALED` circuit, or a roof (with the default `rainMode = BIOME`, a housing whose sky light
+is below `biomeModeSkyLight` does not count as rained on).
+
+The design's second gate - a lightning rod under the housing, which `forestry:requires_resource`
+would have checked by walking down from the housing position and skipping bee housings - was dropped
+before shipping: waiting for the storm is the gate, and the rod stays an image in the flavour text.
+
+The flavour: a bee revived out of amber, standing in a polar thunderstorm, with a rod on the floor to
+catch what the ice in the clouds rub together. The route is deliberately late: the Anachrone's
+parents are the relic bee (sniffer-dug amber fossils, 25% per centrifuge run, drones only) and the
+Steadfast bee (dungeon loot, drones only), and the Glacial is depth 7, so both lines have to be worked
+before this mutation can even be attempted.
+
+### The effect
+
+`forestry_oddities:voltaic` discharges
+`ceil(192 * speed^2 * voltaicBeePowerMultiplier)` FE per tick, where `speed` is the bee's speed allele
+times the housing's production modifier. One effect tick is one game tick: Forestry calls the effect
+from `BeeHousingBeekeepingLogic` every tick while the housing has no error, so the effect does not
+throttle, and it does not check whether the bee may work either. It keeps no state at all.
+
+| effective speed | FE/tick | FE/s |
+|---|---|---|
+| 0.3 | 18 | 360 |
+| 0.6 | 70 | 1 400 |
+| **0.8 (own allele)** | **123** | **2 460** |
+| 1.0 | 192 | 3 840 |
+| 1.6 (one production frame) | 492 | 9 840 |
+| 1.7 (fastest Forestry allele) | 555 | 11 100 |
+| 3.2 (two frames) | 1 967 | 39 340 |
+| 6.4 (three frames) | 7 865 | 157 300 |
+
+The `+1` ceiling quirk is deliberate: `0.8^2` is a hair above `0.64` in binary, so the product is
+122.88... and `ceil` gives **123**, not 122. Career Bees' energy bee has the same 400-based formula
+and the same quirk; this one is 48 % of its rate at the same speed, and the bee is far cheaper.
+
+### Where the energy goes
+
+1. Every block touching the **outside of the hive's shell**, in flood-fill order, offered the whole
+   remaining budget in one call through `api.energy.LongEnergy`, so a sink that carries more than an
+   `int` (Modern Industrialization, Mekanism, Flux Networks, ...) gets it through its own long API.
+   The shell is the whole multiblock, not the one block the bee sits in: six faces for an apiary, 54
+   for a 3x3x3 alveary (9 below, 9 above, 36 around the sides). Each face is reported with the side
+   that really touches the shell, so a machine that only takes energy from one face is fed correctly.
+2. Then the **alveary transmission** (`蜂房组配电`) of the same assembled multiblock, up to its 500 FE
+   per offer and 1 000 FE of buffer. That is an internal settlement: the transmission still refuses
+   extraction from outside.
+3. Then nowhere. The remainder is dropped, so a housing never becomes a battery - run a cable to it,
+   do not come back later for a stored charge.
+
+What this buys is the loop the design document describes: an alveary with one Voltaic Bee, a
+transmission and a circuit foundation pays for the circuit foundation programs that keep the bee working (67 650 FE
+per 550-tick work cycle against a five-program draw of 100), and everything above that is what leaves
+the hive.
+
+An electric spark burst follows the rate, one burst every four ticks, from one spark at 123 FE/tick up
+to six. No sound: a burst every four ticks is noise rather than information.
+
+### In an apiary versus in an alveary
+
+Forestry's apiary has its own `IBeeModifier` that multiplies the work speed by **0.1**
+(`ApiaryBlockEntity.ApiaryBeeModifier`); an alveary does not. The discharge follows the work speed, so
+the same bee gives **2 FE/tick** in an apiary and **123 FE/tick** in an alveary. That is Career Bees'
+behaviour too, and it is left alone on purpose: the alveary is the housing with the wiring, and the
+frames and circuit foundation programs that stack the speed only make sense next to a transmission. Frames
+still help in an apiary (three production frames take the effective speed to 0.64 and the discharge to
+79 FE/tick), they are just an order of magnitude below the same three frames in an alveary.
+
+### Configuration
+
+`config/forestry_oddities-common.toml`, `[apiculture]`: `voltaicBeePowerMultiplier`, default `1.0`,
+range `0.0` - `10.0`, read on every effect tick. `0` switches the generation off without removing the
+bee; `2.08` makes it exactly Career Bees' energy bee.
+
+### Verification
+
+A temporary development-server self-test (deleted again after the run) checked `72` assertions on the
+build that ships - species data, the effect registration, the mutation, the rate maths, a real apiary
+with a real FE sink next to it, and a real assembled 3x3x3 alveary with one of this mod's transmissions
+in its wall:
+
+* the development server logs `Loaded 70 bee species` (69 from Forestry plus this one), with no
+  `Skipping bee_species` line and no datapack error - so the species file, the taxon file and the
+  reference to `forestry_oddities:voltaic` all resolve;
+* the species round-trips to the designed genome: speed 0.8 (dominant), lifespan 40, fertility 2, both
+  tolerances `NONE`, diurnal, not cave dwelling, no rain tolerance, the mod's own redstone flower type,
+  pollination 15, territory 9/6/9, recessive species and recessive effect;
+* the three colour numbers and the two products are what the JSON says, the two specialties are
+  `minecraft:redstone` and `minecraft:copper_ingot`;
+* the effect is registered, recessive and not combinable;
+* exactly one mutation leads into the species, `anachrone` × `glacial`, chance 0.04, with one
+  condition (`forestry_oddities:thunderstorm`), and the condition type is present in Forestry's
+  `forestry:mutation_condition_type` registry;
+* the rate maths of the table above: 0.3/0.6/0.8/1.0/1.2/1.4/1.7/1.6 and a multiplier of 2.0 all give
+  exactly the listed number, a multiplier of 0, a speed of 0, a negative speed and `NaN` give 0, and an
+  infinite speed saturates at `Long.MAX_VALUE` instead of throwing;
+* a lone apiary reports six shell faces, and a transmission placed east of it is reported with `west` -
+  the face of the transmission that really touches the hive; the apiary's modifier really is 0.1, and
+  two effect ticks put exactly 2 and then 4 FE into that transmission's buffer;
+* blocking the neighbour makes the discharge go nowhere without throwing, and an apiary hands the whole
+  budget back as "no alveary to take it";
+* a real assembled 3x3x3 alveary with a transmission in its wall reports **54** shell faces, gives the
+  bee its own 0.8 speed (123 FE/tick), and one effect tick lands 123 FE in the alveary's own
+  transmission even though nothing outside accepts energy - so the self-supply loop works;
+* `backflow` stops when the 1 000 FE buffer is full and reports the remainder (4 123 FE out of 5 000
+  with 123 FE already stored), and the buffer reads back its capacity through the part.
+
+The mutation route and the flower type were re-verified afterwards (a second temporary self-test,
+`25` assertions, same dev server, removed again): one mutation into the species with the `anachrone` ×
+`glacial` parents, chance 0.04, exactly one condition - `forestry_oddities:thunderstorm` - that
+condition type present in Forestry's `forestry:mutation_condition_type` registry, its description key
+in both lang files, the gate returning `0` after `setWeatherParameters(10, 0, false, false)` while
+returning the full chance ten ticks into `setWeatherParameters(0, 12000, true, true)`, plus the flower
+type: the species names `forestry_oddities:flower_type_redstone`, the manager resolves it, and its tag
+accepts a redstone block, redstone ore and deepslate redstone ore while rejecting a poppy. The weather
+steps need `doWeatherCycle` switched on and a few ticks for the levels to ramp, which is what the
+self-test does; a plain boot logs `Loaded 70 bee species` with no datapack error.
+
+`.\gradlew.bat --offline build` passes, and a plain development-server boot of the shipping jar logs
+`Loaded 70 bee species`, `Done`, and no new error or warning: the only remaining log noise is the
+world-gen `Unprimed heightmap` error and a missing JourneyMap mixin target, both older than this
+change.
 
 ## Offline / restricted network
 
@@ -1008,7 +1246,8 @@ settings.gradle                    pluginManagement repositories + project name
 src/main/java/com/zhichaoxi/forestryoddities/
     ForestryOddities.java            mod entry point (@Mod): registers config, content and Create gate
     config/ForestryOdditiesConfig.java        common config (rainMode, biomeModeSkyLight,
-                                            ignobleDecayStartGeneration, beekeeper.*)
+                                            ignobleDecayStartGeneration, voltaicBeePowerMultiplier,
+                                            beekeeper.*)
     config/RainMode.java           VANILLA / POSITION / BIOME
     tweak/RainChecks.java          the rain rule shared by both mixins
     tweak/IgnobleDecay.java        configurable ignoble ("卑贱") decay threshold
@@ -1019,50 +1258,69 @@ src/main/java/com/zhichaoxi/forestryoddities/
     mixin/AlvearyControllerMixin.java              alveary rain check
     mixin/BeeMixin.java                            ignoble decay threshold
     mixin/EventHandlerApicultureMixin.java         keeps Forestry's beekeeper AI out
-    content/ModItems.java                  the two frames + their creative tab entries
-    content/ModDataComponents.java         soft_light_frame_energy (persistent + synced)
-    content/ModRecipes.java                the infusion frame recipe serializer
-    content/ModCapabilities.java           FE item capability of the soft light frame; frame slot of
-                                           the alveary frame housing; FE buffers of the stimulator and
-                                           the transmission (the stimulator's board is a socket, not an
-                                           inventory, so it has no item capability)
-    content/ModBlocks.java                 the three alveary part blocks + their block items
-    content/ModBlockEntities.java          their block entity types
-    content/ModMenus.java                  the frame housing and stimulator menu types
-    content/SoftLightFrameItem.java        柔光框架: sunlight simulation, 1 MFE buffer, 80 FE/cycle
-    content/InfusionFrameItem.java         灌注框架: potion component, durability, tooltip
-    content/InfusionModifiers.java         potion effect -> IBeeModifier mapping
-    content/InfusionFrameRecipe.java       shaped recipe that copies the potion into the result
-    content/alveary/AlvearyPartBlock.java                 shared part plumbing: ticker + neighbour check
-    content/alveary/AlvearyFrameHousingBlock.java        蜂房组框架外壳: block, GUI opening, drops
-    content/alveary/AlvearyFrameHousingBlockEntity.java  the part: one frame slot, modifier, wear
-    content/alveary/FrameHousingModifier.java            forwards the frame's IBeeModifier
-    content/alveary/AlvearyFrameHousingMenu.java         one-slot menu above the player inventory
-    content/alveary/AlvearyStimulatorBlock.java          电刺激器: block, socket drop, tooltip
-    content/alveary/AlvearyStimulatorBlockEntity.java    the part: board socket, 1 kFE buffer, per-cycle draw
-    content/alveary/StimulatorModifier.java              folds the board's programs into the alveary
-    content/alveary/AlvearyStimulatorMenu.java           socket + FE readouts for the screen
-    content/alveary/AlvearyTransmissionBlock.java        空中传输: block, tooltip
-    content/alveary/AlvearyTransmissionBlockEntity.java  the part: buffer + per-tick distribution
-    content/alveary/AlvearyPartEnergy.java               the receive-only FE buffer both parts use
-    content/alveary/circuit/StimulatorProgram.java       the fourteen programs (each an IBeeModifier)
-    content/alveary/circuit/StimulatorCircuit.java       one program as a Forestry circuit + the layout
-    content/alveary/circuit/StimulatorCircuits.java      circuit board -> mounted programs
-    client/ForestryOdditiesClient.java       charged item model property + potion tint (client only)
-    client/AlvearyFrameHousingScreen.java  the frame housing GUI (client only)
-    client/AlvearyStimulatorScreen.java    the stimulator GUI: socket widget, charge bar, status line
-                                           (client only)
-    integration/ForestryOdditiesPlugin.java   Forestry plugin (ServiceLoader)
-    integration/create/CreateIntegration.java       Create hook-up (RegisterEvent)
-    integration/create/BeeItemAttributes.java       attribute type ids + the unit-attribute factory
-    integration/create/BeeSpeciesAttribute.java     "is of species X" / "carries X recessively"
-    integration/create/BeeLifeStageAttribute.java   "is a Queen" and friends
-    integration/create/BeeStockAttribute.java       "is pristine/ignoble stock"
-    integration/create/BeeGenomeAttribute.java      one gene per type: activity, flower type, effect,
-                                                    tolerances, speed, lifespan, each expressed and
-                                                    recessive
-    integration/create/BeeProductAttribute.java     "produces X" / "has the specialty X"
-    integration/create/Bees.java                    bee/stack helpers over the Forestry API
+    content/ModItems.java             the two frames + their creative tab entries
+    content/ModDataComponents.java    soft_light_frame_energy (persistent + synced)
+    content/ModRecipes.java           the infusion frame recipe serializer
+    content/ModCapabilities.java      FE item capability of the soft light frame; frame slot of
+                                      the alveary frame housing; FE buffers of the circuit foundation and
+                                      the transmission (the circuit foundation's board is a socket, not an
+                                      inventory, so it has no item capability)
+    content/ModBlocks.java            the three alveary part blocks + their block items
+    content/ModBlockEntities.java     their block entity types
+    content/ModMenus.java             the frame housing and circuit foundation menu types
+    content/SoftLightFrameItem.java   柔光框架: sunlight simulation, 1 MFE buffer, 80 FE/cycle
+    content/InfusionFrameItem.java    灌注框架: potion component, durability, tooltip
+    content/InfusionModifiers.java    potion effect -> IBeeModifier mapping
+    content/InfusionFrameRecipe.java  shaped recipe that copies the potion into the result
+    content/alveary/AlvearyPartBlock.java                     shared part plumbing: ticker + neighbour check
+    content/alveary/AlvearyFrameHousingBlock.java             蜂房组框架外壳: block, GUI opening, drops
+    content/alveary/AlvearyFrameHousingBlockEntity.java       the part: one frame slot, modifier, wear
+    content/alveary/FrameHousingModifier.java                 forwards the frame's IBeeModifier
+    content/alveary/AlvearyFrameHousingMenu.java              one-slot menu above the player inventory
+    content/alveary/AlvearyCircuitFoundationBlock.java        蜂房组电路巢础: block, socket drop, tooltip
+    content/alveary/AlvearyCircuitFoundationBlockEntity.java  the part: board socket, 1 kFE buffer, per-cycle draw
+    content/alveary/CircuitFoundationModifier.java            folds the board's programs into the alveary
+    content/alveary/AlvearyCircuitFoundationMenu.java         socket + FE readouts for the screen
+    content/alveary/AlvearyTransmissionBlock.java             蜂房组配电: block, tooltip
+    content/alveary/AlvearyTransmissionBlockEntity.java       the part: buffer + per-tick distribution
+    content/alveary/AlvearyPartEnergy.java                    the receive-only FE buffer both parts use
+    content/alveary/circuit/CircuitFoundationProgram.java   the fourteen programs (each an IBeeModifier)
+    content/alveary/circuit/CircuitFoundationCircuit.java   one program as a Forestry circuit + the layout
+    content/alveary/circuit/CircuitFoundationCircuits.java  circuit board -> mounted programs
+    content/apiculture/VoltaicBeeEffect.java  伏打放电: the Voltaic Bee's effect (rate, shell
+                                              push, alveary backflow, sparks)
+    client/ForestryOdditiesClient.java          charged item model property + potion tint (client only)
+    client/AlvearyFrameHousingScreen.java       the frame housing GUI (client only)
+    client/AlvearyCircuitFoundationScreen.java  the circuit foundation GUI: socket widget, charge bar, status line
+                                                (client only)
+    integration/ForestryOdditiesPlugin.java  Forestry plugin (ServiceLoader): the circuit foundation's circuit
+                                             layout + circuits, and the Voltaic Bee's effect
+    integration/create/CreateIntegration.java      Create hook-up (RegisterEvent)
+    integration/create/BeeItemAttributes.java      attribute type ids + the unit-attribute factory
+    integration/create/BeeSpeciesAttribute.java    "is of species X" / "carries X recessively"
+    integration/create/BeeLifeStageAttribute.java  "is a Queen" and friends
+    integration/create/BeeStockAttribute.java      "is pristine/ignoble stock"
+    integration/create/BeeGenomeAttribute.java     one gene per type: activity, flower type, effect,
+                                                   tolerances, speed, lifespan, each expressed and
+                                                   recessive
+    integration/create/BeeProductAttribute.java    "produces X" / "has the specialty X"
+    integration/create/Bees.java                   bee/stack helpers over the Forestry API
+    api/energy/LongEnergy.java                      long 能量 facade: capability, provider registry, find()
+    api/energy/LongEnergyStorage.java               the long sink interface
+    api/energy/LongEnergySource.java                the long source interface (the extraction side)
+    api/energy/LongEnergyProvider.java              provider hook for energy APIs without a capability
+    api/energy/NeoForgeEnergyStorage.java           int-valued FE storage as a long sink (the FE fallback)
+    compat/energy/EnergyIntegrations.java           per-mod providers + source capability registration
+    compat/energy/EnergyMath.java                   saturating multiply and clamping
+    compat/energy/ModernIndustrializationIntegration.java  MI EU provider (FE / forgeEnergyPerEu)
+    compat/energy/ModernIndustrializationSourceStorage.java a LongEnergySource as an MI EU storage
+    compat/energy/GrandPowerIntegration.java        GrandPower long FE provider
+    compat/energy/GrandPowerSourceStorage.java      a LongEnergySource as a GrandPower long storage
+    compat/energy/FluxNetworksIntegration.java      Flux Networks long FE provider
+    compat/energy/FluxNetworksSourceStorage.java    a LongEnergySource as a Flux Networks storage
+    compat/energy/MekanismIntegration.java          Mekanism Joules provider (FE <-> J)
+    compat/energy/MekanismSourceStorage.java        a LongEnergySource as a strict energy handler
+    compat/energy/AppliedFluxIntegration.java       the Applied Flux Flux Accessor (block or AE2 part)
 src/main/resources/
     forestry_oddities.mixins.json     mixin config (listed in neoforge.mods.toml)
     META-INF/neoforge.mods.toml    mod metadata + dependencies + mixin declarations
@@ -1087,8 +1345,14 @@ src/main/resources/
     data/forestry_oddities/advancement/recipes/building_blocks/alveary_frame_housing.json
     data/forestry_oddities/loot_table/blocks/alveary_frame_housing.json   the part's block drop
     data/forestry_oddities/tags/item/potions.json                     potion tag (normal/splash/lingering)
+    data/forestry_oddities/taxon/electrapis.json                     the Voltaic Bee's genus (琥珀 / Electrum)
+    data/forestry_oddities/bee_species/voltaicus.json                the Voltaic Bee (伏打蜂)
+    data/forestry_oddities/flower_type/flower_type_redstone.json     its datapack flower type (红石)
+    data/forestry_oddities/tags/block/flowers/redstone.json          what counts as that flower
+    data/forestry_oddities/recipe/bee_mutation/voltaic_1.json        anachrone x glacial + thunderstorm
     data/minecraft/tags/block/mineable/axe.json                    axes mine the part faster
     pack.mcmeta
+libs/compat/                       compileOnly API jars, not in the repository (see its README.md)
 ```
 
 ## Mod properties
