@@ -10,42 +10,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Reads the stimulator programs off a circuit board.
+ * Reads the circuit foundation programs off a circuit board.
  *
  * <p>Forestry stores a board as item NBT: the layout id and the ids of up to four circuits. Reading
  * it back goes through {@code ICircuitManager#getCircuitBoard}, which parses that NBT and resolves
  * every circuit id against the registry - so a board from another mod's layout parses fine but
- * contains none of this mod's circuits. Everything the stimulator does (its socket filter, its
+ * contains none of this mod's circuits. Everything the circuit foundation does (its socket filter, its
  * modifier, its power draw) is derived from the list this class returns, which keeps the block
  * entity from ever looking at NBT itself.</p>
  *
- * <p>A board's circuits are only ours while its layout is {@link StimulatorCircuit#LAYOUT}; a board
+ * <p>A board's circuits are only ours while its layout is {@link CircuitFoundationCircuit#LAYOUT}; a board
  * programmed for one of Forestry's machines has a different socket type and is rejected outright,
  * which also keeps a player from "borrowing" a machine upgrade board.</p>
  */
-public final class StimulatorCircuits {
-    private StimulatorCircuits() {
+public final class CircuitFoundationCircuits {
+    private CircuitFoundationCircuits() {
     }
 
     /**
-     * @param stack The stack in the stimulator's board socket
-     * @return True when the stack is a circuit board programmed in the stimulator layout
+     * @param stack The stack in the circuit foundation's board socket
+     * @return True when the stack is a circuit board programmed in the circuit foundation layout
      */
-    public static boolean isStimulatorBoard(ItemStack stack) {
+    public static boolean isCircuitFoundationBoard(ItemStack stack) {
         if (stack.isEmpty() || !IForestryApi.INSTANCE.getCircuitManager().isCircuitBoard(stack)) {
             return false;
         }
 
         ICircuitBoard board = IForestryApi.INSTANCE.getCircuitManager().getCircuitBoard(stack);
-        return board != null && StimulatorCircuit.SOCKET_TYPE.equals(board.getSocketType());
+        return board != null && CircuitFoundationCircuit.SOCKET_TYPE.equals(board.getSocketType());
     }
 
     /**
-     * @param stack The stack in the stimulator's board socket
+     * @param stack The stack in the circuit foundation's board socket
      * @return The programs soldered onto the board, in circuit-slot order; empty for a non-board, a
      *     board of another layout, or a board whose circuits are all from another layout
      */
-    public static List<StimulatorProgram> programs(ItemStack stack) {
+    public static List<CircuitFoundationProgram> programs(ItemStack stack) {
         if (stack.isEmpty()) {
             return List.of();
         }
@@ -55,10 +55,10 @@ public final class StimulatorCircuits {
             return List.of();
         }
 
-        List<StimulatorProgram> programs = new ArrayList<>(board.getCircuits().length);
+        List<CircuitFoundationProgram> programs = new ArrayList<>(board.getCircuits().length);
         for (ICircuit circuit : board.getCircuits()) {
-            if (circuit instanceof StimulatorCircuit stimulator) {
-                programs.add(stimulator.program());
+            if (circuit instanceof CircuitFoundationCircuit foundation) {
+                programs.add(foundation.program());
             }
         }
         return List.copyOf(programs);
@@ -68,9 +68,9 @@ public final class StimulatorCircuits {
      * @param programs The programs on the board
      * @return The FE the board draws per work cycle, i.e. the sum of every program's own draw
      */
-    public static int powerUsage(List<StimulatorProgram> programs) {
+    public static int powerUsage(List<CircuitFoundationProgram> programs) {
         int total = 0;
-        for (StimulatorProgram program : programs) {
+        for (CircuitFoundationProgram program : programs) {
             total += program.powerUsage();
         }
         return total;
@@ -81,11 +81,11 @@ public final class StimulatorCircuits {
      * @return The program that circuit id stands for, or {@code null} when it is not one of ours
      */
     @Nullable
-    public static StimulatorProgram programByCircuitId(String id) {
-        String prefix = "forestry_oddities.circuit.stimulator.";
+    public static CircuitFoundationProgram programByCircuitId(String id) {
+        String prefix = "forestry_oddities.circuit.foundation.";
         if (!id.startsWith(prefix)) {
             return null;
         }
-        return StimulatorProgram.byId(id.substring(prefix.length()));
+        return CircuitFoundationProgram.byId(id.substring(prefix.length()));
     }
 }

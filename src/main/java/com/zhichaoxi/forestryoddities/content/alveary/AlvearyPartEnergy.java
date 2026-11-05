@@ -17,14 +17,14 @@ import java.util.List;
 /**
  * The FE buffer of an alveary part, ported from Binnie's Mod's alveary energy contract.
  *
- * <p>The buffer is <b>receive-only</b>: neither the stimulator nor the transmission can be drained
+ * <p>The buffer is <b>receive-only</b>: neither the circuit foundation nor the transmission can be drained
  * through the NeoForge capability, exactly like the 1.12 machines, which only ever took power in.
- * A part spends the energy itself - the stimulator per work cycle, the transmission by handing it
+ * A part spends the energy itself - the circuit foundation per work cycle, the transmission by handing it
  * to the other parts of the multiblock - so nothing can pull it back out.</p>
  *
  * <p>The numbers come from the reference implementation's part contracts:
  * {@code 500 FE} accepted per offer and a {@code 1000 FE} buffer, plus an output limit that is zero
- * for the stimulator (it never distributes) and 500 for the transmission.</p>
+ * for the circuit foundation (it never distributes) and 500 for the transmission.</p>
  *
  * <p>Persistence uses {@link ForestryEnergyStorage}'s own NBT, nested under {@link #NBT_KEY} so the
  * block entity's root tag stays free for the multiblock payload.</p>

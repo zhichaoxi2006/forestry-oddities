@@ -2,7 +2,7 @@ package com.zhichaoxi.forestryoddities.content;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingBlockEntity;
-import com.zhichaoxi.forestryoddities.content.alveary.AlvearyStimulatorBlockEntity;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationBlockEntity;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTransmissionBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -28,11 +28,11 @@ public final class ModBlockEntities {
                 .of(AlvearyFrameHousingBlockEntity::new, ModBlocks.ALVEARY_FRAME_HOUSING.get())
                 .build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlvearyStimulatorBlockEntity>>
-        ALVEARY_STIMULATOR = BLOCK_ENTITIES.register(
-            "alveary_stimulator",
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlvearyCircuitFoundationBlockEntity>>
+        ALVEARY_CIRCUIT_FOUNDATION = BLOCK_ENTITIES.register(
+            "alveary_circuit_foundation",
             () -> BlockEntityType.Builder
-                .of(AlvearyStimulatorBlockEntity::new, ModBlocks.ALVEARY_STIMULATOR.get())
+                .of(AlvearyCircuitFoundationBlockEntity::new, ModBlocks.ALVEARY_CIRCUIT_FOUNDATION.get())
                 .build(null));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlvearyTransmissionBlockEntity>>

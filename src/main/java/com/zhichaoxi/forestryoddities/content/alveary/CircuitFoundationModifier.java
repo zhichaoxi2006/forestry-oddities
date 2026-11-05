@@ -1,6 +1,6 @@
 package com.zhichaoxi.forestryoddities.content.alveary;
 
-import com.zhichaoxi.forestryoddities.content.alveary.circuit.StimulatorProgram;
+import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationProgram;
 import forestry.api.apiculture.IBeeModifier;
 import forestry.api.apiculture.genetics.IBeeSpecies;
 import forestry.api.core.genetics.IGenome;
@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * The {@link IBeeModifier} of the alveary stimulator: it applies the programs of the fitted circuit
+ * The {@link IBeeModifier} of the alveary circuit foundation: it applies the programs of the fitted circuit
  * board, in circuit order, to whatever value Forestry asks about.
  *
  * <p>The alveary collects one modifier instance per part when the structure assembles and keeps it
@@ -20,21 +20,21 @@ import java.util.List;
  * was taken out and a buffer that just ran dry all take effect immediately, without a reassembly.
  *
  * <p>Without a powered board the modifier is a complete no-op, including the boolean questions, so a
- * running-dry stimulator behaves like a plain alveary block.</p>
+ * running-dry circuit foundation behaves like a plain alveary block.</p>
  */
-public final class StimulatorModifier implements IBeeModifier {
-    private final AlvearyStimulatorBlockEntity stimulator;
+public final class CircuitFoundationModifier implements IBeeModifier {
+    private final AlvearyCircuitFoundationBlockEntity circuitFoundation;
 
-    public StimulatorModifier(AlvearyStimulatorBlockEntity stimulator) {
-        this.stimulator = stimulator;
+    public CircuitFoundationModifier(AlvearyCircuitFoundationBlockEntity circuitFoundation) {
+        this.circuitFoundation = circuitFoundation;
     }
 
     /**
      * @return The programs that are in effect right now: none without a board, and none while the
      *     buffer cannot pay the board's draw
      */
-    private List<StimulatorProgram> activePrograms() {
-        return this.stimulator.isPowered() ? this.stimulator.programs() : List.of();
+    private List<CircuitFoundationProgram> activePrograms() {
+        return this.circuitFoundation.isPowered() ? this.circuitFoundation.programs() : List.of();
     }
 
     /* The numeric hooks fold the programs in board order, exactly like the reference implementation.
@@ -43,7 +43,7 @@ public final class StimulatorModifier implements IBeeModifier {
     @Override
     public Vec3i modifyTerritory(IGenome genome, Vec3i currentTerritory) {
         Vec3i territory = currentTerritory;
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             territory = program.modifyTerritory(genome, territory);
         }
         return territory;
@@ -52,7 +52,7 @@ public final class StimulatorModifier implements IBeeModifier {
     @Override
     public float modifyMutationChance(IGenome genome, @Nullable IGenome mate, @Nullable IMutation<IBeeSpecies> mutation, float currentChance) {
         float chance = currentChance;
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             chance = program.modifyMutationChance(genome, mate, mutation, chance);
         }
         return chance;
@@ -61,7 +61,7 @@ public final class StimulatorModifier implements IBeeModifier {
     @Override
     public float modifyAging(IGenome genome, @Nullable IGenome mate, float currentAging) {
         float aging = currentAging;
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             aging = program.modifyAging(genome, mate, aging);
         }
         return aging;
@@ -70,7 +70,7 @@ public final class StimulatorModifier implements IBeeModifier {
     @Override
     public float modifyProductionSpeed(IGenome genome, float currentSpeed) {
         float speed = currentSpeed;
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             speed = program.modifyProductionSpeed(genome, speed);
         }
         return speed;
@@ -79,7 +79,7 @@ public final class StimulatorModifier implements IBeeModifier {
     @Override
     public float modifyPollination(IGenome genome, float currentPollination) {
         float pollination = currentPollination;
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             pollination = program.modifyPollination(genome, pollination);
         }
         return pollination;
@@ -88,7 +88,7 @@ public final class StimulatorModifier implements IBeeModifier {
     @Override
     public float modifyGeneticDecay(IGenome genome, float currentDecay) {
         float decay = currentDecay;
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             decay = program.modifyGeneticDecay(genome, decay);
         }
         return decay;
@@ -97,7 +97,7 @@ public final class StimulatorModifier implements IBeeModifier {
     /** Only the Nether program answers one of the boolean hooks, and it answers "hellish". */
     @Override
     public boolean isHellish() {
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             if (program.isHellish()) {
                 return true;
             }
@@ -107,7 +107,7 @@ public final class StimulatorModifier implements IBeeModifier {
 
     @Override
     public boolean isSealed() {
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             if (program.isSealed()) {
                 return true;
             }
@@ -117,7 +117,7 @@ public final class StimulatorModifier implements IBeeModifier {
 
     @Override
     public boolean isAlwaysActive(IGenome genome) {
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             if (program.isAlwaysActive(genome)) {
                 return true;
             }
@@ -127,7 +127,7 @@ public final class StimulatorModifier implements IBeeModifier {
 
     @Override
     public boolean isSunlightSimulated() {
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             if (program.isSunlightSimulated()) {
                 return true;
             }
@@ -137,7 +137,7 @@ public final class StimulatorModifier implements IBeeModifier {
 
     @Override
     public boolean providesFlowers() {
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             if (program.providesFlowers()) {
                 return true;
             }
@@ -147,7 +147,7 @@ public final class StimulatorModifier implements IBeeModifier {
 
     @Override
     public boolean isClimateFullyTolerant() {
-        for (StimulatorProgram program : activePrograms()) {
+        for (CircuitFoundationProgram program : activePrograms()) {
             if (program.isClimateFullyTolerant()) {
                 return true;
             }

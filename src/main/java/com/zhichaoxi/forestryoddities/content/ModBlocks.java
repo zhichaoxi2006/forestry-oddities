@@ -2,7 +2,7 @@ package com.zhichaoxi.forestryoddities.content;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingBlock;
-import com.zhichaoxi.forestryoddities.content.alveary.AlvearyStimulatorBlock;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationBlock;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTransmissionBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -46,15 +46,15 @@ public final class ModBlocks {
         alvearyPartProperties());
 
     /**
-     * Alveary part that runs a programmed circuit board for FE (电刺激器).
+     * Alveary part that runs a programmed circuit board for FE (蜂房组电路巢础).
      */
-    public static final DeferredBlock<AlvearyStimulatorBlock> ALVEARY_STIMULATOR = BLOCKS.registerBlock(
-        "alveary_stimulator",
-        AlvearyStimulatorBlock::new,
+    public static final DeferredBlock<AlvearyCircuitFoundationBlock> ALVEARY_CIRCUIT_FOUNDATION = BLOCKS.registerBlock(
+        "alveary_circuit_foundation",
+        AlvearyCircuitFoundationBlock::new,
         alvearyPartProperties());
 
     /**
-     * Alveary part that distributes FE to the other parts (空中传输).
+     * Alveary part that distributes FE to the other parts (蜂房组配电).
      */
     public static final DeferredBlock<AlvearyTransmissionBlock> ALVEARY_TRANSMISSION = BLOCKS.registerBlock(
         "alveary_transmission",
@@ -63,8 +63,8 @@ public final class ModBlocks {
 
     public static final DeferredItem<BlockItem> ALVEARY_FRAME_HOUSING_ITEM =
         ITEMS.registerSimpleBlockItem(ALVEARY_FRAME_HOUSING);
-    public static final DeferredItem<BlockItem> ALVEARY_STIMULATOR_ITEM =
-        ITEMS.registerSimpleBlockItem(ALVEARY_STIMULATOR);
+    public static final DeferredItem<BlockItem> ALVEARY_CIRCUIT_FOUNDATION_ITEM =
+        ITEMS.registerSimpleBlockItem(ALVEARY_CIRCUIT_FOUNDATION);
     public static final DeferredItem<BlockItem> ALVEARY_TRANSMISSION_ITEM =
         ITEMS.registerSimpleBlockItem(ALVEARY_TRANSMISSION);
 
@@ -98,7 +98,7 @@ public final class ModBlocks {
     /**
      * Adds the three alveary parts to the {@code forestry:apiculture} tab, directly after Forestry's
      * own alveary parts when they are present (they always are, Forestry is a required dependency) and
-     * at the end of the tab otherwise. The order is the frame housing, the stimulator, then the
+     * at the end of the tab otherwise. The order is the frame housing, the circuit foundation, then the
      * transmission - which is the order they are meant to be discovered in: a frame, the part that
      * gives the alveary frame slots, and the pair that powers it.
      */
@@ -109,7 +109,7 @@ public final class ModBlocks {
 
         List<ItemStack> parts = List.of(
             new ItemStack(ALVEARY_FRAME_HOUSING_ITEM.get()),
-            new ItemStack(ALVEARY_STIMULATOR_ITEM.get()),
+            new ItemStack(ALVEARY_CIRCUIT_FOUNDATION_ITEM.get()),
             new ItemStack(ALVEARY_TRANSMISSION_ITEM.get()));
 
         ItemStack anchor = findAnchor(event);

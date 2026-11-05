@@ -12,7 +12,7 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 /**
- * The stimulator's GUI: its circuit board socket above the player inventory, plus the FE readouts the
+ * The circuit foundation's GUI: its circuit board socket above the player inventory, plus the FE readouts the
  * screen draws as a bar.
  *
  * <p>It is a Forestry {@link ContainerSocketed}, which is the menu half of a machine's circuit
@@ -29,10 +29,10 @@ import java.util.function.IntSupplier;
  *
  * <p>The player inventory rows sit at y=98, 116 and 134 with the hotbar at 156, and the socket is
  * drawn at (44,72) by the screen - both match the ported 176x179 window (see
- * {@code AlvearyStimulatorScreen}), whose own player inventory frames are baked in 35 pixels higher,
+ * {@code AlvearyCircuitFoundationScreen}), whose own player inventory frames are baked in 35 pixels higher,
  * at the 1.12 rows 63/81/99/121, because the port draws that window under a header strip.</p>
  */
-public class AlvearyStimulatorMenu extends ContainerSocketed<AlvearyStimulatorBlockEntity> {
+public class AlvearyCircuitFoundationMenu extends ContainerSocketed<AlvearyCircuitFoundationBlockEntity> {
     /** Player inventory origin, matching the slots drawn in the ported window (rows at y=98, hotbar 156). */
     private static final int PLAYER_INVENTORY_X = 8;
     private static final int PLAYER_INVENTORY_Y = 98;
@@ -47,15 +47,15 @@ public class AlvearyStimulatorMenu extends ContainerSocketed<AlvearyStimulatorBl
      * Menu factory for the network. The block position is sent as menu open data by
      * {@code MenuProvider#openMenu}, so both sides resolve the same block entity.
      */
-    public static AlvearyStimulatorMenu fromNetwork(int windowId, Inventory playerInventory, FriendlyByteBuf data) {
+    public static AlvearyCircuitFoundationMenu fromNetwork(int windowId, Inventory playerInventory, FriendlyByteBuf data) {
         BlockPos pos = data.readBlockPos();
-        AlvearyStimulatorBlockEntity tile =
-            TileUtil.getTile(playerInventory.player.level(), pos, AlvearyStimulatorBlockEntity.class);
-        return new AlvearyStimulatorMenu(windowId, playerInventory, tile);
+        AlvearyCircuitFoundationBlockEntity tile =
+            TileUtil.getTile(playerInventory.player.level(), pos, AlvearyCircuitFoundationBlockEntity.class);
+        return new AlvearyCircuitFoundationMenu(windowId, playerInventory, tile);
     }
 
-    public AlvearyStimulatorMenu(int windowId, Inventory playerInventory, AlvearyStimulatorBlockEntity tile) {
-        super(windowId, ModMenus.ALVEARY_STIMULATOR.get(), playerInventory, tile,
+    public AlvearyCircuitFoundationMenu(int windowId, Inventory playerInventory, AlvearyCircuitFoundationBlockEntity tile) {
+        super(windowId, ModMenus.ALVEARY_CIRCUIT_FOUNDATION.get(), playerInventory, tile,
             PLAYER_INVENTORY_X, PLAYER_INVENTORY_Y);
 
         addDataSlot(data(tile::energyStored, value -> this.energyStored = value));

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "forestry_oddities:alveary_stimulator"
+        "recipe": "forestry_oddities:alveary_circuit_foundation"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "forestry_oddities:alveary_stimulator"
+      "forestry_oddities:alveary_circuit_foundation"
     ]
   }
 }

@@ -28,7 +28,7 @@ public final class ForestryOdditiesClient {
         modBus.addListener(ForestryOdditiesClient::onRegisterItemColors);
         // Screens are client-only; the menu types themselves are registered on both sides.
         modBus.addListener(AlvearyFrameHousingScreen::registerScreens);
-        modBus.addListener(AlvearyStimulatorScreen::registerScreens);
+        modBus.addListener(AlvearyCircuitFoundationScreen::registerScreens);
     }
 
     /**

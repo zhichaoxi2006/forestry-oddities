@@ -1,7 +1,7 @@
 package com.zhichaoxi.forestryoddities.content.alveary.circuit;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
-import com.zhichaoxi.forestryoddities.content.alveary.AlvearyStimulatorBlockEntity;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationBlockEntity;
 import forestry.api.core.circuits.ICircuit;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -9,42 +9,42 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 
 /**
- * The Forestry circuit of one {@link StimulatorProgram}: what a soldered electron tube becomes when
- * the alveary stimulator layout is selected on the soldering iron.
+ * The Forestry circuit of one {@link CircuitFoundationProgram}: what a soldered electron tube becomes when
+ * the alveary circuit foundation layout is selected on the soldering iron.
  *
  * <p>Forestry already provides everything a circuit needs to reach a machine: the soldering iron
  * lists every registered layout, looks each electron tube up in that layout and writes the resulting
  * {@link ICircuit} ids into the board's NBT. The board then hands those circuits back to whoever
- * reads it, which is what {@link StimulatorCircuits} does for the stimulator. The circuit itself
+ * reads it, which is what {@link CircuitFoundationCircuits} does for the circuit foundation. The circuit itself
  * therefore only has to describe the program: its id, its name, and its tooltip.</p>
  *
  * <p>The layout id is in Forestry's {@code <namespace>.<machine>} style (compare
  * {@code forestry.machine.upgrade}), and the socket type is this mod's own: no Forestry machine
- * accepts it, and the stimulator accepts no Forestry layout.</p>
+ * accepts it, and the circuit foundation accepts no Forestry layout.</p>
  */
-public final class StimulatorCircuit implements ICircuit {
+public final class CircuitFoundationCircuit implements ICircuit {
     /**
-     * The circuit layout the stimulator's boards are programmed in. It is also the translation-key
+     * The circuit layout the circuit foundation's boards are programmed in. It is also the translation-key
      * prefix: Forestry renders a layout as {@code circuit.layout.<id>} and its usage line as
      * {@code circuit.layout.<id>.usage}.
      */
-    public static final String LAYOUT = ForestryOddities.MOD_ID + ".stimulator";
+    public static final String LAYOUT = ForestryOddities.MOD_ID + ".circuit_foundation";
 
     /**
      * The socket type of that layout. Forestry only writes a layout's socket type into the board as
-     * the layout's own type, so this value is what the stimulator's socket checks the board against:
+     * the layout's own type, so this value is what the circuit foundation's socket checks the board against:
      * a board programmed for a Forestry machine has a different one and does not fit.
      */
     public static final ResourceLocation SOCKET_TYPE =
-        ResourceLocation.fromNamespaceAndPath(ForestryOddities.MOD_ID, "stimulator");
+        ResourceLocation.fromNamespaceAndPath(ForestryOddities.MOD_ID, "circuit_foundation");
 
-    private final StimulatorProgram program;
+    private final CircuitFoundationProgram program;
 
-    public StimulatorCircuit(StimulatorProgram program) {
+    public CircuitFoundationCircuit(CircuitFoundationProgram program) {
         this.program = program;
     }
 
-    public StimulatorProgram program() {
+    public CircuitFoundationProgram program() {
         return this.program;
     }
 
@@ -54,7 +54,7 @@ public final class StimulatorCircuit implements ICircuit {
      */
     @Override
     public String getId() {
-        return "forestry_oddities.circuit.stimulator." + this.program.id();
+        return "forestry_oddities.circuit.foundation." + this.program.id();
     }
 
     @Override
@@ -63,15 +63,15 @@ public final class StimulatorCircuit implements ICircuit {
     }
 
     /**
-     * Only the alveary stimulator runs these programs. Forestry never asks (it identifies machines
+     * Only the alveary circuit foundation runs these programs. Forestry never asks (it identifies machines
      * by socket type), so this is documentation as much as a check.
      */
     @Override
     public boolean isCircuitable(Object tile) {
-        return tile instanceof AlvearyStimulatorBlockEntity;
+        return tile instanceof AlvearyCircuitFoundationBlockEntity;
     }
 
-    /* The stimulator reads the programs off its board itself every time the modifier is queried, so
+    /* The circuit foundation reads the programs off its board itself every time the modifier is queried, so
      * the board's insertion/load/removal/tick callbacks have nothing to do. */
 
     @Override

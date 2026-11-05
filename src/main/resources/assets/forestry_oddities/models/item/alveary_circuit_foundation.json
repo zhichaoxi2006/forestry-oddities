@@ -1,5 +1,5 @@
 {
-  "parent": "forestry_oddities:block/alveary_stimulator",
+  "parent": "forestry_oddities:block/alveary_circuit_foundation",
   "display": {
     "thirdperson": {
       "rotation": [

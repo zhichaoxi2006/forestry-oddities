@@ -1,9 +1,9 @@
 package com.zhichaoxi.forestryoddities.content.alveary;
 
 import com.zhichaoxi.forestryoddities.content.ModBlockEntities;
-import com.zhichaoxi.forestryoddities.content.alveary.circuit.StimulatorCircuit;
-import com.zhichaoxi.forestryoddities.content.alveary.circuit.StimulatorCircuits;
-import com.zhichaoxi.forestryoddities.content.alveary.circuit.StimulatorProgram;
+import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationCircuit;
+import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationCircuits;
+import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationProgram;
 import forestry.api.IForestryApi;
 import forestry.api.apiculture.IBeeListener;
 import forestry.api.apiculture.IBeeModifier;
@@ -31,12 +31,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * 电刺激器 / "Alveary Stimulator": an alveary wall part that runs a programmed circuit board and
+ * 蜂房组电路巢础 / "Alveary Circuit Foundation": an alveary wall part that runs a programmed circuit board and
  * applies its programs to the multiblock, for FE.
  *
  * <p>The port keeps the original machine's idea exactly: the part is a <b>circuit socket fed by
- * power</b>. A board programmed in the stimulator layout (see {@link StimulatorCircuit#LAYOUT})
- * carries up to four of the fourteen {@link StimulatorProgram}s; while the buffer can pay the board's
+ * power</b>. A board programmed in the circuit foundation layout (see {@link CircuitFoundationCircuit#LAYOUT})
+ * carries up to four of the fourteen {@link CircuitFoundationProgram}s; while the buffer can pay the board's
  * total draw, those programs are folded into the alveary's modifiers. Every work cycle the board's
  * draw is subtracted, and when the buffer can no longer pay, the programs switch off until the part
  * is charged again - the buffer itself never runs dry silently, because the modifier reads the
@@ -47,8 +47,8 @@ import java.util.function.Consumer;
  *     <li>The board sits in a Forestry <b>socket</b>, like the chipset of a Forestry machine: it is
  *     clicked in with the board on the cursor and taken out with a soldering iron, and no pipe or
  *     hopper can reach it. That is what the 1.12 machine did, and it is why this part implements
- *     {@link ISocketable} instead of exposing an inventory - see {@link AlvearyStimulatorMenu} for
- *     the click handling and {@link AlvearyStimulatorBlock#onRemove} for the drop.</li>
+ *     {@link ISocketable} instead of exposing an inventory - see {@link AlvearyCircuitFoundationMenu} for
+ *     the click handling and {@link AlvearyCircuitFoundationBlock#onRemove} for the drop.</li>
  *     <li>The programs are re-read from the socket on every modifier query, through a one-entry cache
  *     keyed on the socket stack, because Forestry asks for the modifier several times per bee tick
  *     and parsing the board's NBT each time would be wasteful.</li>
@@ -60,7 +60,7 @@ import java.util.function.Consumer;
  * holds survives a reload and, because it is not a menu slot, dropping it on break is this part's own
  * job rather than {@code BlockStructure}'s.</p>
  */
-public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
+public class AlvearyCircuitFoundationBlockEntity extends AbstractAlvearyBlockEntity
     implements IAlvearyComponent.BeeModifier<AlvearyMultiblockLogic>,
     IAlvearyComponent.BeeListener<AlvearyMultiblockLogic>,
     ISocketable {
@@ -86,10 +86,10 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
      */
     private final InventoryAdapter sockets = new InventoryAdapter(SOCKET_COUNT, SOCKETS_KEY);
 
-    /** Receive-only FE buffer; the stimulator never hands energy back out. */
+    /** Receive-only FE buffer; the circuit foundation never hands energy back out. */
     private final AlvearyPartEnergy energy = AlvearyPartEnergy.create(MAX_RECEIVE, CAPACITY, 0);
 
-    private final IBeeModifier beeModifier = new StimulatorModifier(this);
+    private final IBeeModifier beeModifier = new CircuitFoundationModifier(this);
 
     private final IBeeListener beeListener = new IBeeListener() {
         @Override
@@ -100,11 +100,11 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
 
     /** The board the cached program list was read from; {@link ItemStack#EMPTY} before the first read. */
     private ItemStack cachedBoard = ItemStack.EMPTY;
-    private List<StimulatorProgram> cachedPrograms = List.of();
+    private List<CircuitFoundationProgram> cachedPrograms = List.of();
 
-    public AlvearyStimulatorBlockEntity(BlockPos pos, BlockState state) {
+    public AlvearyCircuitFoundationBlockEntity(BlockPos pos, BlockState state) {
         // The "for addons" constructor: the part supplies its own block entity type and title.
-        super(ModBlockEntities.ALVEARY_STIMULATOR.get(), "block.forestry_oddities.alveary_stimulator", pos, state);
+        super(ModBlockEntities.ALVEARY_CIRCUIT_FOUNDATION.get(), "block.forestry_oddities.alveary_circuit_foundation", pos, state);
     }
 
     /* ---------------------------------------------------------------- alveary component */
@@ -121,7 +121,7 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
 
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new AlvearyStimulatorMenu(containerId, playerInventory, this);
+        return new AlvearyCircuitFoundationMenu(containerId, playerInventory, this);
     }
 
     /* ---------------------------------------------------------------- the board socket */
@@ -146,13 +146,13 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
      * <p>This is the only way a board gets in, because the socket is deliberately not an inventory
      * slot: {@code ContainerSocketedHelper} calls it when a player clicks the socket with a board on
      * the cursor or takes the board out with a soldering iron, and {@code PacketSocketUpdate} calls it
-     * to mirror the change onto the client. On the server anything that is neither a stimulator board
+     * to mirror the change onto the client. On the server anything that is neither a circuit foundation board
      * nor empty is refused, so a Forestry machine upgrade cannot be clicked in. The client skips that
      * test: it only ever mirrors what the server already accepted, and the socket widget has to be
      * able to draw whatever the server put there.</p>
      *
      * <p>The circuits on the old board and on the new one get their {@code onRemoval}/{@code
-     * onInsertion} callbacks, like the chipset in a Forestry machine - the stimulator's circuits do
+     * onInsertion} callbacks, like the chipset in a Forestry machine - the circuit foundation's circuits do
      * nothing there today, but a board from another mod's version of this part keeps working.</p>
      */
     @Override
@@ -161,7 +161,7 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
             return;
         }
         boolean serverSide = this.level == null || !this.level.isClientSide();
-        if (serverSide && !stack.isEmpty() && !StimulatorCircuits.isStimulatorBoard(stack)) {
+        if (serverSide && !stack.isEmpty() && !CircuitFoundationCircuits.isCircuitFoundationBoard(stack)) {
             return;
         }
 
@@ -178,12 +178,12 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
     }
 
     /**
-     * @return This part's socket type: only a board programmed in the stimulator layout fits, and no
+     * @return This part's socket type: only a board programmed in the circuit foundation layout fits, and no
      *     Forestry machine accepts a board carrying it
      */
     @Override
     public ResourceLocation getSocketType() {
-        return StimulatorCircuit.SOCKET_TYPE;
+        return CircuitFoundationCircuit.SOCKET_TYPE;
     }
 
     /**
@@ -205,11 +205,11 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
      *
      * @return The programs of the fitted board, in circuit order; empty without a board
      */
-    public List<StimulatorProgram> programs() {
+    public List<CircuitFoundationProgram> programs() {
         ItemStack stack = getSocket(SOCKET_BOARD);
         if (!ItemStack.matches(stack, this.cachedBoard)) {
             this.cachedBoard = stack.copy();
-            this.cachedPrograms = StimulatorCircuits.programs(stack);
+            this.cachedPrograms = CircuitFoundationCircuits.programs(stack);
         }
         return this.cachedPrograms;
     }
@@ -218,7 +218,7 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
      * @return The board's total FE draw per work cycle, i.e. the sum of its programs' draws
      */
     public int powerUsage() {
-        return StimulatorCircuits.powerUsage(programs());
+        return CircuitFoundationCircuits.powerUsage(programs());
     }
 
     /**
@@ -305,7 +305,7 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
      *
      * <p>This is not decoration: in 1.21 {@code BlockEntity#getUpdateTag} returns an <b>empty</b> tag,
      * and {@code MultiblockTileEntityBase} only adds the multiblock payload to it. Without this, a
-     * client that loads the chunk gets a stimulator whose socket looks empty - the socket widget paints
+     * client that loads the chunk gets a circuit foundation whose socket looks empty - the socket widget paints
      * nothing, the error ledger says "no circuit board" - and a board that is already socketed refuses
      * a second click, because the server's socket is not empty at all. Forestry's own socketed machines
      * do not need this because their board is a menu slot, which the container protocol syncs; a socket
@@ -329,7 +329,7 @@ public class AlvearyStimulatorBlockEntity extends AbstractAlvearyBlockEntity
      */
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
-            ModBlockEntities.ALVEARY_STIMULATOR.get(),
-            (stimulator, side) -> stimulator.getEnergyHandler());
+            ModBlockEntities.ALVEARY_CIRCUIT_FOUNDATION.get(),
+            (foundation, side) -> foundation.getEnergyHandler());
     }
 }

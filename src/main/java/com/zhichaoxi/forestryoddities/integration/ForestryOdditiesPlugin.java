@@ -1,8 +1,8 @@
 package com.zhichaoxi.forestryoddities.integration;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
-import com.zhichaoxi.forestryoddities.content.alveary.circuit.StimulatorCircuit;
-import com.zhichaoxi.forestryoddities.content.alveary.circuit.StimulatorProgram;
+import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationCircuit;
+import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationProgram;
 import forestry.api.plugin.ICircuitRegistration;
 import forestry.api.plugin.IForestryPlugin;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -41,19 +41,19 @@ public final class ForestryOdditiesPlugin implements IForestryPlugin {
     }
 
     /**
-     * Registers the alveary stimulator's circuit layout and its fourteen electron-tube circuits.
+     * Registers the alveary circuit foundation's layout and its fourteen electron-tube circuits.
      *
-     * <p>Registering the layout is what puts "Electrical Stimulator" into the soldering iron's layout
+     * <p>Registering the layout is what puts "Circuit Foundation" into the soldering iron's layout
      * list; registering a circuit per electron tube is what makes that tube mean a program while the
      * layout is selected. Both are Forestry's own mechanism, so nothing else in this mod has to teach
-     * the soldering iron about the stimulator. Every tube Forestry's thermionic fabricator can make
-     * has a program, so the layout owns all fourteen and none is left without a circuit.</p>
+     * the soldering iron about the circuit foundation. Every tube Forestry's thermionic fabricator
+     * can make has a program, so the layout owns all fourteen and none is left without a circuit.</p>
      */
     @Override
     public void registerCircuits(ICircuitRegistration circuits) {
-        circuits.registerLayout(StimulatorCircuit.LAYOUT, StimulatorCircuit.SOCKET_TYPE);
+        circuits.registerLayout(CircuitFoundationCircuit.LAYOUT, CircuitFoundationCircuit.SOCKET_TYPE);
 
-        for (StimulatorProgram program : StimulatorProgram.values()) {
+        for (CircuitFoundationProgram program : CircuitFoundationProgram.values()) {
             // Forestry is a required dependency, so its electron tubes are always present; a missing
             // one would be a broken installation, and failing loudly beats registering a circuit that
             // no item can ever produce.
@@ -61,14 +61,15 @@ public final class ForestryOdditiesPlugin implements IForestryPlugin {
                 ForestryOddities.FORESTRY_MOD_ID, program.electronTubeId());
             if (!BuiltInRegistries.ITEM.containsKey(tubeId)) {
                 throw new IllegalStateException("Missing Forestry electron tube " + tubeId
-                    + " for stimulator program " + program.id());
+                    + " for circuit foundation program " + program.id());
             }
 
             Item tube = BuiltInRegistries.ITEM.get(tubeId);
-            circuits.registerCircuit(StimulatorCircuit.LAYOUT, new ItemStack(tube), new StimulatorCircuit(program));
+            circuits.registerCircuit(CircuitFoundationCircuit.LAYOUT, new ItemStack(tube),
+                new CircuitFoundationCircuit(program));
         }
 
-        ForestryOddities.LOGGER.info("Registered the alveary stimulator circuit layout with {} programs",
-            StimulatorProgram.values().length);
+        ForestryOddities.LOGGER.info("Registered the alveary circuit foundation layout with {} programs",
+            CircuitFoundationProgram.values().length);
     }
 }

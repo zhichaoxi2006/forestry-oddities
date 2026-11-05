@@ -1,7 +1,7 @@
 package com.zhichaoxi.forestryoddities.content;
 
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingBlockEntity;
-import com.zhichaoxi.forestryoddities.content.alveary.AlvearyStimulatorBlockEntity;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationBlockEntity;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTransmissionBlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
  * itself, per work cycle.</p>
  *
  * <p>The two powered alveary parts expose receive-only block buffers for the same reason: any FE
- * source can charge a stimulator, and a transmission hands that energy to the rest of the alveary.
+ * source can charge a circuit foundation, and a transmission hands that energy to the rest of the alveary.
  * Neither part can be drained through its capability.</p>
  *
  * <p>The capability handlers are cached per stack / block entity by NeoForge, so the item storage
@@ -36,11 +36,18 @@ public final class ModCapabilities {
 
         // The alveary frame housing's one frame slot, so pipes and hoppers can insert and pull frames.
         AlvearyFrameHousingBlockEntity.registerCapabilities(event);
-        // The FE buffers of the two powered parts. Neither has an item handler: the stimulator's
+        // The FE buffers of the two powered parts. Neither has an item handler: the circuit foundation's
         // board sits in a Forestry socket, which automation cannot reach.
 
-        AlvearyStimulatorBlockEntity.registerCapabilities(event);
+        AlvearyCircuitFoundationBlockEntity.registerCapabilities(event);
         AlvearyTransmissionBlockEntity.registerCapabilities(event);
+
+        // Long energy (long 能量): nothing of this mod holds more than an int of FE yet, so no source
+        // capability is registered here. The insert side is in use - the Voltaic Bee's effect offers
+        // its discharge through LongEnergy - and a part that grows a long buffer adds one call:
+        //   EnergyIntegrations.registerSourceCapabilities(event, ModBlockEntities.X.get(),
+        //       (part, side) -> part.energySource());
+        // which exposes it through the energy API of every supported tech mod (see compat.energy).
     }
 
     private record SoftLightFrameEnergy(ItemStack stack) implements IEnergyStorage {

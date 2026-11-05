@@ -20,29 +20,29 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * 电刺激器 / "Alveary Stimulator": an alveary wall part that runs a programmed circuit board for FE.
+ * 蜂房组电路巢础 / "Alveary Circuit Foundation": an alveary wall part that runs a programmed circuit board for FE.
  *
- * <p>Build it into the exterior of an alveary, click a circuit board programmed in the Electrical
- * Stimulator layout into its socket, and charge it with FE. Its fourteen programs raise production,
+ * <p>Build it into the exterior of an alveary, click a circuit board programmed in the Circuit
+ * Foundation layout into its socket, and charge it with FE. Its fourteen programs raise production,
  * pollination, mutation or territory - or lower them, or simulate the Nether, keep the rain off,
  * simulate daylight, keep the bees awake, tolerate any climate, or provide flowers - while the part
  * can pay their draw, which it does once per work cycle.</p>
  *
  * <p>The block itself is deliberately thin: {@link AlvearyPartBlock} supplies the multiblock plumbing,
- * {@link BlockStructure} opens the GUI, the behaviour lives in {@link AlvearyStimulatorBlockEntity},
+ * {@link BlockStructure} opens the GUI, the behaviour lives in {@link AlvearyCircuitFoundationBlockEntity},
  * and the one thing left over is dropping the socketed board - {@link BlockStructure} only drops a
  * part's <em>inventory</em>, and a socket is not an inventory slot, so a board would otherwise vanish
  * with the part.</p>
  */
-public class AlvearyStimulatorBlock extends AlvearyPartBlock {
-    public AlvearyStimulatorBlock(BlockBehaviour.Properties properties) {
+public class AlvearyCircuitFoundationBlock extends AlvearyPartBlock {
+    public AlvearyCircuitFoundationBlock(BlockBehaviour.Properties properties) {
         super(properties);
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new AlvearyStimulatorBlockEntity(pos, state);
+        return new AlvearyCircuitFoundationBlockEntity(pos, state);
     }
 
     /**
@@ -66,7 +66,7 @@ public class AlvearyStimulatorBlock extends AlvearyPartBlock {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("block.forestry_oddities.alveary_stimulator.desc")
+        tooltip.add(Component.translatable("block.forestry_oddities.alveary_circuit_foundation.desc")
             .withStyle(ChatFormatting.GRAY));
     }
 }

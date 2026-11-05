@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "forestry_oddities:alveary_stimulator"
+          "name": "forestry_oddities:alveary_circuit_foundation"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "forestry_oddities:blocks/alveary_stimulator"
+  "random_sequence": "forestry_oddities:blocks/alveary_circuit_foundation"
 }

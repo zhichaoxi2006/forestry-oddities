@@ -2,8 +2,8 @@ package com.zhichaoxi.forestryoddities.client;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.ModMenus;
-import com.zhichaoxi.forestryoddities.content.alveary.AlvearyStimulatorBlockEntity;
-import com.zhichaoxi.forestryoddities.content.alveary.AlvearyStimulatorMenu;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationBlockEntity;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationMenu;
 import forestry.api.core.ForestryError;
 import forestry.api.core.IError;
 import forestry.api.core.IErrorSource;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The stimulator screen: the alveary stimulator window of Binnie's Mod, reproduced inside Forestry's
- * GUI shell.
+ * The circuit foundation's screen: the alveary stimulator window of Binnie's Mod, reproduced inside
+ * Forestry's GUI shell.
  *
  * <p>This screen is the port's window, not a Forestry machine window: {@code guistimulator.png} is
  * Binnie's own 176x144 GUI sheet, copied byte for byte from the 1.21.1 port and never retouched, with
@@ -52,10 +52,10 @@ import java.util.Set;
  * sprites, titles and help text. Hovering the gauge shows the numbers; hovering the socket shows the
  * board.</p>
  */
-public class AlvearyStimulatorScreen extends GuiForestry<AlvearyStimulatorMenu> {
+public class AlvearyCircuitFoundationScreen extends GuiForestry<AlvearyCircuitFoundationMenu> {
     /** Binnie's stimulator window, copied verbatim; the top-left 176x144 of the sheet is the GUI. */
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
-        ForestryOddities.MOD_ID, "textures/gui/alveary_stimulator.png");
+        ForestryOddities.MOD_ID, "textures/gui/alveary_circuit_foundation.png");
 
     /** The port's header strip, drawn above the legacy window for the title. */
     private static final int HEADER_HEIGHT = 40;
@@ -65,7 +65,7 @@ public class AlvearyStimulatorScreen extends GuiForestry<AlvearyStimulatorMenu> 
     private static final int CONTENT_OFFSET = HEADER_HEIGHT - BORDER;
     /** The legacy window's own height. */
     private static final int LEGACY_HEIGHT = 144;
-    /** GUI height, matching {@link AlvearyStimulatorMenu}'s player inventory origin. */
+    /** GUI height, matching {@link AlvearyCircuitFoundationMenu}'s player inventory origin. */
     private static final int IMAGE_HEIGHT = LEGACY_HEIGHT + CONTENT_OFFSET;
     /** Plain panel colour of the header strip, the same fill the port uses. */
     private static final int HEADER_FILL = 0xFFC6C6C6;
@@ -89,13 +89,13 @@ public class AlvearyStimulatorScreen extends GuiForestry<AlvearyStimulatorMenu> 
      */
     private final IErrorSource errorSource = this::currentErrors;
 
-    public AlvearyStimulatorScreen(AlvearyStimulatorMenu menu, Inventory inventory, Component title) {
+    public AlvearyCircuitFoundationScreen(AlvearyCircuitFoundationMenu menu, Inventory inventory, Component title) {
         // The ResourceLocation constructor is the one Forestry exposes for addon GUIs.
         super(TEXTURE, menu, inventory, title);
         // The ported window is 13 pixels taller than a stock Forestry window: the header strip.
         this.imageHeight = IMAGE_HEIGHT;
         this.widgetManager.add(new SocketWidget(this.widgetManager, SOCKET_X, SOCKET_Y,
-            menu.getTile(), AlvearyStimulatorBlockEntity.SOCKET_BOARD));
+            menu.getTile(), AlvearyCircuitFoundationBlockEntity.SOCKET_BOARD));
     }
 
     @Override
@@ -152,9 +152,9 @@ public class AlvearyStimulatorScreen extends GuiForestry<AlvearyStimulatorMenu> 
         }
 
         graphics.renderComponentTooltip(this.font, List.of(
-            Component.translatable("forestry_oddities.alveary_stimulator.energy",
+            Component.translatable("forestry_oddities.alveary_circuit_foundation.energy",
                 this.menu.energyStored(), this.menu.energyCapacity()),
-            Component.translatable("forestry_oddities.alveary_stimulator.usage", this.menu.powerUsage())
+            Component.translatable("forestry_oddities.alveary_circuit_foundation.usage", this.menu.powerUsage())
         ), mouseX, mouseY);
     }
 
@@ -186,6 +186,6 @@ public class AlvearyStimulatorScreen extends GuiForestry<AlvearyStimulatorMenu> 
     }
 
     public static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenus.ALVEARY_STIMULATOR.get(), AlvearyStimulatorScreen::new);
+        event.register(ModMenus.ALVEARY_CIRCUIT_FOUNDATION.get(), AlvearyCircuitFoundationScreen::new);
     }
 }

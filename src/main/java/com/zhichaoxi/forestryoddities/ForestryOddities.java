@@ -61,7 +61,7 @@ public final class ForestryOddities {
         modContainer.registerConfig(ModConfig.Type.COMMON, ForestryOdditiesConfig.SPEC);
 
         // Content: the apiary frames from TODO.md (content.*) and the three alveary parts
-        // (content.alveary): the frame housing plus the stimulator and transmission ported from
+        // (content.alveary): the frame housing plus the circuit foundation and transmission ported from
         // Binnie's Mod. Data components and the recipe serializer have to be registered before the
         // items are built, hence the order; blocks before their block entities so the block entity
         // type can name an already registered block.

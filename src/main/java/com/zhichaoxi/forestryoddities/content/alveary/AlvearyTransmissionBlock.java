@@ -14,12 +14,12 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * 空中传输 / "Alveary Transmission": an alveary wall part that takes FE in and hands it to the other
+ * 蜂房组配电 / "Alveary Transmission": an alveary wall part that takes FE in and hands it to the other
  * parts of the multiblock.
  *
  * <p>It is the original machine's role - a power distributor inside the alveary - and nothing more:
  * the transmission never touches the bees, so powering it changes no production, territory or
- * lifespan by itself. Its purpose is to feed the {@link AlvearyStimulatorBlockEntity}s built into the
+ * lifespan by itself. Its purpose is to feed the {@link AlvearyCircuitFoundationBlockEntity}s built into the
  * same alveary from a single power line, without a cable to every part's face.</p>
  *
  * <p>Right-clicking it opens the alveary's own GUI, exactly like Forestry's parts do; the part has no

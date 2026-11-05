@@ -12,24 +12,24 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * The fourteen programs an alveary stimulator can run: the nine of Binnie's Mod (Extra Bees'
+ * The fourteen programs an alveary circuit foundation can run: the nine of Binnie's Mod (Extra Bees'
  * "Electrical Stimulator", 1.12) through its NeoForge port, plus five of this mod's own that give
  * the electron tubes Forestry's circuits leave unused a purpose.
  *
  * <p>A program is an {@link IBeeModifier}: it is the effect the circuit board has on the bees, not a
- * machine state. That is what lets the stimulator hand Forestry a plain list of modifiers - the
+ * machine state. That is what lets the circuit foundation hand Forestry a plain list of modifiers - the
  * alveary already folds every part's modifier into the housing's combined modifier, so nothing here
  * has to know how production, aging or mutation are computed.</p>
  *
  * <p>The mapping is one-to-one with Forestry's fourteen electron tubes: every constant is one
- * circuit the <b>soldering iron</b> can solder onto a circuit board while the stimulator layout is
- * selected (see {@link StimulatorCircuit#LAYOUT}), and no tube is left without a program. The first
+ * circuit the <b>soldering iron</b> can solder onto a circuit board while the circuit foundation layout is
+ * selected (see {@link CircuitFoundationCircuit#LAYOUT}), and no tube is left without a program. The first
  * nine are the reference implementation's; the last five are this mod's, and each takes the tube
  * whose own Forestry circuit already means something adjacent - copper for the engine's choke,
  * silicon for nothing at all, emerald for the orchard, amber for machine fortune, ender for the End
  * farm. The power draw is FE per <em>work cycle</em>, i.e. per
  * {@code IBeekeepingLogic.DEFAULT_WORK_THROTTLE} (550 ticks), because that is when the alveary wears
- * its parts' equipment and when the stimulator pays for the programs.</p>
+ * its parts' equipment and when the circuit foundation pays for the programs.</p>
  *
  * <p>The modifiers are multiplicative, exactly like the reference implementation, and they compose:
  * two "Production Up" boards' worth of programs in one board multiply twice. Genetic decay is raised
@@ -39,13 +39,13 @@ import java.util.List;
  * <p>The five additions are the boolean half of {@link IBeeModifier} - the questions {@code Bee} and
  * {@code BeeHousingBeekeepingLogic} ask about the <em>place</em> rather than the <em>amount</em>:
  * does the rain stop work, is it day, is the queen asleep, is the climate tolerable, are there
- * flowers? The reference implementation never touched them, so a stimulator could only make a bee
+ * flowers? The reference implementation never touched them, so a circuit foundation could only make a bee
  * faster; a soldered board can now also make a place workable, which is why those five cost more
  * (10-35 FE) than the port's numeric programs (10-20 FE): they stand in for structure blocks instead
  * of multiplying numbers. Two of them in one board never stack - answering "yes" twice is the same
  * answer - while a numeric pair does.</p>
  */
-public enum StimulatorProgram implements IBeeModifier {
+public enum CircuitFoundationProgram implements IBeeModifier {
     /** +50% production speed for 10 FE per work cycle. */
     LOW_VOLTAGE("low_voltage", "iron_electron_tube", 10) {
         @Override
@@ -181,7 +181,7 @@ public enum StimulatorProgram implements IBeeModifier {
     private final String electronTubeId;
     private final int powerUsage;
 
-    StimulatorProgram(String id, String electronTubeId, int powerUsage) {
+    CircuitFoundationProgram(String id, String electronTubeId, int powerUsage) {
         this.id = id;
         this.electronTubeId = electronTubeId;
         this.powerUsage = powerUsage;
@@ -207,8 +207,8 @@ public enum StimulatorProgram implements IBeeModifier {
      * @return The program, or {@code null} when no program has that id
      */
     @Nullable
-    public static StimulatorProgram byId(String id) {
-        for (StimulatorProgram program : values()) {
+    public static CircuitFoundationProgram byId(String id) {
+        for (CircuitFoundationProgram program : values()) {
             if (program.id.equals(id)) {
                 return program;
             }
@@ -217,7 +217,7 @@ public enum StimulatorProgram implements IBeeModifier {
     }
 
     /**
-     * Every original stimulator program raised genetic decay by 50%, so the override lives on the
+     * Every original circuit foundation program raised genetic decay by 50%, so the override lives on the
      * enum instead of on the constants. It is the price of using a program at all.
      */
     @Override
@@ -260,18 +260,18 @@ public enum StimulatorProgram implements IBeeModifier {
     }
 
     private static void statement(List<Component> tooltip, String key) {
-        tooltip.add(Component.translatable("forestry_oddities.stimulator." + key).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("forestry_oddities.circuit_foundation." + key).withStyle(ChatFormatting.GRAY));
     }
 
     private static void increase(List<Component> tooltip, String modifier, int amount) {
-        tooltip.add(Component.translatable("forestry_oddities.stimulator.increase",
-            Component.translatable("forestry_oddities.stimulator.modifier." + modifier), amount)
+        tooltip.add(Component.translatable("forestry_oddities.circuit_foundation.increase",
+            Component.translatable("forestry_oddities.circuit_foundation.modifier." + modifier), amount)
             .withStyle(ChatFormatting.GRAY));
     }
 
     private static void decrease(List<Component> tooltip, String modifier, int amount) {
-        tooltip.add(Component.translatable("forestry_oddities.stimulator.decrease",
-            Component.translatable("forestry_oddities.stimulator.modifier." + modifier), amount)
+        tooltip.add(Component.translatable("forestry_oddities.circuit_foundation.decrease",
+            Component.translatable("forestry_oddities.circuit_foundation.modifier." + modifier), amount)
             .withStyle(ChatFormatting.GRAY));
     }
 

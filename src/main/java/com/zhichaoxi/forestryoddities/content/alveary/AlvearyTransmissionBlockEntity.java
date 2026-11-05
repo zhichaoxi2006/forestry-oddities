@@ -15,12 +15,12 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import javax.annotation.Nullable;
 
 /**
- * 空中传输 / "Alveary Transmission": the alveary's FE distributor.
+ * 蜂房组配电 / "Alveary Transmission": the alveary's FE distributor.
  *
  * <p>It buffers FE - it is receive-only to the outside, like every part of the original machine - and
  * hands what it holds to the other parts of the assembled alveary, once per tick. Being powered
  * changes nothing about the bees; the part that makes the energy useful is the
- * {@link AlvearyStimulatorBlockEntity}.</p>
+ * {@link AlvearyCircuitFoundationBlockEntity}.</p>
  *
  * <p>{@link IAlvearyComponent.Active} is how an alveary part receives ticks: the controller collects
  * every member that implements it when the structure assembles, and calls

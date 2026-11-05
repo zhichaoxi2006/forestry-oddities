@@ -5,7 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * The {@code ControlEnergyBar} gauge of 1.12 Binnie's Mod, ported so the alveary stimulator's FE
+ * The {@code ControlEnergyBar} gauge of 1.12 Binnie's Mod, ported so the alveary circuit foundation's FE
  * readout looks exactly like the machine it came from.
  *
  * <p>Three layers, back to front, all cut from Binnie's {@code craftgui-controls.png} as a one-pixel
@@ -20,7 +20,7 @@ import net.minecraft.resources.ResourceLocation;
  * </ol>
  *
  * <p>The bar grows along its longer axis: a wide gauge fills left to right, a tall one bottom to top.
- * The stimulator's is 72x16, so its fill is horizontal. The charge is clamped to the buffer, so a
+ * The circuit foundation's is 72x16, so its fill is horizontal. The charge is clamped to the buffer, so a
  * block entity reporting more than its own capacity still draws a full bar rather than overflowing
  * the frame.</p>
  *

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "forestry_oddities:block/alveary_stimulator"
+    "all": "forestry_oddities:block/alveary_circuit_foundation"
   }
 }

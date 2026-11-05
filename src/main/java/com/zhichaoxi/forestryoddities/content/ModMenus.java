@@ -2,7 +2,7 @@ package com.zhichaoxi.forestryoddities.content;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingMenu;
-import com.zhichaoxi.forestryoddities.content.alveary.AlvearyStimulatorMenu;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.bus.api.IEventBus;
@@ -26,9 +26,9 @@ public final class ModMenus {
         MENUS.register("alveary_frame_housing",
             () -> IMenuTypeExtension.create(AlvearyFrameHousingMenu::fromNetwork));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<AlvearyStimulatorMenu>> ALVEARY_STIMULATOR =
-        MENUS.register("alveary_stimulator",
-            () -> IMenuTypeExtension.create(AlvearyStimulatorMenu::fromNetwork));
+    public static final DeferredHolder<MenuType<?>, MenuType<AlvearyCircuitFoundationMenu>> ALVEARY_CIRCUIT_FOUNDATION =
+        MENUS.register("alveary_circuit_foundation",
+            () -> IMenuTypeExtension.create(AlvearyCircuitFoundationMenu::fromNetwork));
 
     private ModMenus() {
     }
