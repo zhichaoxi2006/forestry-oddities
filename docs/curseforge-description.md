@@ -235,7 +235,7 @@ A power distributor — it **never touches the bees**. It buffers 1 000 FE and h
 
 A bee that turns a hive's spare work speed into **Forge Energy**, using this mod's own alveary wiring to get the power out.
 
-**Getting one.** Anachrone × Glacial, chance **4%**, and only in a **thunderstorm** with a **lightning rod directly underneath the housing**. The housing has to be rain-proof too (a rain-tolerant queen, sealed housing, or — with the default rain mode — a roof), and both parent lines are late-game: the Anachrone comes from relic bees and the Glacial is depth 7.
+**Getting one.** Anachrone × Glacial, chance **4%**, and only in a **thunderstorm**. The housing has to be rain-proof too (a rain-tolerant queen, sealed housing, or — with the default rain mode — a roof), and both parent lines are late-game: the Anachrone comes from relic bees and the Glacial is depth 7.
 
 **The effect.** Voltaic Discharge yields `ceil(192 × speed²)` FE per tick, where speed is the bee's speed allele times the housing's production modifier — and it is squared, so frames are what actually move the number:
 
@@ -246,9 +246,9 @@ A bee that turns a hive's spare work speed into **Forge Energy**, using this mod
 | Alveary + one Production Up program or frame | 1.6 | 492 | 9 840 |
 | Alveary + three frames | 6.4 | 7 865 | 157 300 |
 
-**Where the energy goes.** Every block touching the *outside of the hive's shell*, in flood-fill order — six faces for an apiary, 54 for a 3×3×3 alveary — offered through the long-energy layer so sinks bigger than an `int` get it in one call. Then the alveary's own **Transmission**, up to its buffer. The remainder is dropped: a housing is not a battery, so run a cable to it.
+**Where the energy goes.** Every block touching the *outside of the hive's shell*, in flood-fill order — six faces for an apiary, 54 for a 3×3×3 alveary — offered through the long-energy layer so sinks bigger than an `int` get it in one call. That is the whole list: the remainder is dropped, and a housing is not a battery, so run a cable to it. An alveary's own parts are neighbours too — the Transmission or a Circuit Foundation sitting in the wall is fed by the same pass as a cable would be.
 
-That closes the loop the design calls for: one Voltaic Bee, a Transmission and a Circuit Foundation in the same alveary pays for the programs that keep the bee working (about 67 650 FE per work cycle against a five-program draw of roughly 100) with everything above that leaving the hive as free power.
+That closes the loop the design calls for: one Voltaic Bee, a Transmission and a Circuit Foundation in the same alveary fills the Transmission's buffer, and the part hands it on to the programs that keep the bee working (about 67 650 FE per work cycle against a five-program draw of roughly 100), with everything above that leaving the hive as free power.
 
 The species is deliberately fussy — no temperature or humidity tolerance, diurnal, no cave dwelling, no rain tolerance, redstone for flowers — so an alveary and its programs are what make it good. Config: `apiculture.voltaicBeePowerMultiplier` (0–10, default 1.0; `0` switches generation off without removing the bee).
 
@@ -530,7 +530,7 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 
 把蜂后剩余的工作速度变成**能量（FE）**的蜜蜂，并用本模组自己的蜂房组线路把电送出去。
 
-**获得方式**：`错时蜂 × 冰河蜂`，概率 **4%**，并且只在**雷雨天**、且蜂房**正下方有避雷针**时发生。蜂房还必须是防雨的（耐雨蜂后、密封蜂房，或默认雨天模式下有天棚），两条亲本血统都属于后期内容。
+**获得方式**：`错时蜂 × 冰河蜂`，概率 **4%**，并且只在**雷雨天**发生。蜂房还必须是防雨的（耐雨蜂后、密封蜂房，或默认雨天模式下有天棚），两条亲本血统都属于后期内容。
 
 **效果**：`伏打放电` 每 tick 产出 `ceil(192 × 工作速度²)` FE，工作速度是蜂的速度等位基因乘以蜂房的产量修正——而且是平方关系，所以真正把数字拉上去的是框架与程序：
 
@@ -541,9 +541,9 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 | 蜂房组 + 一个产量提高程序或框架 | 1.6 | 492 | 9 840 |
 | 蜂房组 + 三个框架 | 6.4 | 7 865 | 157 300 |
 
-**电能去向**：先按洪泛顺序喂给贴着**蜂房外壳外侧**的每一个方块——蜂房 6 个面，3×3×3 蜂房组 54 个面——通过 long 能量层以单次调用交给任何可以接收的储能（超出 int 范围的储能也能一次吃饱）；然后交给蜂房组自己的**蜂房组配电**；剩下的直接丢弃：蜂房不是电池，请把线接过去。
+**电能去向**：先按洪泛顺序喂给贴着**蜂房外壳外侧**的每一个方块——蜂房 6 个面，3×3×3 蜂房组 54 个面——通过 long 能量层以单次调用交给任何可以接收的储能（超出 int 范围的储能也能一次吃饱）；就这些，剩下的直接丢弃：蜂房不是电池，请把线接过去。蜂房组自己的部件同样是“邻居”：墙里的配电、电路巢础和外面接的电缆走同一次推送。
 
-这就闭合了设计想要的循环：同一组蜂房组里放一只伏打蜂、一个配电和一个电路巢础，产出的电足够支付维持它的程序（约 67 650 FE/工作周期，对五程序约 100 FE 的消耗），其余全部作为外送电力。
+这就闭合了设计想要的循环：同一组蜂房组里放一只伏打蜂、一个配电和一个电路巢础，配电作为邻居拿到电、再由它派发给维持这只蜂的程序（约 67 650 FE/工作周期，对五程序约 100 FE 的消耗），其余全部作为外送电力。
 
 这个蜂种被刻意设计得挑剔——没有温度与湿度耐受、昼行、不穴居、不耐雨、以红石为采蜜对象——所以蜂房组和它的程序才是让它变强的关键。配置项：`apiculture.voltaicBeePowerMultiplier`（0–10，默认 1.0；设为 `0` 可关闭发电而不删除蜜蜂）。
 

@@ -1042,8 +1042,8 @@ untested: no block of this mod owns a long source yet.
 ## Voltaic Bee (伏打蜂)
 
 A bee that turns a hive's spare work speed into Forge Energy. The effect and the transfer follow
-Career Bees' energy bee (`careerbees:power`); the species, the numbers, the mutation and the backflow
-into this mod's own alveary parts are this mod's. Design document: `docs/voltaic-bee-design.md`.
+Career Bees' energy bee (`careerbees:power`); the species, the numbers and the mutation are this
+mod's. Design document: `docs/voltaic-bee-design.md`.
 Implementation: `content/apiculture/VoltaicBeeEffect`.
 
 ### The species
@@ -1120,16 +1120,17 @@ and the same quirk; this one is 48 % of its rate at the same speed, and the bee 
    The shell is the whole multiblock, not the one block the bee sits in: six faces for an apiary, 54
    for a 3x3x3 alveary (9 below, 9 above, 36 around the sides). Each face is reported with the side
    that really touches the shell, so a machine that only takes energy from one face is fed correctly.
-2. Then the **alveary transmission** (`蜂房组配电`) of the same assembled multiblock, up to its 500 FE
-   per offer and 1 000 FE of buffer. That is an internal settlement: the transmission still refuses
-   extraction from outside.
-3. Then nowhere. The remainder is dropped, so a housing never becomes a battery - run a cable to it,
-   do not come back later for a stored charge.
 
-What this buys is the loop the design document describes: an alveary with one Voltaic Bee, a
-transmission and a circuit foundation pays for the circuit foundation programs that keep the bee working (67 650 FE
-per 550-tick work cycle against a five-program draw of 100), and everything above that is what leaves
-the hive.
+There is no second step: the remainder is dropped, so a housing never becomes a battery - run a
+cable to the hive, do not come back later for a stored charge.
+
+The alveary's **own parts are neighbours too**. The shell is the set of bee housings that share an
+inventory, so a transmission or a circuit foundation standing next to one is just another block with
+an energy capability, served in the same pass as a cable. That is what keeps the loop the design
+document describes: an alveary with one Voltaic Bee, a transmission and a circuit foundation fills the
+transmission's 1 000 FE buffer (500 FE per offer) as if it were a cable, the part hands it to the
+foundations once per tick, and 67 650 FE per 550-tick work cycle against a five-program draw of about
+100 leaves the rest to whatever else touches the shell.
 
 An electric spark burst follows the rate, one burst every four ticks, from one spark at 123 FE/tick up
 to six. No sound: a burst every four ticks is noise rather than information.
@@ -1175,13 +1176,20 @@ in its wall:
 * a lone apiary reports six shell faces, and a transmission placed east of it is reported with `west` -
   the face of the transmission that really touches the hive; the apiary's modifier really is 0.1, and
   two effect ticks put exactly 2 and then 4 FE into that transmission's buffer;
-* blocking the neighbour makes the discharge go nowhere without throwing, and an apiary hands the whole
-  budget back as "no alveary to take it";
+* blocking the neighbour makes the discharge go nowhere without throwing, and `push` hands the whole
+  budget back untouched;
 * a real assembled 3x3x3 alveary with a transmission in its wall reports **54** shell faces, gives the
   bee its own 0.8 speed (123 FE/tick), and one effect tick lands 123 FE in the alveary's own
-  transmission even though nothing outside accepts energy - so the self-supply loop works;
-* `backflow` stops when the 1 000 FE buffer is full and reports the remainder (4 123 FE out of 5 000
-  with 123 FE already stored), and the buffer reads back its capacity through the part.
+  transmission even though nothing outside accepts energy - so the self-supply loop works. The
+  transmission is reached as one of those 54 neighbours, not by a special case;
+* the part's buffer reads back its capacity, and a full buffer refuses the excess, which is then
+  dropped like any other unaccepted energy.
+
+Those assertions were run against the build that still had **backflow**, a second settlement step that
+poured the remainder into the alveary transmission after the shell walk. Backflow has since been
+removed: the transmission is one of the shell's neighbours, so the same 123 FE/tick still lands in it,
+but there is no second step, and the "4 123 FE out of 5 000 with 123 FE already stored" case no longer
+exists to test.
 
 The mutation route and the flower type were re-verified afterwards (a second temporary self-test,
 `25` assertions, same dev server, removed again): one mutation into the species with the `anachrone` ×
@@ -1288,7 +1296,7 @@ src/main/java/com/zhichaoxi/forestryoddities/
     content/alveary/circuit/CircuitFoundationCircuit.java   one program as a Forestry circuit + the layout
     content/alveary/circuit/CircuitFoundationCircuits.java  circuit board -> mounted programs
     content/apiculture/VoltaicBeeEffect.java  伏打放电: the Voltaic Bee's effect (rate, shell
-                                              push, alveary backflow, sparks)
+                                              push, sparks)
     client/ForestryOdditiesClient.java          charged item model property + potion tint (client only)
     client/AlvearyFrameHousingScreen.java       the frame housing GUI (client only)
     client/AlvearyCircuitFoundationScreen.java  the circuit foundation GUI: socket widget, charge bar, status line

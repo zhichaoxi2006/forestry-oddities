@@ -114,6 +114,6 @@
   "allele.forestry.bee_species.forestry_oddities.voltaicus.desc": "铜翼，和一种能从牙根里听见的嗡鸣。它以红石为口粮，不酿蜜，只发电。|《养蜂入门指南》",
   "allele.forestry.flower_type.forestry_oddities.flower_type_redstone": "红石",
   "allele.forestry.bee_effect.forestry_oddities.voltaic": "伏打放电",
-  "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "壳外的邻居先挑。没人接的火，才顺着壳缝流回它自己的血管。",
+  "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "火只往壳外走。有人接，就整份递出去；没人接的散在风里，一滴也不回头。",
   "for.mutation.condition.thunderstorm": "该突变仅在雷雨天发生。"
 }

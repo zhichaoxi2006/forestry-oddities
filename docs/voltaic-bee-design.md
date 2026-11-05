@@ -12,7 +12,7 @@
 
 一句话：**一只把蜂房"多余的精力"换成 FE 的蜂，给本模组的电力部件和外部电缆喂电。**
 
-* 特殊效果沿用 CareerBees 能量蜂（`careerbees:power`）的思路：每个 effect tick 把一笔 FE 推给与蜂房相邻、且能接收的方块；推不出去的余量不凭空消失（§4.4）。
+* 特殊效果沿用 CareerBees 能量蜂（`careerbees:power`）的思路：每个 effect tick 把一笔 FE 推给与蜂房相邻、且能接收的方块；推不出去的余量**直接丢弃**（§4.4），蜂房不留任何缓冲。
 * **其余全部重新设计**：分类学、基因组、产物、突变路线、外观、语言、配置，以及"电从哪来、给谁用"的玩法闭环（§11）。
 
 ## 2. 与能量蜂的异同
@@ -21,7 +21,7 @@
 |---|---|---|
 | 效果 id | `careerbees:power` | `forestry_oddities:voltaic` |
 | 速率 | `ceil(400 × speed²)` FE/tick | `ceil(192 × speed²)` FE/tick |
-| 余量去向 | 蜂房 1 tick 缓存，暴露成能量能力 | 回灌同蜂房组的**蜂房组配电**；外部电缆走蜂房组外壳（蜂房缓存见 §15 v2） |
+| 余量去向 | 蜂房 1 tick 缓存，暴露成能量能力 | 直接丢弃：配电与电路巢础只是"外壳邻居"之一，和电缆走同一条推送（§4.4）；蜂房缓存见 §15 v2 |
 | 速度 / 寿命 | 0.8 / 50 | 0.8 / 40 |
 | 气候 | 无耐受、日行 | 无耐受、日行、怕雨、不见洞穴（**故意的**，见 §5） |
 | 产物 | 蜂蜜蜂窝 0.4 | 蜂蜜蜂窝 0.3 + 红石 0.2 + 铜锭 0.08 |
@@ -107,7 +107,7 @@ for pos in adjacentPositions(housing):          // §4.3.1
     if sink != null:
         accepted = sink.receiveEnergy(remaining, false)
         remaining -= clamp(accepted, 0, remaining)
-remaining = backflow(housing, remaining)        // §4.4
+// 剩下的直接丢弃（§4.4）：没有回灌，蜂房也不留缓冲
 ```
 
 #### 4.3.1 "邻近方块"是多方块外壳
@@ -118,17 +118,16 @@ remaining = backflow(housing, remaining)        // §4.4
 * `side` 永远取六向之一（从蜂房指向目标），不会给接收端传 null。
 * 顺序不去抖：同一个蜂房的相邻表在一生之内稳定，玩家看到的是"先接上的先吃电"。
 
-### 4.4 余量回灌：蜂房组配电
+### 4.4 余量：丢弃（回灌已删除）
 
-预算走完邻近方块后还剩 `left`：
+预算走完邻近方块后还剩 `left`，**到此为止**：剩下的直接丢掉，蜂房不留缓冲，`push()` 把余量原样返回，`doEffect` 不读它。
 
-1. 若 housing 属于**已组装**的蜂房组，遍历 `IMultiblockController#getComponents()`，取第一个 `AlvearyTransmissionBlockEntity`（本模组的「蜂房组配电」）；
-2. 用它现有的 `getEnergyHandler()`（`IEnergyStorage`）`receiveEnergy(min(left, Integer.MAX_VALUE), false)`，扣掉它实际收下的；
-3. 仍有剩余 → 丢弃。
+早期稿在 `push()` 之后还有一段**余量回灌**：在已组装的蜂房组里找第一个 `AlvearyTransmissionBlockEntity`，把余量灌进它的接收缓冲，好让"不下电缆也能自转"。这段代码已经删除，两条理由：
 
-**意义**：不下电缆也能让蜂房组自己转起来（§11 的启动闭环）。这是**内部结算**，不改变配电"对外只进不出"的契约 —— 配电对外依旧 `canExtract() == false`。
+1. **它和外壳推送重叠。** 蜂房组的部件（配电、电路巢础、框架外壳）不是 `IBeeHousing`；按 §4.3.1 的规则，外壳是共享同一 `getBeeInventory()` 的蜂房方块集合，所以这些部件本来就是"外壳外侧的邻居"。蜜蜂推开电缆的那套逻辑，同样会把电推开配电的缓冲区——回灌等于把同一件事再做一遍。
+2. **它多一条不可控的路径。** 回灌排在推送之后，实际语义是"电缆先吃、蜂房组吃剩的"，却披着"内部结算"的外衣；删掉之后只剩一条线：谁在外壳上、谁先被遍历到，谁先吃。
 
-**为什么是"第一个配电"**：一座蜂房组通常只有一个配电部件；多个配电之间本来就不互相输电（现有实现），所以取第一个即可，行为可预测。
+所以 §11 的"蜂房组自己转起来"不需要特例代码：配电作为邻居拿到电，再按它自己的每 tick 派发规则分给组内其它部件（`AlvearyPartEnergy#distribute`）。**代价**是配电不再有优先权——外壳上若接了能一次吃光的电缆，蜂房组的电路巢础确实会被抢在前面，这是保留 `push` 单一通道后接受的行为。
 
 ### 4.5 粒子
 
@@ -149,7 +148,7 @@ serverLevel.sendParticles(ParticleTypes.ELECTRIC_SPARK, fx.x, fx.y, fx.z, count,
 |---|---|---|
 | `isDominant()` | `false` | 效果等位基因隐性（与能量蜂一致）：杂交后代可能把它藏起来，想要稳定发电就得纯血 |
 | `isCombinable()` | 接口默认 `false` | 一只蜂一个主效果，避免与其它 mod 的效果叠成"复合发电厂" |
-| `codec()` | 不实现 | 纯代码注册（FCE 自家 14 个 bespoke 效果同款）。若以后想让数据包调参，再加三个字段：`rate` / `period` / `backflow` |
+| `codec()` | 不实现 | 纯代码注册（FCE 自家 14 个 bespoke 效果同款）。若以后想让数据包调参，再加两个字段：`rate` / `period` |
 | `validateStorage` | 默认 | 无状态 |
 | `doFX` | 默认 | 见 §4.5 |
 
@@ -171,13 +170,13 @@ public final class VoltaicBeeEffect implements IBeeEffect {
     public IEffectData doEffect(IGenome genome, IEffectData data, IBeeHousing housing) { ... }
 
     /** 纯函数，方便单测：ceil(192 × speed² × multiplier)。 */
-    static long voltage(float speed) { ... }
+    static long discharge(float speed, double multiplier) { ... }
 
-    /** 洪水填充 + WeakHashMap 缓存，返回外壳外侧一圈。 */
-    static Iterable<BlockPos> adjacentPositions(IBeeHousing housing) { ... }
+    /** 洪水填充，返回外壳外侧一圈（位置 + 真正贴着外壳的那个面）。 */
+    static List<ShellFace> adjacentPositions(IBeeHousing housing) { ... }
 
-    /** 回灌配电，返回仍有剩余的预算。 */
-    static long backflow(IBeeHousing housing, long left) { ... }
+    /** 逐个邻居推送，返回没人要的余量（调用方丢弃）。 */
+    static long push(Level level, IBeeHousing housing, long budget) { ... }
 }
 ```
 
@@ -399,7 +398,7 @@ tint 是**乘法**（屏幕色 = 贴图色 × 配色），FCE 的身体层贴图
   "allele.forestry.bee_species.forestry_oddities.voltaicus": "Voltaic",
   "allele.forestry.bee_species.forestry_oddities.voltaicus.desc": "Copper wings, and a hum you can feel in your teeth. It does not make honey; it makes current.|Beekeeping 101",
   "allele.forestry.bee_effect.forestry_oddities.voltaic": "Voltaic Discharge",
-  "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "The neighbours outside the shell choose first. What none of them take, the seams carry back into its own veins.",
+  "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "Its fire only goes outward. Whoever will take it takes the whole of it; what nobody takes is scattered on the wind and never comes back.",
   "forestry_oddities.voltaic.rate": "Discharge: %1$s FE / tick"
 }
 ```
@@ -412,14 +411,14 @@ tint 是**乘法**（屏幕色 = 贴图色 × 配色），FCE 的身体层贴图
   "allele.forestry.bee_species.forestry_oddities.voltaicus": "伏打",
   "allele.forestry.bee_species.forestry_oddities.voltaicus.desc": "铜翼，和一种能从牙根里听见的嗡鸣。它不酿蜜，它发电。|《养蜂入门指南》",
   "allele.forestry.bee_effect.forestry_oddities.voltaic": "伏打放电",
-  "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "壳外的邻居先挑。没人接的火，才顺着壳缝流回它自己的血管。",
+  "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "火只往壳外走。有人接，就整份递出去；没人接的散在风里，一滴也不回头。",
   "forestry_oddities.voltaic.rate": "放电：每 tick %1$s FE"
 }
 ```
 
 * 键的拼法见 §3（跨命名空间要带上 `forestry_oddities` 这一段）；林业自带的对照组是 `allele.forestry.bee_effect.bee_effect_glacial` —— 同命名空间，所以少一段。
 * 最后一条 `forestry_oddities.voltaic.rate` 是**可选**的：如果分析仪页面里要显示实时速率（需要自定义 analyzer plugin，不在 v1 范围），先留 key 也行。
-* **效果描述写成谜语**：`…voltaic.desc` 只作为分析仪里的悬停提示出现（`BeeAnalyzerPlugin#addHoverDescription`），是一行小字、没有 `|` 签名行，所以它既不分段也不报数字。正文用"火 / 壳 / 血管"换掉"FE / 方块 / 线路"：机制**形状**（先往外送、余量回灌）留着，术语全换掉——真把蜂放进蜂房组才认得出"邻居"是谁、"血管"指什么。种描述（`…voltaicus.desc`）反过来保持直白，因为那条是图鉴正文，要负责"它不酿蜜，它发电"这句说明书。
+* **效果描述写成谜语**：`…voltaic.desc` 只作为分析仪里的悬停提示出现（`BeeAnalyzerPlugin#addHoverDescription`），是一行小字、没有 `|` 签名行，所以它既不分段也不报数字。正文用"火 / 壳外 / 风"换掉"FE / 外壳邻居 / 丢弃"，三件事却都在：只往外送、门外谁接就一次拿走整份余量、没人要的部分当场散掉（蜂房从来不是电池）。回灌删掉之后，**"一滴也不回头"就是新增的信息点**——玩家只能靠这句区分它和"带缓冲的蜂房"。种描述（`…voltaicus.desc`）反过来保持直白，因为那条是图鉴正文，要负责"它不酿蜜，它发电"这句说明书。
   长度上有硬约束：`drawTooltip` 不传 `maxWidth`，FCE 用 `renderTooltip(…, Optional.empty(), x, y)` 直接画，**不会自动折行**，所以两行以内、长度不超过旧版（中文约 40 字、英文约 140 字符）才不会被屏幕边缘切掉。
 
 ## 10. 配置
@@ -437,7 +436,7 @@ VOLTAIC_BEE_POWER_MULTIPLIER = builder
 
 * 类型选 **COMMON**（与现有配置一致，`ForestryOdditiesConfig` 整体是 COMMON，值每次读取）。
 * 双击调节范围 0–10：0 是"关掉发电但不删种"，10 是"作弊模式"。
-* 不在 v1 加"回灌开关"：回灌是 §11 闭环的一部分，关掉它只会让玩家困惑。
+* 回灌删掉之后只有一个行为参数，所以不需要"回灌开关"：配置项就这一个。
 
 ## 11. 玩法闭环
 
@@ -445,9 +444,11 @@ VOLTAIC_BEE_POWER_MULTIPLIER = builder
 
 ```
         ┌──────────────── 蜂房组 ────────────────┐
-        │  伏打蜂 ──推电──▶ 外壳外的电缆/机器      │
-        │      │                                  │
-        │      └─余量──▶ 蜂房组配电 ──▶ 电路巢础    │
+        │  伏打蜂 ──推电──▶ 外壳一圈的邻居：       │
+        │                   电缆 / 机器 / 配电 /   │
+        │                   电路巢础（谁会接给谁）  │
+        │                        │                 │
+        │        配电 ──每 tick 派发──▶ 组内其它部件 │
         │                              （铜/硅/末影/   │
         │                               琥珀/绿宝石）  │
         └─────────────────────────────────────────┘
@@ -468,7 +469,7 @@ VOLTAIC_BEE_POWER_MULTIPLIER = builder
 结论：产出是消耗的 **约 520 倍**（装生产电路后约 7 300 倍）。所以：
 
 * **自给自足**是设计的核心卖点：这只蜂自己付得起"让自己能干活"的全部费用，玩家不需要先铺电网；
-* 真正的"收益"是把**余量送到外部**：电缆接在蜂房组外壳上，一次取走整笔（走 §4.8 的 long 通道）；
+* 真正的"收益"是把**电送到外部**：电缆接在蜂房组外壳上，和配电、电路巢础一起排队，谁先被遍历到谁先吃，一次取走整笔（走 §4.8 的 long 通道）；
 * 反过来说，这也意味着玩家不该指望"用伏打蜂的高压输出去喂大型工业线" —— 它是**稳定的、免维护的基载电**，不是终局发电厂。拿到它的门槛很后期，但拿到之后它干的活仍然只是"一直在那里发电"。
 
 **平衡阀门**：速率∝speed²，而框架/程序乘的是 speed，所以叠加是二次的（§4.2 表最后一行的 7 865/tick 已经是"三张生产框架"的极端值）。如果实测太强，把 `BASE_VOLTAGE` 降到 128（默认速度 82/tick），或者把配置默认值调成 0.6。
@@ -564,11 +565,11 @@ data/forestry_oddities/tags/block/flowers/redstone.json
 ## 13. 实现步骤
 
 1. `ForestryOdditiesConfig` 加 `voltaicBeePowerMultiplier`（先加配置，后面代码直接读）。
-2. `VoltaicBeeEffect` 写到"速率 + 推送 + 粒子"能跑（回灌先留空返回剩余）。
+2. `VoltaicBeeEffect` 写到"速率 + 推送 + 粒子"能跑。
 3. `ForestryOdditiesPlugin#registerApiculture` 注册效果。
 4. 三个 JSON 数据文件 + 两份语言。
 5. §14 的 1–4 项（载入 + 速率 + 网格 + 粒子）。
-6. 补回灌（§4.4）+ §14 第 5 项。
+6. §14 第 5 项（外壳推送：邻居吃电、余量丢弃）。
 7. 突变（§14 第 6 项）。
 8. README / TODO 文档化，删掉所有临时监听器。
 
@@ -580,7 +581,7 @@ data/forestry_oddities/tags/block/flowers/redstone.json
 2. **速率**：临时 listener 在一个 speed 0.8 的蜂房里数 sink 收到多少 FE，断言每 tick 123 ± 1；把速度染色体改成 1.7 断言 555 ± 1；配置改 2.0 断言 246 ± 1。
 3. **条件网格**：夜里（日行）、下雨（怕雨）、气候超限（无耐受）、蜂房组里换气不足 —— 四种情况分别断言"不产电"，防止把 FCE 的错误判断写两遍还写错。
 4. **粒子**：每 4 tick 一批，数量随速率从 1 涨到 6（用 `sendParticles` 的临时包装断言，或直接数客户端）。
-5. **回灌**：把外壳六个面全堵死（放满石头），断言配电缓存从 0 涨到 1000 并停住；让电路巢础断电后再断言它自己重新工作。
+5. **外壳推送**：把外壳六个面全堵死（放满石头），断言没有任何方块收下电、余量被丢掉且不抛异常；再把一个配电贴到外壳上，断言它作为普通邻居每 tick 拿到当 tick 的预算、涨到 1 000 FE 封顶，然后由它自己的每 tick 派发喂起电路巢础。
 6. **突变**：把天气切成雷雨 → 把 chance 临时改成 1.0，一次繁殖出伏打蜂；让天气放晴 → 繁殖 100 次都不出（`chance` 恢复 0.04 再跑一次正常概率）。
    路线与花型改完之后已按这条清单跑过一次开发服务器（临时 listener `dev/FlowerAndRouteSelfTest.java`，`25/25` 通过，验完删除）：
    物种数 70、进伏打蜂的突变只有一条、父本是 `anachrone` + `glacial`、几率 0.04、只有一个条件
@@ -608,7 +609,7 @@ data/forestry_oddities/tags/block/flowers/redstone.json
 
 * **静电积累**：`storedData` 里累加"连续工作 tick 数"，速率按 `1 + 0.25 × 连续/200` 爬升，下雨/停机清零。会让"维持舒适环境"更有回报，但需要效果有状态（v1 刻意保持无状态）。
 * **自定义蜂窝**（如"铜蜂窝"）：需要新物品 + 材质 + 蜂房配方 + 标签，属于一次完整的内容扩展，不建议和本蜂一起做。
-* **数据包可调**：给效果实现 `codec()`（`rate` / `period` / `backflow`），让整合包能做"高压伏打蜂""低压伏打蜂"两个变体 —— 与 FCE "数据驱动优先"的方向一致。
+* **数据包可调**：给效果实现 `codec()`（`rate` / `period`），让整合包能做"高压伏打蜂""低压伏打蜂"两个变体 —— 与 FCE "数据驱动优先"的方向一致。
 
 ## 16. 风险与平衡
 
@@ -628,7 +629,7 @@ data/forestry_oddities/tags/block/flowers/redstone.json
 实现与验证已经完成，下面是落地时与本稿不一致的地方，以及四个待定项的结论。
 
 **四个待定项全部按本稿执行**：名字 `伏打 / Voltaic` + `琥珀 / Electrum` 不变；`BASE_VOLTAGE = 192`
-（默认速度 123 FE/tick）；余量回灌进 v1。
+（默认速度 123 FE/tick）；余量回灌进 v1（**后来整段删除**，见下面第 9 条）。
 
 **突变路线后来改过一次**（v1 落地之后）：从 `industrious × unweary`、0.06 + 避雷针，改成
 `anachrone × glacial`、0.04 + 雷雨天，理由见 §7.1/§7.2——这只蜂被定位成"大后期发力"，
@@ -652,7 +653,8 @@ data/forestry_oddities/tags/block/flowers/redstone.json
    这不是 bug，也不修正，但 README 与 TODO 都写明了。
 5. **验证方式**：用临时开发服务器自测（验完删除）而不是 `/forestry dump`：开发服务器日志里
    `Loaded 70 bee species`（69 + 本种）已经证明物种文件、taxon 与效果引用都解析成功，其余断言
-   覆盖速率数学、物种数据、突变、真蜂房 + 真 FE 接收端、真 3×3×3 蜂房组 + 真配电的回灌。
+   覆盖速率数学、物种数据、突变、真蜂房 + 真 FE 接收端、真 3×3×3 蜂房组 + 真配电被当邻居喂电。
+   （那一次跑的是仍带回灌的版本，回灌删除后同一批断言里只有"余量交给配电"这一条换了路径，见第 9 条。）
 6. **突变路线改成后期**（v1 之后）：父本换 `anachrone × glacial`、几率 0.04、并新增
    `forestry_oddities:thunderstorm` 条件类型。自测断言随之变成：突变的两个父本、几率 0.04、
    一个条件 `forestry_oddities:thunderstorm`，以及该条件类型在 `forestry:mutation_condition_type`
@@ -668,6 +670,11 @@ data/forestry_oddities/tags/block/flowers/redstone.json
    （§7 的 JSON、条件表、§7.3 与 §14 的清单都已按实际文件更新）。`requires_resource` 的语义——从蜂房上报的位置
    开始向下走、跳过蜂房方块，蜂房组读的是多方块锚点（最低的那个角）——留在 §7 的技术说明里，将来要用位置类
    条件时仍然有效。
+9. **余量回灌删除**（最后一步，v1 之后）：`doEffect` 里 `backflow(housing, push(...))` 那一行，连同 `backflow()`、
+   `findTransmission()`、`controllerOf()`、`BACKFLOW_CALLS` 与它们用到的多方块 import 一起删掉；现在 `doEffect`
+   只有 `push()` + `spawnSparks()` 两步，余量直接丢弃。理由见 §4.4：蜂房组的部件本来就落在外壳邻居里，回灌只是
+   把同一件事再做一遍，还额外制造了一条"电缆先吃、蜂房组吃剩"的隐藏顺序。连带影响：效果描述（§9）里"回灌进
+   自己的血管"那句改成了"没人接的散在风里，一滴也不回头"。
 
 ---
 
@@ -675,5 +682,5 @@ data/forestry_oddities/tags/block/flowers/redstone.json
 
 1. **名字**：`伏打 / Voltaic` + 属名 `琥珀 / Electrum`（id `voltaicus` / `electrapis`）要不要换？
 2. **`BASE_VOLTAGE = 192`**（默认速度 123 FE/tick）是否合适？还是直接对齐能量蜂的 400？
-3. **`§4.4` 余量回灌配电**进 v1，还是留到 v2 和蜂房电容一起做？
+3. **~~`§4.4` 余量回灌配电**进 v1~~（已定：**删掉**，见 §4.4 与 §17 第 9 条；配电改为普通的外壳邻居）。
 4. **突变父本**（已定：`anachrone × glacial`，0.04 + 雷雨天，见 §7）。

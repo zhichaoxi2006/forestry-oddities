@@ -4,7 +4,6 @@ import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.api.energy.LongEnergy;
 import com.zhichaoxi.forestryoddities.api.energy.LongEnergyStorage;
 import com.zhichaoxi.forestryoddities.config.ForestryOdditiesConfig;
-import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTransmissionBlockEntity;
 import forestry.api.IForestryApi;
 import forestry.api.apiculture.IBeeHousing;
 import forestry.api.apiculture.IBeeHousingInventory;
@@ -13,10 +12,6 @@ import forestry.api.apiculture.genetics.IBeeEffect;
 import forestry.api.core.genetics.IEffectData;
 import forestry.api.core.genetics.IGenome;
 import forestry.api.core.genetics.alleles.BeeChromosomes;
-import forestry.api.core.multiblock.IAlvearyComponent;
-import forestry.api.core.multiblock.IMultiblockComponent;
-import forestry.api.core.multiblock.IMultiblockController;
-import forestry.api.core.multiblock.IMultiblockLogic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -25,9 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -41,11 +34,9 @@ import java.util.Set;
  * 伏打放电 / "Voltaic Discharge": the Voltaic Bee's special effect ({@code forestry_oddities:voltaic}).
  *
  * <p>Every effect tick the bee turns a part of the hive's output into Forge Energy and hands it to
- * the blocks around the hive's shell. Whatever no neighbour accepts goes into the alveary's own
- * wiring - the {@link AlvearyTransmissionBlockEntity} of the same multiblock - so an alveary with no
- * cable attached can still run its circuit foundations; the rest is dropped, so a housing is never a battery.
- * The idea is Career Bees' energy bee ({@code careerbees:power}); the rate, the transfer order and the
- * backflow are this mod's.</p>
+ * the blocks around the hive's shell. Whatever no neighbour accepts is dropped: nothing is buffered
+ * on the bee's side, so a housing is never a battery. The idea is Career Bees' energy bee
+ * ({@code careerbees:power}); the rate and the order of the transfer are this mod's.</p>
  *
  * <h2>When it runs</h2>
  *
@@ -70,9 +61,13 @@ import java.util.Set;
  * <ol>
  *   <li>each block touching the outside of the hive's shell, in a stable order, one after another,
  *       until the tick's budget is used up;</li>
- *   <li>then the alveary's transmission, if the housing is part of an assembled alveary;</li>
  *   <li>then nowhere - the remainder is dropped.</li>
  * </ol>
+ *
+ * <p>An alveary's own parts are neighbours too: the shell is the bee housings that share an
+ * inventory, so a circuit foundation or a transmission sitting next to one is just another block
+ * with an energy capability. That is how a bee in an apiary feeds a cable, and also how a bee in an
+ * alveary pays for the programs that keep it working without any cable at all.</p>
  *
  * <p>A neighbour is offered the whole remaining budget in one call through {@link LongEnergy}, so a
  * sink that carries more than an {@code int} (Modern Industrialization, Mekanism, Flux Networks, ...)
@@ -95,12 +90,6 @@ public final class VoltaicBeeEffect implements IBeeEffect {
 
     /** One spark per this much FE per tick, on top of the first. */
     private static final int FE_PER_SPARK = 128;
-
-    /**
-     * How many times the transmission is offered energy in one tick. Its buffer takes 500 FE per
-     * offer and holds 1000, so four calls can fill it from empty with headroom for a changed buffer.
-     */
-    private static final int BACKFLOW_CALLS = 4;
 
     /**
      * {@inheritDoc}
@@ -126,9 +115,9 @@ public final class VoltaicBeeEffect implements IBeeEffect {
             return storedData;
         }
 
-        // The whole tick's budget is one payment: the neighbours take what they can, the alveary's
-        // wiring takes the rest, and the remainder is dropped.
-        backflow(housing, push(level, housing, rate));
+        // One payment for the whole tick: the blocks around the shell take what they can, and
+        // whatever is left over is dropped rather than stored.
+        push(level, housing, rate);
         spawnSparks(serverLevel, housing, rate);
         return storedData;
     }
@@ -304,92 +293,6 @@ public final class VoltaicBeeEffect implements IBeeEffect {
             }
         }
         return adjacent;
-    }
-
-    /**
-     * Pours the remainder into the alveary's own wiring.
-     *
-     * <p>Only an assembled alveary has one: the transmission part is the multiblock's FE
-     * distributor, and its buffer is receive-only towards the outside - feeding it from inside is an
-     * internal settlement, not a break of that contract. Its own per-tick pass then hands the energy
-     * to the other parts, so a bee with no cable attached still pays for the circuit foundation that keeps it
-     * working. An apiary or a bee house has nowhere to put the energy and the remainder is dropped.</p>
-     *
-     * @param housing The housing the bee works in
-     * @param remaining The FE no neighbour accepted
-     * @return The FE that was still left afterwards
-     */
-    static long backflow(IBeeHousing housing, long remaining) {
-        if (remaining <= 0L) {
-            return 0L;
-        }
-
-        AlvearyTransmissionBlockEntity transmission = findTransmission(housing);
-        if (transmission == null) {
-            return remaining;
-        }
-
-        IEnergyStorage buffer = transmission.getEnergyHandler();
-        if (buffer == null || !buffer.canReceive()) {
-            return remaining;
-        }
-
-        long left = remaining;
-        for (int call = 0; call < BACKFLOW_CALLS && left > 0L; call++) {
-            int accepted = buffer.receiveEnergy((int) Math.min(left, Integer.MAX_VALUE), false);
-            if (accepted <= 0) {
-                break;
-            }
-            left -= Math.min(accepted, left);
-        }
-
-        if (left != remaining) {
-            // The buffer is saved through the part's own NBT; nothing else would mark it dirty.
-            transmission.setChanged();
-        }
-        return left;
-    }
-
-    /**
-     * The transmission of the assembled alveary the housing belongs to, or {@code null} when the
-     * housing is not part of one.
-     *
-     * <p>An alveary's bee housing is the multiblock controller itself, while an alveary part is an
-     * {@link IAlvearyComponent} that only knows its controller - both are accepted. The first
-     * transmission wins: an alveary normally has one, and two of them do not trade energy with each
-     * other, so picking one keeps the behaviour predictable.</p>
-     *
-     * @param housing The housing the bee works in
-     * @return The transmission, or {@code null}
-     */
-    @Nullable
-    private static AlvearyTransmissionBlockEntity findTransmission(IBeeHousing housing) {
-        IMultiblockController controller = controllerOf(housing);
-        if (controller == null || !controller.isAssembled()) {
-            return null;
-        }
-
-        for (IMultiblockComponent component : controller.getComponents()) {
-            if (component instanceof AlvearyTransmissionBlockEntity transmission) {
-                return transmission;
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    private static IMultiblockController controllerOf(IBeeHousing housing) {
-        if (housing instanceof IMultiblockController controller) {
-            return controller.isAssembled() ? controller : null;
-        }
-        if (housing instanceof IAlvearyComponent<?> part) {
-            IMultiblockLogic logic = part.getMultiblockLogic();
-            if (logic == null || !logic.isConnected()) {
-                return null;
-            }
-            return logic.getController();
-        }
-        return null;
     }
 
     /* ------------------------------------------------------------------ the sparks */
