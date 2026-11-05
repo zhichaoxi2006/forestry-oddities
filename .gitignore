@@ -30,3 +30,6 @@ Thumbs.db
 # binaries and stay out of the repository; libs/compat/README.md lists the seven files the build
 # expects to find there.
 libs/compat/*.jar
+# Python (art/logo/make_logo.py)
+__pycache__/
+*.pyc
