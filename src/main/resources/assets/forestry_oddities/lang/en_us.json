@@ -108,5 +108,12 @@
   "forestry_oddities.circuit.foundation.sunlight": "Sunlight",
   "forestry_oddities.circuit.foundation.always_active": "Night Shift",
   "forestry_oddities.circuit.foundation.climate": "Climate Control",
-  "forestry_oddities.circuit.foundation.flowers": "Flower Source"
+  "forestry_oddities.circuit.foundation.flowers": "Flower Source",
+  "for.genus.bees.electrapis": "Electrum",
+  "allele.forestry.bee_species.forestry_oddities.voltaicus": "Voltaic",
+  "allele.forestry.bee_species.forestry_oddities.voltaicus.desc": "Copper wings, and a hum you can feel in your teeth. It feeds on redstone; it does not make honey, it makes current.|Beekeeping 101",
+  "allele.forestry.flower_type.forestry_oddities.flower_type_redstone": "Redstone",
+  "allele.forestry.bee_effect.forestry_oddities.voltaic": "Voltaic Discharge",
+  "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "The neighbours outside the shell choose first. What none of them take, the seams carry back into its own veins.",
+  "for.mutation.condition.thunderstorm": "This mutation can only happen during a thunderstorm."
 }

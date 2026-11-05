@@ -10,6 +10,7 @@ import com.zhichaoxi.forestryoddities.content.ModCapabilities;
 import com.zhichaoxi.forestryoddities.content.ModDataComponents;
 import com.zhichaoxi.forestryoddities.content.ModItems;
 import com.zhichaoxi.forestryoddities.content.ModMenus;
+import com.zhichaoxi.forestryoddities.content.ModMutationConditionTypes;
 import com.zhichaoxi.forestryoddities.content.ModRecipes;
 import com.zhichaoxi.forestryoddities.integration.create.CreateIntegration;
 import net.neoforged.bus.api.IEventBus;
@@ -29,7 +30,8 @@ import org.slf4j.LoggerFactory;
  * {@code META-INF/neoforge.mods.toml}), so its API is always available here and can be referenced
  * directly. Content is registered below through this mod's own {@code DeferredRegister}s
  * ({@link com.zhichaoxi.forestryoddities.content.ModItems}, {@link com.zhichaoxi.forestryoddities.content.ModDataComponents},
- * {@link com.zhichaoxi.forestryoddities.content.ModRecipes}); Forestry-specific hooks belong to
+ * {@link com.zhichaoxi.forestryoddities.content.ModRecipes}, {@link com.zhichaoxi.forestryoddities.content.ModMutationConditionTypes});
+ * Forestry-specific hooks belong to
  * {@link com.zhichaoxi.forestryoddities.integration.ForestryOdditiesPlugin}, which Forestry discovers with
  * {@link java.util.ServiceLoader}.</p>
  *
@@ -68,6 +70,11 @@ public final class ForestryOddities {
         // type can name an already registered block.
         ModDataComponents.register(modBus);
         ModRecipes.register(modBus);
+        // Forestry's mutation condition types. Registered here rather than through the Forestry plugin
+        // because the plugin hook that takes registrations does not cover them, and a plain
+        // DeferredRegister on Forestry's registry key is enough: the registry event runs before any
+        // datapack is read, so the voltaic mutation recipe can name forestry_oddities:thunderstorm.
+        ModMutationConditionTypes.register(modBus);
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModBlockEntities.register(modBus);
@@ -87,8 +94,8 @@ public final class ForestryOddities {
         // Optional long energy bridges for mainstream tech mods (Modern Industrialization, GrandPower,
         // Flux Networks, Mekanism, Applied Flux), ported from Career Bees. The integrations are
         // compiled against those mods' API jars but each class is loaded only when its mod is
-        // installed, so an absent mod is simply skipped. The insert side is offered through the API
-        // in api.energy; nothing of this mod owns a long storage yet, so nothing registers a source.
+        // installed, so an absent mod is simply skipped. The insert side is used by the Voltaic Bee's
+        // effect (content.apiculture.VoltaicBeeEffect) today; nothing offers a long *source* yet.
         EnergyIntegrations.install();
 
         // Smarter beekeeper villagers (Tweaks): the goal is attached here for every villager that

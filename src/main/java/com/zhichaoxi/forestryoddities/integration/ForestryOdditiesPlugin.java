@@ -3,6 +3,8 @@ package com.zhichaoxi.forestryoddities.integration;
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationCircuit;
 import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationProgram;
+import com.zhichaoxi.forestryoddities.content.apiculture.VoltaicBeeEffect;
+import forestry.api.plugin.IApicultureRegistration;
 import forestry.api.plugin.ICircuitRegistration;
 import forestry.api.plugin.IForestryPlugin;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,6 +40,20 @@ public final class ForestryOdditiesPlugin implements IForestryPlugin {
     @Override
     public ResourceLocation id() {
         return ID;
+    }
+
+    /**
+     * Registers the Voltaic Bee's effect.
+     *
+     * <p>The species itself is datapack data ({@code data/forestry_oddities/bee_species/voltaicus.json})
+     * and refers to this id, so the effect has to exist by the time the species files are read - which
+     * is what this hook does. Registering an effect is also what creates its allele in the bee
+     * karyotype, so a bee can carry {@code forestry_oddities:voltaic} and pass it on like any other
+     * gene.</p>
+     */
+    @Override
+    public void registerApiculture(IApicultureRegistration apiculture) {
+        apiculture.registerBeeEffect(VoltaicBeeEffect.ID, new VoltaicBeeEffect());
     }
 
     /**

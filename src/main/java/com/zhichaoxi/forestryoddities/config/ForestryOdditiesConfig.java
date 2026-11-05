@@ -29,6 +29,9 @@ public final class ForestryOdditiesConfig {
     private static final boolean DEFAULT_BEEKEEPER_REQUIRE_SAME_SPECIES = true;
     private static final int DEFAULT_BEEKEEPER_SEARCH_RADIUS = 16;
 
+    private static final double DEFAULT_VOLTAIC_BEE_POWER_MULTIPLIER = 1.0D;
+    private static final ModConfigSpec.DoubleValue VOLTAIC_BEE_POWER_MULTIPLIER;
+
     private static final ModConfigSpec.BooleanValue BEEKEEPER_ENABLED;
     private static final ModConfigSpec.BooleanValue BEEKEEPER_TEND_PLAYER_OWNED;
     private static final ModConfigSpec.BooleanValue BEEKEEPER_REQUIRE_SAME_SPECIES;
@@ -78,6 +81,17 @@ public final class ForestryOdditiesConfig {
                         "generation, -1 disables ignoble decay completely (a queen never dies out).",
                         "Pristine bees are not affected.")
                 .defineInRange("ignobleDecayStartGeneration", DEFAULT_IGNOBLE_DECAY_START_GENERATION, -1, 1000000);
+
+        VOLTAIC_BEE_POWER_MULTIPLIER = builder
+                .comment(
+                        "Output multiplier of the Voltaic Bee's discharge, applied on top of",
+                        "ceil(192 * speed^2) FE per tick. 1.0 keeps the designed balance: a bee on its own",
+                        "0.8 speed allele discharges 123 FE/tick, about half of Career Bees' energy bee.",
+                        "A frame or a circuit foundation program multiplies the bee's speed, and the rate is",
+                        "squared in it, so stacking production frames is what actually moves the number.",
+                        "0 disables generation without removing the bee (it keeps its effect allele).",
+                        "10 is a cheat mode. Read on every effect tick, so edits apply live.")
+                .defineInRange("voltaicBeePowerMultiplier", DEFAULT_VOLTAIC_BEE_POWER_MULTIPLIER, 0.0D, 10.0D);
 
         builder.pop();
 
@@ -150,6 +164,15 @@ public final class ForestryOdditiesConfig {
      */
     public static int ignobleDecayStartGeneration() {
         return SPEC.isLoaded() ? IGNOBLE_DECAY_START_GENERATION.get() : DEFAULT_IGNOBLE_DECAY_START_GENERATION;
+    }
+
+    /**
+     * @return the multiplier applied to the Voltaic Bee's discharge rate (see
+     * {@code content.apiculture.VoltaicBeeEffect}). Falls back to
+     * {@link #DEFAULT_VOLTAIC_BEE_POWER_MULTIPLIER} when the config has not been loaded yet.
+     */
+    public static double voltaicBeePowerMultiplier() {
+        return SPEC.isLoaded() ? VOLTAIC_BEE_POWER_MULTIPLIER.get() : DEFAULT_VOLTAIC_BEE_POWER_MULTIPLIER;
     }
 
     /**

@@ -108,5 +108,12 @@
   "forestry_oddities.circuit.foundation.sunlight": "模拟日照",
   "forestry_oddities.circuit.foundation.always_active": "昼夜工作",
   "forestry_oddities.circuit.foundation.climate": "气候控制",
-  "forestry_oddities.circuit.foundation.flowers": "花源"
+  "forestry_oddities.circuit.foundation.flowers": "花源",
+  "for.genus.bees.electrapis": "琥珀",
+  "allele.forestry.bee_species.forestry_oddities.voltaicus": "伏打",
+  "allele.forestry.bee_species.forestry_oddities.voltaicus.desc": "铜翼，和一种能从牙根里听见的嗡鸣。它以红石为口粮，不酿蜜，只发电。|《养蜂入门指南》",
+  "allele.forestry.flower_type.forestry_oddities.flower_type_redstone": "红石",
+  "allele.forestry.bee_effect.forestry_oddities.voltaic": "伏打放电",
+  "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "壳外的邻居先挑。没人接的火，才顺着壳缝流回它自己的血管。",
+  "for.mutation.condition.thunderstorm": "该突变仅在雷雨天发生。"
 }

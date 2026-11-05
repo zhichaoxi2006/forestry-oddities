@@ -1,16 +1,12 @@
 package com.zhichaoxi.forestryoddities.mixin;
 
 import com.zhichaoxi.forestryoddities.tweak.IgnobleDecay;
-import forestry.api.apiculture.IBeeHousing;
-import forestry.api.core.IError;
 import forestry.apiculture.bees.genetics.Bee;
 import net.minecraft.util.RandomSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.Set;
 
 /**
  * Configurable ignoble ("卑贱") bee decay.

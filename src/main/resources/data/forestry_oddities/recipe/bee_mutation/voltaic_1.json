@@ -1,0 +1,13 @@
+{
+  "type": "forestry:bee_mutation",
+  "chance": 0.04,
+  "conditions": [
+    {
+      "type": "forestry_oddities:thunderstorm"
+    }
+  ],
+  "first": "forestry:anachrone",
+  "id": "forestry_oddities:bee_mutation/voltaic_1",
+  "result": "forestry_oddities:voltaicus",
+  "second": "forestry:glacial"
+}
