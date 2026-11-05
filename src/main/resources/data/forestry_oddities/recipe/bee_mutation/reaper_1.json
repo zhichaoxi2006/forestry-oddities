@@ -1,0 +1,22 @@
+{
+  "type": "forestry:bee_mutation",
+  "chance": 0.03,
+  "conditions": [
+    {
+      "type": "forestry:daytime",
+      "day": false
+    },
+    {
+      "type": "forestry:requires_resource",
+      "blocks": [
+        {
+          "Name": "minecraft:wither_rose"
+        }
+      ]
+    }
+  ],
+  "first": "forestry:phantasmal",
+  "id": "forestry_oddities:bee_mutation/reaper_1",
+  "result": "forestry_oddities:reaper",
+  "second": "forestry:demonic"
+}

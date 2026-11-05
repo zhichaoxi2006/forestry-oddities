@@ -115,5 +115,11 @@
   "allele.forestry.flower_type.forestry_oddities.flower_type_redstone": "Redstone",
   "allele.forestry.bee_effect.forestry_oddities.voltaic": "Voltaic Discharge",
   "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "Its fire only goes outward. Whoever will take it takes the whole of it; what nobody takes is scattered on the wind and never comes back.",
+  "for.genus.bees.styxapis": "Styx",
+  "allele.forestry.bee_species.forestry_oddities.reaper": "Reaper",
+  "allele.forestry.bee_species.forestry_oddities.reaper.desc": "It gathers no nectar; it collects debts. Within its reach, no other queen sees a second dusk.|Beekeeping 101",
+  "allele.forestry.flower_type.forestry_oddities.flower_type_death": "Death",
+  "allele.forestry.bee_effect.forestry_oddities.reaping": "Soul Reaping",
+  "allele.forestry.bee_effect.forestry_oddities.reaping.desc": "Queens go out one by one, as if someone had written their names down; it never raises a hand against its own.",
   "for.mutation.condition.thunderstorm": "This mutation can only happen during a thunderstorm."
 }

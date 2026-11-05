@@ -115,5 +115,11 @@
   "allele.forestry.flower_type.forestry_oddities.flower_type_redstone": "红石",
   "allele.forestry.bee_effect.forestry_oddities.voltaic": "伏打放电",
   "allele.forestry.bee_effect.forestry_oddities.voltaic.desc": "火只往壳外走。有人接，就整份递出去；没人接的散在风里，一滴也不回头。",
+  "for.genus.bees.styxapis": "黄泉",
+  "allele.forestry.bee_species.forestry_oddities.reaper": "死神",
+  "allele.forestry.bee_species.forestry_oddities.reaper.desc": "它不采蜜，只收账：方圆之内，别的蜂后活不过第二个黄昏。|《养蜂入门指南》",
+  "allele.forestry.flower_type.forestry_oddities.flower_type_death": "死亡",
+  "allele.forestry.bee_effect.forestry_oddities.reaping": "收魂",
+  "allele.forestry.bee_effect.forestry_oddities.reaping.desc": "蜂后一顶一顶地熄灭，像是被谁记下了名字；只有同行的死神，它从不动手。",
   "for.mutation.condition.thunderstorm": "该突变仅在雷雨天发生。"
 }

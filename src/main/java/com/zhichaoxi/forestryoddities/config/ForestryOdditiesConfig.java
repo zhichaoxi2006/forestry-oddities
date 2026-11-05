@@ -32,6 +32,11 @@ public final class ForestryOdditiesConfig {
     private static final double DEFAULT_VOLTAIC_BEE_POWER_MULTIPLIER = 1.0D;
     private static final ModConfigSpec.DoubleValue VOLTAIC_BEE_POWER_MULTIPLIER;
 
+    private static final int DEFAULT_REAPER_REAP_INTERVAL_TICKS = 40;
+    private static final boolean DEFAULT_REAPER_SPARES_SAME_OWNER = false;
+    private static final ModConfigSpec.IntValue REAPER_REAP_INTERVAL_TICKS;
+    private static final ModConfigSpec.BooleanValue REAPER_SPARES_SAME_OWNER;
+
     private static final ModConfigSpec.BooleanValue BEEKEEPER_ENABLED;
     private static final ModConfigSpec.BooleanValue BEEKEEPER_TEND_PLAYER_OWNED;
     private static final ModConfigSpec.BooleanValue BEEKEEPER_REQUIRE_SAME_SPECIES;
@@ -92,6 +97,30 @@ public final class ForestryOdditiesConfig {
                         "0 disables generation without removing the bee (it keeps its effect allele).",
                         "10 is a cheat mode. Read on every effect tick, so edits apply live.")
                 .defineInRange("voltaicBeePowerMultiplier", DEFAULT_VOLTAIC_BEE_POWER_MULTIPLIER, 0.0D, 10.0D);
+
+        REAPER_REAP_INTERVAL_TICKS = builder
+                .comment(
+                        "How often the Reaper Bee (死神蜂) reaps, in ticks.",
+                        "40 (default) is once every two seconds: at that pace one Reaper takes every queen in",
+                        "its territory - 15 x 9 x 15 blocks by default, 7 to each side and 4 up and down -",
+                        "within a couple of seconds of starting to work. The bee only reaps while its housing",
+                        "reports no error, so night, rain, climate and flowers gate it as usual.",
+                        "0 disables reaping without removing the bee or its effect allele. The maximum is",
+                        "one minute; a night is 12000 ticks, so even the slowest setting reaps several",
+                        "times per night. Read on every effect tick, so edits apply live.")
+                .defineInRange("reaperReapIntervalTicks", DEFAULT_REAPER_REAP_INTERVAL_TICKS, 0, 1200);
+
+        REAPER_SPARES_SAME_OWNER = builder
+                .comment(
+                        "Whether a Reaper leaves the bee housings of its own owner alone.",
+                        "Off (default): the Reaper takes every queen in its territory except its own kind - a",
+                        "Reaper placed in a bee base eats that base, and that is the point of the bee.",
+                        "On: a housing whose owner is the same non-null player as the Reaper's housing is",
+                        "skipped. On a server this turns the bee into a weapon against other players' bees;",
+                        "in singleplayer every housing is yours, so it becomes harmless. Housings with no",
+                        "owner (village apiaries) are never 'the same owner' and are still reaped.",
+                        "Read on every effect tick, so edits apply live.")
+                .define("reaperSparesSameOwner", DEFAULT_REAPER_SPARES_SAME_OWNER);
 
         builder.pop();
 
@@ -173,6 +202,23 @@ public final class ForestryOdditiesConfig {
      */
     public static double voltaicBeePowerMultiplier() {
         return SPEC.isLoaded() ? VOLTAIC_BEE_POWER_MULTIPLIER.get() : DEFAULT_VOLTAIC_BEE_POWER_MULTIPLIER;
+    }
+
+    /**
+     * @return how often the Reaper Bee reaps, in ticks; {@code 0} disables reaping. Falls back to
+     * {@link #DEFAULT_REAPER_REAP_INTERVAL_TICKS} when the config has not been loaded yet.
+     */
+    public static int reaperReapIntervalTicks() {
+        return SPEC.isLoaded() ? REAPER_REAP_INTERVAL_TICKS.get() : DEFAULT_REAPER_REAP_INTERVAL_TICKS;
+    }
+
+    /**
+     * @return whether a Reaper spares housings owned by the same player (see
+     * {@code content.apiculture.ReapingBeeEffect}). Falls back to
+     * {@link #DEFAULT_REAPER_SPARES_SAME_OWNER} when the config has not been loaded yet.
+     */
+    public static boolean reaperSparesSameOwner() {
+        return SPEC.isLoaded() ? REAPER_SPARES_SAME_OWNER.get() : DEFAULT_REAPER_SPARES_SAME_OWNER;
     }
 
     /**

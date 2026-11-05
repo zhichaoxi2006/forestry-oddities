@@ -241,3 +241,51 @@ Forestry: CE 的蜂房自带一个把产量速度 **×0.1** 的修正（`ApiaryB
 > **状态：已实现。** 代码在 `content/apiculture/VoltaicBeeEffect`，数据在
 > `data/forestry_oddities/{taxon,bee_species,recipe/bee_mutation}`，机制、数值与本节的发现、
 > 以及 72 项验证结果见 README 的 “Voltaic Bee (伏打蜂)” 一节。
+
+## 死神蜂（Reaper Bee）
+
+一只**不生产任何东西、只摘掉活动范围内所有异种蜂后**的蜂。特殊效果（收魂）是需求方指定的，其余
+（分类学、基因组、产物、花型、突变、配色、配置、玩法闭环）全部自行设计。设计稿见
+`docs/reaper-bee-design.md`，实现在 `content/apiculture/ReapingBeeEffect`。
+
+### 数值
+
+| 项 | 值 |
+|---|---|
+| id | `forestry_oddities:reaper`（属 `styxapis` 黄泉 / Styx） |
+| 效果 | `forestry_oddities:reaping` 收魂，隐性、不可组合 |
+| 周期 | 每 **40 tick（2 秒）**；配置 `0–1200`，`0` = 关闭收魂但不删种 |
+| 范围 | 领地 `[15, 9, 15]`：左右各 7、上下各 4；受蜂房修正影响（抑制剂 ×0.4 → 6×3×6、领地 ×1.5） |
+| 杀谁 | 范围内每座蜂房里的**蜂后**；公主与雄蜂不碰 |
+| 不杀谁 | 同类（活跃种 = 死神，**或**活跃效果 = 收魂）、自己所在的蜂房（含蜂房组共享库存）、野生蜂巢（`IHiveTile`） |
+| 杀法 | 蜂后生命值归零，交给蜂房自己的 beekeeping logic 按正常死亡结算：公主 + 雄蜂照出（满仓先排队）、育种记录照记、监听器照触发；12 颗灵魂粒子 + `SOUL_ESCAPE` 音效 |
+| 产物 | 神秘蜂窝 0.25；特产 骨头 0.20、凋灵玫瑰 0.05 |
+| 寿命 / 生育 / 速度 | 30 / 2 / 1.0（速度显性）；效果隐性、种隐性 |
+| 气候 | 夜行、可不见天、怕雨、无温度/湿度耐受 |
+| 花型 | `forestry_oddities:flower_type_death`：凋灵玫瑰 / 灵魂火把 / 墙上的灵魂火把 |
+| 配色 | 身体 `#6B5876`、条纹 `#4FBF7A`、描边 `#140B1E`；`glint` 为真 |
+
+### 获取
+
+`幻影蜂 × 魔鬼蜂`，几率 **0.03**，两个条件：**夜晚**（`forestry:daytime` + `day:false`）与
+**蜂房正下方是凋灵玫瑰**（`forestry:requires_resource`）。两个条件都是 FCE 自带的类型，没有新增条件类型；
+`requires_resource` 从蜂房位置向下走、跳过蜂房方块后比较第一格，所以蜂房组要放在整个多方块下面。
+
+### 效果
+
+* FCE 每 game tick 调一次效果（且只在蜂房无错误时调），效果自己按 `level.getGameTime() % 周期` 节流；
+  **无状态**、不写 NBT、不存计数器。
+* 范围 = `modifyTerritory(genome, TERRITORY)` 围出的立方体，与 `Bee#getAreaIterator` 同构；只遍历**已加载区块**
+  的 block entity 表并按立方体裁剪，不会加载区块。
+* 同类判定有两层：活跃种是死神（保护纯血），或活跃效果是收魂（保护"别的种、却带着死神基因"的蜂后，
+  否则它会杀自己那一族）；只带隐性等位基因、并不表达收魂的蜂后照杀。
+* 杀法是"只让她死"：生命值归零后立刻调目标蜂房的 `canWork()`，由 FCE 自己的死亡分支产出公主与雄蜂、
+  记入育种记录（仓满先排队），因此是"杀蜂后"而不是"删蜂后"；同步补 `blockEntityChanged` 保证落盘。
+* 蜂房组的每个部件共享同一个库存，用 identity 集合去重，一座多方块只结算一次。
+* 配置 `[apiculture] reaperReapIntervalTicks`（默认 40，0 = 关闭）与 `reaperSparesSameOwner`
+  （默认 false：同主人蜂房照杀；true 时只跳过同一非空所有者的蜂房）。
+
+> **状态：已实现（待审查）。** 代码在 `content/apiculture/ReapingBeeEffect`，数据在
+> `data/forestry_oddities/{taxon,bee_species,flower_type,tags,recipe/bee_mutation}`，
+> 机制、自查与逐项验证结果见 README 的 “Reaper Bee (死神蜂)” 一节；`docs/reaper-bee-design.md` §17
+> 列了全部可改的决定。

@@ -1207,6 +1207,154 @@ self-test does; a plain boot logs `Loaded 70 bee species` with no datapack error
 world-gen `Unprimed heightmap` error and a missing JourneyMap mixin target, both older than this
 change.
 
+## Reaper Bee (死神蜂)
+
+A bee whose special effect is a weapon: every couple of seconds it kills the queen of every bee
+housing in its territory. Each death settles the way the game settles any death - a successor princess
+and drones, the owner's breeding tracker entry - so what the Reaper takes is a queen and her current
+work, not the line. The only queens it spares are its own kind. The species, the numbers, the flower
+and the mutation are this mod's. Design document: `docs/reaper-bee-design.md`.
+Implementation: `content/apiculture/ReapingBeeEffect`.
+
+### The species
+
+`data/forestry_oddities/bee_species/reaper.json` - id `forestry_oddities:reaper`, genus `styxapis`
+(黄泉 / Styx), species `reaper` (死神 / Reaper). Genus data:
+`data/forestry_oddities/taxon/styxapis.json`.
+
+| field | value | why |
+|---|---|---|
+| speed | 1.0, dominant | the reaping period is fixed, so speed only moves its products |
+| lifespan / fertility | 30 / 2 | short-lived, mildly fertile: a line you have to keep |
+| tolerances | none / none | fussy on purpose: an alveary or a circuit foundation has to fix it |
+| activity / cave / rain | nocturnal, yes, no | it reaps by night, underground or not, and a downpour stops it |
+| effect | `forestry_oddities:reaping`, recessive | a hybrid can carry the reaping without doing any of it |
+| flowers | `forestry_oddities:flower_type_death` | wither rose, soul torch, soul wall torch |
+| products | `forestry:mysterious_comb` 0.25 | the ghost bees' comb; it is not a product bee |
+| specialties | `minecraft:bone` 0.20, `minecraft:wither_rose` 0.05 | what a harvest leaves behind |
+| colours | body `0x6B5876`, stripes `0x4FBF7A`, outline `0x140B1E`, glint on | grey-purple, soulfire green, near-black edge |
+| territory / pollination | 15/9/15, 5 | the territory **is** the reaping radius |
+
+No texture, model or client registration: Forestry tints its default bee sprite through the three
+colour numbers.
+
+### Acquisition
+
+`forestry:phantasmal` (幻影) × `forestry:demonic` (魔鬼), chance **0.03**, gated on two conditions in
+`data/forestry_oddities/recipe/bee_mutation/reaper_1.json`:
+
+* **night** - Forestry's own `forestry:daytime` condition with `"day": false`;
+* **a wither rose under the housing** - `forestry:requires_resource` with
+  `minecraft:wither_rose`. The condition walks down from the housing position, skips bee housings,
+  and compares the first block, so an apiary sits directly on the rose while an alveary needs the rose
+  under the whole multiblock (the walk passes through the parts below the alveary's centre).
+
+Both are Forestry's condition types, so no new type had to be registered for this bee. The parents
+are as deep as they come - the Phantasmal is `spectral` × `ended` at 0.02, the Demonic is
+`sinister` × `fiendish` inside the Nether - and their ideal climates (cold, hellish) do not match, so
+the pairing itself is a build problem: an alveary with the climate program, or accept that one of the
+two is unhappy. The flower, the mutation and the flavour are one gesture: the Reaper is born standing
+on its own food.
+
+### The effect
+
+`forestry_oddities:reaping` runs once every `reaperReapIntervalTicks` (default **40 ticks**, two
+seconds). Forestry calls the effect every game tick while the housing reports no error, so the
+period is the only throttle the effect adds - and it is read off `Level#getGameTime()` rather than
+kept in the effect data, which keeps the effect stateless: there is no counter in the save to go
+stale, and every Reaper in a level reaps on the same tick. The bee's own genes do the rest of the
+gating: she is **nocturnal**, she is not rain-tolerant, she has no climate tolerance and she wants
+wither roses, so a Reaper that is not looked after simply does nothing.
+
+**The area** is the bee's territory, run through the housing's modifiers exactly like
+`Bee#getAreaIterator` lays it out for pollination: `[15, 9, 15]`, i.e. 7 blocks to each side and 4 up
+and down. Because it is the territory and not a special radius, this mod's own circuit foundation
+programs tune it: the **inhibitor** (tin tube) shrinks the reaping to 6x3x6, the **territory**
+program (bronze tube) grows it to 22x13x22. Only loaded chunks are searched (chunks are taken with
+`getChunkNow`, which never loads one) and the chunk's own block entity map is walked and clipped to
+the box, so an empty area costs a few chunk lookups rather than two thousand position lookups.
+
+**Whom it takes**, and whom it does not:
+
+* **any queen** in any bee housing of any mod inside the box. The queen slot also holds the
+  *princess* while a pairing is breeding - princesses and drones are not touched, only crowned
+  queens;
+* **not its own housing**. The inventory of the housing the Reaper lives in is put into the
+  already-seen set before the scan starts, which also covers an alveary, whose every part reports the
+  same shared inventory;
+* **not its own kind**. A queen is kindred when her *active species* is `forestry_oddities:reaper` -
+  pure Reapers are immune - or when her *active effect* is `forestry_oddities:reaping`, which also
+  protects hybrids that ended up with the Reaper's gift but another species; without that second
+  clause, such a hybrid would reap its own species. A bee that merely carries the recessive allele
+  without expressing it is ordinary prey;
+* **not wild hives** (`IHiveTile`). A wild hive has no queen slot; its inventory fabricates a
+  "queen" from the wild bee for display, so writing it back would only replace a cached stack. The
+  effect skips them instead of pretending to kill them.
+
+**How it takes them**: her health is set to zero and the housing's own beekeeping logic is asked to
+settle the death at once, so Forestry's normal path runs - the successor princess and drones are
+spawned into the hive's product slots (queued in the hive if there is no room), the owner's breeding
+tracker records them, and the queen slot ends up empty. The chunk is marked changed (an apiary that
+has just lost its queen stops working in the check that follows and would otherwise never mark
+itself), and the only thing the Reaper leaves behind is twelve soul particles and a wisp of
+`SOUL_ESCAPE`. Losing the queen still costs the hive her work cycle and the products she had in
+progress; it does not cost it the species.
+
+### Configuration
+
+`config/forestry_oddities-common.toml`, `[apiculture]`, both read on every effect tick:
+
+* `reaperReapIntervalTicks` - default `40`, range `0` - `1200`. `0` switches the reaping off without
+  removing the bee or its allele: the server-side kill switch.
+* `reaperSparesSameOwner` - default `false`. `false` is the literal bee: every queen in range except
+  its own kind, **including the ones of the player who owns the Reaper**. `true` skips a housing whose
+  owner is the same non-null player, which turns the bee into a weapon against other players' bees on
+  a server and into a harmless pet in singleplayer. Housings with no owner (village apiaries) are
+  never "the same owner" and are still reaped.
+
+### Using it (and the warning)
+
+By default a Reaper placed in a bee base **eats that base**: the queens of your own apiaries are in
+range and are not kindred. That is intended - it is the strongest bee in the mod, and position is its
+only balance - but there are three ways to have one safely: solder the circuit foundation's inhibitor
+program (range ×0.4), set `reaperSparesSameOwner = true`, or keep it in its own room. The other
+readings of the bee are culling (put an unwanted queen in range and let her die) and PvP (cost an
+opponent queens and their current work cycles; the successor princess still rules).
+
+The Reaper also closes the mod's energy loop from the other side: it generates nothing, but its four
+dislikes are exactly what the circuit foundation's boolean programs (Night Shift 15, Sealed 10,
+Climate 25, Flower Source 35 FE per work cycle) fix, and those programs need a powered alveary. A
+Voltaic Bee next door pays for it - 123 FE/tick covers hundreds of Reaper alvearies.
+
+### Verification
+
+The content is data plus one effect class, so it is reviewed by reading and by playing, not by a
+test suite:
+
+* **Loads clean.** Start the game with only Forestry: CE and this mod; a datapack error on the
+  species, the taxon, the death flower type or either mutation condition prints at load, and the
+  species is listed under the Styx genus in the bee book with its own flower type and the reaping
+  allele. The designed genome is speed 1.0 (dominant), lifespan 30, fertility 2, both tolerances
+  `NONE`, nocturnal, cave dwelling, no rain tolerance, the mod's own death flower type, the reaping
+  effect, pollination 5, territory 15/9/15, recessive species, glint on.
+* **Exactly one way in.** `data/forestry_oddities/recipe/bee_mutation/reaper_1.json` is the only
+  mutation into the species: `phantasmal` x `demonic`, chance 0.03, both conditions on the same
+  housing - `MutationConditionDaytime` (night) and `MutationConditionRequiresResource` (a wither rose
+  as the foundation under it).
+* **The reaping.** Put a Reaper in a working apiary and ring it with apiaries of ordinary bees, one
+  directly adjacent, one at x+8 (outside the 7-block half-width), one at y+5 (outside the 4-block
+  half-height), plus a princess, a second Reaper and a hybrid whose active effect is the reaping.
+  After a work cycle the three outer ones and the kindred ones still hold their bees, the Reaper's
+  own housing is untouched, and the in-range queens are gone **and settled the normal way**: the
+  product slots hold the offspring princess (drones when she has company), exactly as if the queen
+  had died of old age, so the apiary keeps running on the successor. A wild hive left inside the box
+  keeps its wild bee, because `IHiveTile` is skipped.
+* **The gate.** `reaperReapIntervalTicks` throttles the effect by game time, `0` disables reaping
+  while leaving the bee and its allele intact, and `reaperSparesSameOwner` spares only housings whose
+  owner is the same non-null player.
+* **Not verified yet:** an alveary (the shared inventory should be deduped to one queen), and
+  saving/reloading a housing whose queen was taken in the same tick - the design document lists both.
+
 ## Offline / restricted network
 
 This machine cannot reach `maven.neoforged.net`, so the build is set up to work without it:
@@ -1255,6 +1403,7 @@ src/main/java/com/zhichaoxi/forestryoddities/
     ForestryOddities.java            mod entry point (@Mod): registers config, content and Create gate
     config/ForestryOdditiesConfig.java        common config (rainMode, biomeModeSkyLight,
                                             ignobleDecayStartGeneration, voltaicBeePowerMultiplier,
+                                            reaperReapIntervalTicks, reaperSparesSameOwner,
                                             beekeeper.*)
     config/RainMode.java           VANILLA / POSITION / BIOME
     tweak/RainChecks.java          the rain rule shared by both mixins
@@ -1297,12 +1446,14 @@ src/main/java/com/zhichaoxi/forestryoddities/
     content/alveary/circuit/CircuitFoundationCircuits.java  circuit board -> mounted programs
     content/apiculture/VoltaicBeeEffect.java  伏打放电: the Voltaic Bee's effect (rate, shell
                                               push, sparks)
+    content/apiculture/ReapingBeeEffect.java  收魂: the Reaper Bee's effect (period, territory scan,
+                                              kindred check, queen removal)
     client/ForestryOdditiesClient.java          charged item model property + potion tint (client only)
     client/AlvearyFrameHousingScreen.java       the frame housing GUI (client only)
     client/AlvearyCircuitFoundationScreen.java  the circuit foundation GUI: socket widget, charge bar, status line
                                                 (client only)
     integration/ForestryOdditiesPlugin.java  Forestry plugin (ServiceLoader): the circuit foundation's circuit
-                                             layout + circuits, and the Voltaic Bee's effect
+                                             layout + circuits, and the two bee effects
     integration/create/CreateIntegration.java      Create hook-up (RegisterEvent)
     integration/create/BeeItemAttributes.java      attribute type ids + the unit-attribute factory
     integration/create/BeeSpeciesAttribute.java    "is of species X" / "carries X recessively"
@@ -1358,6 +1509,11 @@ src/main/resources/
     data/forestry_oddities/flower_type/flower_type_redstone.json     its datapack flower type (红石)
     data/forestry_oddities/tags/block/flowers/redstone.json          what counts as that flower
     data/forestry_oddities/recipe/bee_mutation/voltaic_1.json        anachrone x glacial + thunderstorm
+    data/forestry_oddities/taxon/styxapis.json                       the Reaper Bee's genus (黄泉 / Styx)
+    data/forestry_oddities/bee_species/reaper.json                   the Reaper Bee (死神蜂)
+    data/forestry_oddities/flower_type/flower_type_death.json        its datapack flower type (死亡)
+    data/forestry_oddities/tags/block/flowers/death.json             what counts as that flower
+    data/forestry_oddities/recipe/bee_mutation/reaper_1.json         phantasmal x demonic + night + wither rose
     data/minecraft/tags/block/mineable/axe.json                    axes mine the part faster
     pack.mcmeta
 libs/compat/                       compileOnly API jars, not in the repository (see its README.md)

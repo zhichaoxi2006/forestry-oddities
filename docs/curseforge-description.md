@@ -26,6 +26,7 @@ Nothing is taken away: Forestry's own blocks, frames, circuits and bees keep wor
 * Two apiary frames — Soft Light Frame / 柔光框架, Infusion Frame / 灌注框架
 * Three alveary parts — Frame Housing / 蜂房组框架外壳, Circuit Foundation / 蜂房组电路巢础, Transmission / 蜂房组配电
 * One new bee — the Voltaic Bee / 伏打蜂, which discharges FE
+* And its opposite — the Reaper Bee / 死神蜂, which takes the queens of every housing in its territory
 
 ---
 
@@ -254,6 +255,26 @@ The species is deliberately fussy — no temperature or humidity tolerance, diur
 
 ---
 
+## The Reaper Bee / 死神蜂
+
+`for.genus.bees.styxapis` · `forestry_oddities:reaper`
+
+*It gathers no nectar; it collects debts. Within its reach, no other queen sees a second dusk. — Beekeeping 101*
+
+A bee whose product is absence: every couple of seconds it kills the queen of every bee housing in its territory.
+
+**Getting one.** Phantasmal × Demonic, chance **3%**, only at **night**, and only with a **wither rose under the housing**. Both parents are deep lines (the Phantasmal is Spectral × Ended at 2%, the Demonic is bred in the Nether) and their climates disagree, so the pairing is a build problem in itself.
+
+**The effect — Soul Reaping.** The area is the bee's own territory (15 × 9 × 15 by default: 7 blocks to each side, 4 up and down), run through the housing's modifiers — an alveary's territory parts and this mod's own circuit foundation programs, including the inhibitor that shrinks it to 6 × 3 × 6. Every queen in that box dies, and each death settles the normal way: her health is set to zero and Forestry's own beekeeping logic produces the successor princess and drones. So a Reaper costs a queen and her current work cycle, not the line. Princesses and drones are untouched, and a Reaper never touches its own housing, wild hives, or its own kind (Reaper queens, and hybrids whose active effect is the reaping). There is no defence other than position.
+
+**The cost.** She reaps only while she can work, and she is deliberately high-maintenance: nocturnal, not rain-tolerant, no climate tolerance, and her flowers are wither roses and soul torches. The four circuit foundation programs that fix exactly those four things (Night Shift 15, Sealed 10, Climate 25, Flower Source 35 FE per work cycle) turn a Reaper alveary into a machine that has to be fed — which is what the Voltaic Bee next door is for.
+
+**Careful.** By default the Reaper also eats *your* base: every queen in range except her own kind. Three ways to keep one safely: the inhibitor program, the configuration option below, or a room of her own.
+
+Config: `apiculture.reaperReapIntervalTicks` (default 40 ticks, 0–1200, `0` disables reaping without removing the bee) and `apiculture.reaperSparesSameOwner` (default off; on = housings of the same player are skipped).
+
+---
+
 ## Energy compatibility
 
 The Voltaic Bee's discharge goes through a long-valued energy layer (`forestry_oddities:long_energy`), which falls back to plain FE when nothing else answers. If any of these mods is installed, their own energy API is used automatically — no configuration, no reflection, no required dependency:
@@ -331,6 +352,7 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 * 两个蜂房框架 —— 柔光框架、灌注框架
 * 三个蜂房组部件 —— 框架外壳、蜂房组电路巢础、蜂房组配电
 * 一只新蜂 —— 伏打蜂，放电产出 FE
+* 以及它的反面 —— 死神蜂，摘掉活动范围内所有蜂房的蜂后
 
 ---
 
@@ -546,6 +568,26 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 这就闭合了设计想要的循环：同一组蜂房组里放一只伏打蜂、一个配电和一个电路巢础，配电作为邻居拿到电、再由它派发给维持这只蜂的程序（约 67 650 FE/工作周期，对五程序约 100 FE 的消耗），其余全部作为外送电力。
 
 这个蜂种被刻意设计得挑剔——没有温度与湿度耐受、昼行、不穴居、不耐雨、以红石为采蜜对象——所以蜂房组和它的程序才是让它变强的关键。配置项：`apiculture.voltaicBeePowerMultiplier`（0–10，默认 1.0；设为 `0` 可关闭发电而不删除蜜蜂）。
+
+---
+
+## 死神蜂
+
+黄泉属（`for.genus.bees.styxapis`）· `forestry_oddities:reaper`
+
+*它不采蜜，只收账：方圆之内，别的蜂后活不过第二个黄昏。——《养蜂入门指南》*
+
+一只“产物就是缺席”的蜜蜂：每隔两秒，杀掉它活动范围内每一座蜂房的蜂后。
+
+**获得方式**：`幻影蜂 × 魔鬼蜂`，概率 **3%**，只在**夜晚**、且**蜂房正下方有一朵凋灵玫瑰**时发生。两条亲本血统都很深（幻影蜂是幽灵蜂 × 末影蜂的 2%，魔鬼蜂在下界育成），而且两者的理想气候并不一致，所以配对本身就是一道建造题。
+
+**效果——收魂**：范围就是蜂自己的领地（默认 15×9×15：左右各 7、上下各 4），会经过蜂房的修正——蜂房组的领地部件、本模组电路巢础的领地/抑制剂程序（抑制剂把范围压到 6×3×6）。范围内**每一只蜂后**都会死亡，而且是**正常死亡结算**：生命值归零后由林业自己的养蜂逻辑产出继承的公主与雄蜂。所以死神消耗的是“一任蜂后 + 她当前的工作周期”，不是血脉。公主与雄蜂本身不受影响；死神不碰自己的蜂房、不碰野巢，也不碰同类（死神蜂后，以及活跃效果为收魂的杂交蜂后）。除了“别放在范围内”，没有别的防御手段。
+
+**代价**：只在能干活时收魂，而且刻意难伺候——夜行、不耐雨、无气候耐受、吃凋灵玫瑰与灵魂火把。恰好解决这四件事的电路巢础程序（昼夜 15、密封 10、气候 25、花源 35 FE/工作周期）会让死神蜂房组变成一台要供能的机器——这就是隔壁伏打蜂的用处。
+
+**小心**：默认配置下死神**也吃自己主人的蜂场**——范围里除了同类，谁的蜂后都摘。想安全养有三条路：抑制剂程序、下面的配置项，或者单独一间房。
+
+配置项：`apiculture.reaperReapIntervalTicks`（默认 40 tick，0–1200，`0` 关闭收魂但不删种）与 `apiculture.reaperSparesSameOwner`（默认关；打开后同一玩家的蜂房会被跳过）。
 
 ---
 
