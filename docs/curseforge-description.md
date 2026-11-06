@@ -4,7 +4,7 @@
 
 Forestry: CE gives you bees. It does not give the alveary a frame slot, a way to power an alveary, a way to sort bees on an automated factory floor, or a bee that turns a queen's working speed into energy. Forestry Oddities adds exactly those missing pieces — small, self-contained, and written the way Forestry would have written them itself.
 
-Nothing is taken away: Forestry's own blocks, frames, circuits and bees keep working exactly as before. Every change is either **new content** (two frames, three alveary parts, one bee) or a **config-gated tweak**, implemented with a handful of Mixins instead of a patched Forestry build.
+Nothing is taken away: Forestry's own blocks, frames, circuits and bees keep working exactly as before. Every change is either **new content** (two frames, three alveary parts, two bees) or a **config-gated tweak**, implemented with a handful of Mixins instead of a patched Forestry build.
 
 ## Requirements
 
@@ -25,8 +25,7 @@ Nothing is taken away: Forestry's own blocks, frames, circuits and bees keep wor
 * Three tweaks — rain detection, ignoble decay, beekeeper villagers
 * Two apiary frames — Soft Light Frame / 柔光框架, Infusion Frame / 灌注框架
 * Three alveary parts — Frame Housing / 蜂房组框架外壳, Circuit Foundation / 蜂房组电路巢础, Transmission / 蜂房组配电
-* One new bee — the Voltaic Bee / 伏打蜂, which discharges FE
-* And its opposite — the Reaper Bee / 死神蜂, which takes the queens of every housing in its territory
+* Two bees — the Voltaic Bee / 伏打蜂, which discharges FE, and its opposite the Reaper Bee / 死神蜂, which takes the queens of every housing in its territory
 
 ---
 
@@ -230,7 +229,7 @@ A power distributor — it **never touches the bees**. It buffers 1 000 FE and h
 
 ## The Voltaic Bee / 伏打蜂
 
-`for.genus.bees.electrapis` · `forestry_oddities:voltaicus`
+`for.genus.bees.electrapis` (Electrum) · `forestry_oddities:voltaicus`
 
 *Copper wings and a hum you can feel in your teeth. It feeds on redstone; it does not make honey, it makes current. — Beekeeping 101*
 
@@ -238,18 +237,23 @@ A bee that turns a hive's spare work speed into **Forge Energy**, using this mod
 
 **Getting one.** Anachrone × Glacial, chance **4%**, and only in a **thunderstorm**. The housing has to be rain-proof too (a rain-tolerant queen, sealed housing, or — with the default rain mode — a roof), and both parent lines are late-game: the Anachrone comes from relic bees and the Glacial is depth 7.
 
-**The effect.** Voltaic Discharge yields `ceil(192 × speed²)` FE per tick, where speed is the bee's speed allele times the housing's production modifier — and it is squared, so frames are what actually move the number:
+**What it makes.** A honey comb (30%), with redstone (20%) and copper ingots (8%) as specialities.
+
+**The effect.** Voltaic Discharge yields `ceil(400 × speed²)` FE per tick, times `apiculture.voltaicBeePowerMultiplier`, where speed is the bee's speed allele times the housing's production modifier — and it is squared, so frames are what actually move the number:
 
 | Where | Speed | FE/tick | FE/s |
 |---|---|---|---|
-| Apiary | 0.1 (apiary penalty) | 2 | 40 |
-| Alveary | 0.8 (own allele) | 123 | 2 460 |
-| Alveary + one Production Up program or frame | 1.6 | 492 | 9 840 |
-| Alveary + three frames | 6.4 | 7 865 | 157 300 |
+| Apiary | 0.08 (`0.8 × 0.1` apiary penalty) | 3 | 60 |
+| Alveary | 0.8 (own allele) | 257 | 5 140 |
+| Alveary + one Production Up I program (`× 1.5`) | 1.2 | 577 | 11 540 |
+| Alveary + one production frame (`× 2`) | 1.6 | 1 025 | 20 500 |
+| Alveary + three production frames (`× 8`) | 6.4 | 16 385 | 327 700 |
+
+The figures are the game's own arithmetic, not rounded for the table: `0.8f × 0.8f` lands a hair above 0.64, which is why the plain alveary row reads 257 and not 256.
 
 **Where the energy goes.** Every block touching the *outside of the hive's shell*, in flood-fill order — six faces for an apiary, 54 for a 3×3×3 alveary — offered through the long-energy layer so sinks bigger than an `int` get it in one call. That is the whole list: the remainder is dropped, and a housing is not a battery, so run a cable to it. An alveary's own parts are neighbours too — the Transmission or a Circuit Foundation sitting in the wall is fed by the same pass as a cable would be.
 
-That closes the loop the design calls for: one Voltaic Bee, a Transmission and a Circuit Foundation in the same alveary fills the Transmission's buffer, and the part hands it on to the programs that keep the bee working (about 67 650 FE per work cycle against a five-program draw of roughly 100), with everything above that leaving the hive as free power.
+That closes the loop the design calls for: one Voltaic Bee, a Transmission and a Circuit Foundation in the same alveary fills the Transmission's buffer, and the part hands it on to the programs that keep the bee working (about 141 350 FE per work cycle against a five-program draw of roughly 100), with everything above that leaving the hive as free power.
 
 The species is deliberately fussy — no temperature or humidity tolerance, diurnal, no cave dwelling, no rain tolerance, redstone for flowers — so an alveary and its programs are what make it good. Config: `apiculture.voltaicBeePowerMultiplier` (0–10, default 1.0; `0` switches generation off without removing the bee).
 
@@ -265,7 +269,9 @@ A bee whose product is absence: every couple of seconds it kills the queen of ev
 
 **Getting one.** Phantasmal × Demonic, chance **3%**, only at **night**, and only with a **wither rose under the housing**. Both parents are deep lines (the Phantasmal is Spectral × Ended at 2%, the Demonic is bred in the Nether) and their climates disagree, so the pairing is a build problem in itself.
 
-**The effect — Soul Reaping.** The area is the bee's own territory (15 × 9 × 15 by default: 7 blocks to each side, 4 up and down), run through the housing's modifiers — an alveary's territory parts and this mod's own circuit foundation programs, including the inhibitor that shrinks it to 6 × 3 × 6. Every queen in that box dies, and each death settles the normal way: her health is set to zero and Forestry's own beekeeping logic produces the successor princess and drones. So a Reaper costs a queen and her current work cycle, not the line. Princesses and drones are untouched, and a Reaper never touches its own housing, wild hives, or its own kind (Reaper queens, and hybrids whose active effect is the reaping). There is no defence other than position.
+**What she makes.** A mysterious comb (25%), with bone (20%) and wither roses (5%) as specialities.
+
+**The effect — Soul Reaping.** The area is the bee's own territory (15 × 9 × 15 by default: 7 blocks to each side, 4 up and down), run through the housing's modifiers — an alveary's territory parts and this mod's own circuit foundation programs, including the inhibitor that shrinks it to 6 × 4 × 6. Every queen in that box dies, and each death settles the normal way: her health is set to zero and Forestry's own beekeeping logic produces the successor princess and drones. So a Reaper costs a queen and her current work cycle, not the line. Princesses and drones are untouched, and a Reaper never touches its own housing, wild hives, or its own kind (Reaper queens, and hybrids whose active effect is the reaping). There is no defence other than position.
 
 **The cost.** She reaps only while she can work, and she is deliberately high-maintenance: nocturnal, not rain-tolerant, no climate tolerance, and her flowers are wither roses and soul torches. The four circuit foundation programs that fix exactly those four things (Night Shift 15, Sealed 10, Climate 25, Flower Source 35 FE per work cycle) turn a Reaper alveary into a machine that has to be fed — which is what the Voltaic Bee next door is for.
 
@@ -285,7 +291,7 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 
 ## Configuration
 
-`config/forestry_oddities-common.toml`, all under `[apiculture]` except the beekeeper block. Values are re-read on use, so an edit applies without restarting (client and server each read their own copy).
+`config/forestry_oddities-common.toml`, all under `[apiculture]` except the beekeeper block. The `[apiculture]` values are re-read on use, so an edit applies without restarting (client and server each read their own copy); the `[beekeeper]` settings `enabled` and `searchRadius` are read when a villager's goal is created, so those reach existing beekeepers only after they reload.
 
 | Key | Default | Meaning |
 |---|---|---|
@@ -293,6 +299,8 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 | `apiculture.biomeModeSkyLight` | `10` | sky light needed for `BIOME` to count as rained on (0–15) |
 | `apiculture.ignobleDecayStartGeneration` | `96` | base generation of the ignoble decay test, `-1` disables it |
 | `apiculture.voltaicBeePowerMultiplier` | `1.0` | output multiplier of the Voltaic Bee (0–10) |
+| `apiculture.reaperReapIntervalTicks` | `40` | how often a Reaper reaps, in ticks (0–1200); `0` disables reaping |
+| `apiculture.reaperSparesSameOwner` | `false` | leave the housings of the Reaper's own owner alone |
 | `beekeeper.enabled` | `true` | replace Forestry's beekeeper AI |
 | `beekeeper.tendPlayerOwned` | as generated | whether beekeepers may tend player-placed housings |
 | `beekeeper.requireSameSpecies` | `true` | only pair a princess with a drone of the same species |
@@ -307,12 +315,12 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 * The alveary parts must go into an **assembled** alveary's exterior; they cannot go into the top layer or the interior. While the structure is incomplete, right-clicking prints the pattern error like Forestry's own parts.
 * The Frame Housing holds **one** frame. The bee house still has no frame slot, in Forestry or here.
 * Forestry's sources are not patched: the tweaks are Mixins on Forestry's own methods plus this mod's own goal, so a locally modified Forestry build is never involved.
-* Recipes: all four new recipes and the frame housing ship recipe-book unlock advancements. The Voltaic Bee mutation is a normal Forestry mutation and shows up in JEI like any other.
+* Recipes: all five new recipes (two frames, three alveary parts) ship recipe-book unlock advancements. Both bee mutations are ordinary Forestry mutations and show up in JEI like any other.
 
 ## Credits
 
 * **Forestry: Community Edition** by thedarkcolour and contributors — the mod this is built on.
-* **Binnie's Mods / Extra Bees** — the Electrical Stimulator and Alveary Transmission are ports of Binnie's parts; their block and GUI textures are redistributed verbatim under the same LGPL-3.0 terms.
+* **Binnie's Mods / Extra Bees** — the Electrical Stimulator and Alveary Transmission are ports of Binnie's parts: nine of the fourteen circuit programs, the 500 FE-per-offer buffers and the per-tick distribution are Binnie's. Binnie's own GUI art comes with them — `guistimulator.png` (the circuit foundation window) and `craftgui-controls.png` (the energy bar) are redistributed verbatim under the same LGPL-3.0 terms. The three block textures are this mod's own, not Binnie's.
 * **Career Bees** — the long-energy layer and the energy-bee effect this mod's Voltaic Bee follows.
 * **Create** — the Attribute Filter API the bee sorting is built on.
 
@@ -330,7 +338,7 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 
 林业社区版给了你蜜蜂，却没有给蜂房组框架槽、没有给蜂房组供电的方式、没有让自动化工厂按基因分拣蜜蜂的手段，也没有一只把蜂后工作速度变成电能的蜜蜂。本模组补的就是这几块——每一样都自成一体，并且按林业自己的做法去实现。
 
-**没有拆掉任何东西**：林业原有的方块、框架、电路与蜜蜂行为全部保持原样。所有改动要么是**新内容**（两个框架、三个蜂房组部件、一只新蜂），要么是**可配置的微调**（用少量 Mixin 实现，而不是修改林业源码）。
+**没有拆掉任何东西**：林业原有的方块、框架、电路与蜜蜂行为全部保持原样。所有改动要么是**新内容**（两个框架、三个蜂房组部件、两只新蜂），要么是**可配置的微调**（用少量 Mixin 实现，而不是修改林业源码）。
 
 ## 需求
 
@@ -351,8 +359,7 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 * 三项微调 —— 雨天判定、卑贱种衰退、养蜂人村民
 * 两个蜂房框架 —— 柔光框架、灌注框架
 * 三个蜂房组部件 —— 框架外壳、蜂房组电路巢础、蜂房组配电
-* 一只新蜂 —— 伏打蜂，放电产出 FE
-* 以及它的反面 —— 死神蜂，摘掉活动范围内所有蜂房的蜂后
+* 两只新蜂 —— 伏打蜂，放电产出 FE；死神蜂，摘掉活动范围内所有蜂房的蜂后
 
 ---
 
@@ -554,18 +561,23 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 
 **获得方式**：`错时蜂 × 冰河蜂`，概率 **4%**，并且只在**雷雨天**发生。蜂房还必须是防雨的（耐雨蜂后、密封蜂房，或默认雨天模式下有天棚），两条亲本血统都属于后期内容。
 
-**效果**：`伏打放电` 每 tick 产出 `ceil(192 × 工作速度²)` FE，工作速度是蜂的速度等位基因乘以蜂房的产量修正——而且是平方关系，所以真正把数字拉上去的是框架与程序：
+**产物**：30% 蜂蜜蜜脾，特产为 20% 红石与 8% 铜锭。
+
+**效果**：`伏打放电` 每 tick 产出 `ceil(400 × 工作速度²)` FE，再乘以 `apiculture.voltaicBeePowerMultiplier`；工作速度是蜂的速度等位基因乘以蜂房的产量修正——而且是平方关系，所以真正把数字拉上去的是框架与程序：
 
 | 位置 | 工作速度 | FE/tick | FE/秒 |
 |---|---|---|---|
-| 蜂房 | 0.1（蜂房惩罚） | 2 | 40 |
-| 蜂房组 | 0.8（自身等位基因） | 123 | 2 460 |
-| 蜂房组 + 一个产量提高程序或框架 | 1.6 | 492 | 9 840 |
-| 蜂房组 + 三个框架 | 6.4 | 7 865 | 157 300 |
+| 蜂房 | 0.08（`0.8 × 0.1` 蜂房惩罚） | 3 | 60 |
+| 蜂房组 | 0.8（自身等位基因） | 257 | 5 140 |
+| 蜂房组 + 一个产量提高 I 程序（`× 1.5`） | 1.2 | 577 | 11 540 |
+| 蜂房组 + 一个产量 ×2 的框架（`× 2`） | 1.6 | 1 025 | 20 500 |
+| 蜂房组 + 三个产量 ×2 的框架（`× 8`） | 6.4 | 16 385 | 327 700 |
+
+表里的数字是游戏自己的算法结果，没有为表格取整：`0.8f × 0.8f` 略大于 0.64，所以纯蜂房组一行是 257 而不是 256。
 
 **电能去向**：先按洪泛顺序喂给贴着**蜂房外壳外侧**的每一个方块——蜂房 6 个面，3×3×3 蜂房组 54 个面——通过 long 能量层以单次调用交给任何可以接收的储能（超出 int 范围的储能也能一次吃饱）；就这些，剩下的直接丢弃：蜂房不是电池，请把线接过去。蜂房组自己的部件同样是“邻居”：墙里的配电、电路巢础和外面接的电缆走同一次推送。
 
-这就闭合了设计想要的循环：同一组蜂房组里放一只伏打蜂、一个配电和一个电路巢础，配电作为邻居拿到电、再由它派发给维持这只蜂的程序（约 67 650 FE/工作周期，对五程序约 100 FE 的消耗），其余全部作为外送电力。
+这就闭合了设计想要的循环：同一组蜂房组里放一只伏打蜂、一个配电和一个电路巢础，配电作为邻居拿到电、再由它派发给维持这只蜂的程序（约 141 350 FE/工作周期，对五程序约 100 FE 的消耗），其余全部作为外送电力。
 
 这个蜂种被刻意设计得挑剔——没有温度与湿度耐受、昼行、不穴居、不耐雨、以红石为采蜜对象——所以蜂房组和它的程序才是让它变强的关键。配置项：`apiculture.voltaicBeePowerMultiplier`（0–10，默认 1.0；设为 `0` 可关闭发电而不删除蜜蜂）。
 
@@ -581,7 +593,9 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 
 **获得方式**：`幻影蜂 × 魔鬼蜂`，概率 **3%**，只在**夜晚**、且**蜂房正下方有一朵凋灵玫瑰**时发生。两条亲本血统都很深（幻影蜂是幽灵蜂 × 末影蜂的 2%，魔鬼蜂在下界育成），而且两者的理想气候并不一致，所以配对本身就是一道建造题。
 
-**效果——收魂**：范围就是蜂自己的领地（默认 15×9×15：左右各 7、上下各 4），会经过蜂房的修正——蜂房组的领地部件、本模组电路巢础的领地/抑制剂程序（抑制剂把范围压到 6×3×6）。范围内**每一只蜂后**都会死亡，而且是**正常死亡结算**：生命值归零后由林业自己的养蜂逻辑产出继承的公主与雄蜂。所以死神消耗的是“一任蜂后 + 她当前的工作周期”，不是血脉。公主与雄蜂本身不受影响；死神不碰自己的蜂房、不碰野巢，也不碰同类（死神蜂后，以及活跃效果为收魂的杂交蜂后）。除了“别放在范围内”，没有别的防御手段。
+**产物**：25% 神秘蜜脾，特产为 20% 骨头与 5% 凋灵玫瑰。
+
+**效果——收魂**：范围就是蜂自己的领地（默认 15×9×15：左右各 7、上下各 4），会经过蜂房的修正——蜂房组的领地部件、本模组电路巢础的领地/抑制剂程序（抑制剂把范围压到 6×4×6）。范围内**每一只蜂后**都会死亡，而且是**正常死亡结算**：生命值归零后由林业自己的养蜂逻辑产出继承的公主与雄蜂。所以死神消耗的是“一任蜂后 + 她当前的工作周期”，不是血脉。公主与雄蜂本身不受影响；死神不碰自己的蜂房、不碰野巢，也不碰同类（死神蜂后，以及活跃效果为收魂的杂交蜂后）。除了“别放在范围内”，没有别的防御手段。
 
 **代价**：只在能干活时收魂，而且刻意难伺候——夜行、不耐雨、无气候耐受、吃凋灵玫瑰与灵魂火把。恰好解决这四件事的电路巢础程序（昼夜 15、密封 10、气候 25、花源 35 FE/工作周期）会让死神蜂房组变成一台要供能的机器——这就是隔壁伏打蜂的用处。
 
@@ -601,7 +615,7 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 
 ## 配置
 
-文件 `config/forestry_oddities-common.toml`，除养蜂人段落外都在 `[apiculture]` 下。数值在使用时读取，改完无需重启（客户端与服务端各读自己的一份）。
+文件 `config/forestry_oddities-common.toml`，除养蜂人段落外都在 `[apiculture]` 下。`[apiculture]` 的数值在使用时读取，改完无需重启（客户端与服务端各读自己的一份）；`[beekeeper]` 里的 `enabled` 与 `searchRadius` 只在村民生成行为目标时读取，改完要等村民重新加载才生效。
 
 | 键 | 默认 | 含义 |
 |---|---|---|
@@ -609,6 +623,8 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 | `apiculture.biomeModeSkyLight` | `10` | `BIOME` 模式判定为被雨淋所需的天光（0–15） |
 | `apiculture.ignobleDecayStartGeneration` | `96` | 卑贱种衰退测试基准代，`-1` 关闭 |
 | `apiculture.voltaicBeePowerMultiplier` | `1.0` | 伏打蜂输出倍率（0–10） |
+| `apiculture.reaperReapIntervalTicks` | `40` | 死神蜂收魂间隔（tick，0–1200，`0` 关闭） |
+| `apiculture.reaperSparesSameOwner` | `false` | 跳过与死神蜂同一主人的蜂房 |
 | `beekeeper.enabled` | `true` | 替换林业养蜂人 AI |
 | `beekeeper.tendPlayerOwned` | 以生成文件为准 | 养蜂人是否可照料玩家放置的蜂房 |
 | `beekeeper.requireSameSpecies` | `true` | 只配同品种的公主蜂与雄蜂 |
@@ -623,12 +639,12 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 * 蜂房组部件必须放进**已组装**蜂房组的外壳，不能放顶层或内部。结构不完整时右键会像林业自己的部件一样提示图案错误。
 * 框架外壳只容纳**一个**框架。简易蜂房至今仍没有框架槽（林业如此，这里也如此）。
 * 不修改林业源码：微调是打在林业自身方法上的 Mixin 加本模组自己的目标，不涉及任何本地修改版林业。
-* 全部四个新配方与框架外壳都带配方书解锁进度；伏打蜂突变是标准林业突变，会在 JEI 中像其他突变一样显示。
+* 全部五个新配方（两个框架、三个蜂房组部件）都带配方书解锁进度；两种蜜蜂突变都是标准林业突变，会在 JEI 中像其他突变一样显示。
 
 ## 致谢
 
 * **林业社区版 Forestry: Community Edition** —— 作者 thedarkcolour 与所有贡献者，本模组的基础。
-* **Binnie's Mods / Extra Bees** —— 电刺激器与蜂房组配电移植自 Binnie 的部件，其方块与界面贴图按同样的 LGPL-3.0 条款原样再分发。
+* **Binnie's Mods / Extra Bees** —— 电刺激器与蜂房组配电移植自 Binnie 的部件：十四个电路程序中的九个、每次 500 FE 的进料上限与每 tick 的分发逻辑都出自 Binnie。Binnie 自己的界面素材一并沿用——`guistimulator.png`（电路巢础窗口）与 `craftgui-controls.png`（能量条）按同样的 LGPL-3.0 条款原样再分发；三个方块贴图为本模组自有素材，并非 Binnie 的贴图。
 * **Career Bees** —— long 能量层，以及伏打蜂所参照的能量蜂效果。
 * **Create 机械动力** —— 蜜蜂分拣所依赖的属性过滤器 API。
 
