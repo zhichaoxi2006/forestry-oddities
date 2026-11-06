@@ -7,6 +7,7 @@ import forestry.api.core.genetics.IMutation;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -49,21 +50,21 @@ public enum CircuitFoundationProgram implements IBeeModifier {
     /** +50% production speed for 10 FE per work cycle. */
     LOW_VOLTAGE("low_voltage", "iron_electron_tube", 10) {
         @Override
-        public float modifyProductionSpeed(IGenome genome, float currentSpeed) {
+        public float modifyProductionSpeed(@NotNull IGenome genome, float currentSpeed) {
             return currentSpeed * 1.5F;
         }
     },
     /** +150% production speed for 20 FE per work cycle: the expensive version of {@link #LOW_VOLTAGE}. */
     HIGH_VOLTAGE("high_voltage", "diamantine_electron_tube", 20) {
         @Override
-        public float modifyProductionSpeed(IGenome genome, float currentSpeed) {
+        public float modifyProductionSpeed(@NotNull IGenome genome, float currentSpeed) {
             return currentSpeed * 2.5F;
         }
     },
     /** +50% pollination, i.e. the rate at which flowers are placed and pollen is collected. */
     PLANT("plant", "lapis_electron_tube", 10) {
         @Override
-        public float modifyPollination(IGenome genome, float currentPollination) {
+        public float modifyPollination(@NotNull IGenome genome, float currentPollination) {
             return currentPollination * 1.5F;
         }
     },
@@ -73,14 +74,14 @@ public enum CircuitFoundationProgram implements IBeeModifier {
      */
     DEATH("death", "obsidian_electron_tube", 10) {
         @Override
-        public float modifyAging(IGenome genome, @Nullable IGenome mate, float currentAging) {
+        public float modifyAging(@NotNull IGenome genome, @Nullable IGenome mate, float currentAging) {
             return currentAging / 0.8F;
         }
     },
     /** Lengthens the queen's life: the aging step is divided by 1.5, i.e. the queen lives 50% longer. */
     LIFE("life", "apatine_electron_tube", 10) {
         @Override
-        public float modifyAging(IGenome genome, @Nullable IGenome mate, float currentAging) {
+        public float modifyAging(@NotNull IGenome genome, @Nullable IGenome mate, float currentAging) {
             return currentAging / 1.5F;
         }
     },
@@ -94,7 +95,7 @@ public enum CircuitFoundationProgram implements IBeeModifier {
     /** +50% mutation chance. */
     MUTATION("mutation", "golden_electron_tube", 15) {
         @Override
-        public float modifyMutationChance(IGenome genome, @Nullable IGenome mate, @Nullable IMutation<IBeeSpecies> mutation, float currentChance) {
+        public float modifyMutationChance(@NotNull IGenome genome, @Nullable IGenome mate, @Nullable IMutation<IBeeSpecies> mutation, float currentChance) {
             return currentChance * 1.5F;
         }
     },
@@ -105,19 +106,19 @@ public enum CircuitFoundationProgram implements IBeeModifier {
      */
     INHIBITOR("inhibitor", "tin_electron_tube", 10) {
         @Override
-        public Vec3i modifyTerritory(IGenome genome, Vec3i currentTerritory) {
+        public @NotNull Vec3i modifyTerritory(@NotNull IGenome genome, @NotNull Vec3i currentTerritory) {
             return scale(currentTerritory, 0.4F);
         }
 
         @Override
-        public float modifyProductionSpeed(IGenome genome, float currentSpeed) {
+        public float modifyProductionSpeed(@NotNull IGenome genome, float currentSpeed) {
             return currentSpeed * 0.9F;
         }
     },
     /** +50% territory: more flowers reachable and a larger area for the bee's effect. */
     TERRITORY("territory", "bronze_electron_tube", 10) {
         @Override
-        public Vec3i modifyTerritory(IGenome genome, Vec3i currentTerritory) {
+        public @NotNull Vec3i modifyTerritory(@NotNull IGenome genome, @NotNull Vec3i currentTerritory) {
             return scale(currentTerritory, 1.5F);
         }
     },
@@ -150,7 +151,7 @@ public enum CircuitFoundationProgram implements IBeeModifier {
      */
     ALWAYS_ACTIVE("always_active", "ender_electron_tube", 15) {
         @Override
-        public boolean isAlwaysActive(IGenome genome) {
+        public boolean isAlwaysActive(@NotNull IGenome genome) {
             return true;
         }
     },
@@ -221,7 +222,7 @@ public enum CircuitFoundationProgram implements IBeeModifier {
      * enum instead of on the constants. It is the price of using a program at all.
      */
     @Override
-    public float modifyGeneticDecay(IGenome genome, float currentDecay) {
+    public float modifyGeneticDecay(@NotNull IGenome genome, float currentDecay) {
         return currentDecay * 1.5F;
     }
 

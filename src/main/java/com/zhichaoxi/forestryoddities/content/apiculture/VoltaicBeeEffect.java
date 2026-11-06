@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -104,7 +105,7 @@ public final class VoltaicBeeEffect implements IBeeEffect {
     }
 
     @Override
-    public IEffectData doEffect(IGenome genome, IEffectData storedData, IBeeHousing housing) {
+    public @NotNull IEffectData doEffect(@NotNull IGenome genome, @NotNull IEffectData storedData, IBeeHousing housing) {
         Level level = housing.getLevel();
         if (!(level instanceof ServerLevel serverLevel)) {
             return storedData;
