@@ -80,7 +80,7 @@ public final class VoltaicBeeEffect implements IBeeEffect {
         ResourceLocation.fromNamespaceAndPath(ForestryOddities.MOD_ID, "voltaic");
 
     /** FE per tick at a speed of 1.0 and a multiplier of 1.0. Sealed in the design document. */
-    static final int BASE_VOLTAGE = 192;
+    static final int BASE_VOLTAGE = 400;
 
     /** The effect bursts electric sparks every this many ticks, rather than every tick. */
     private static final int PARTICLE_PERIOD = 4;
@@ -89,7 +89,7 @@ public final class VoltaicBeeEffect implements IBeeEffect {
     private static final int MAX_SPARKS = 6;
 
     /** One spark per this much FE per tick, on top of the first. */
-    private static final int FE_PER_SPARK = 128;
+    private static final int FE_PER_SPARK = 320;
 
     /**
      * {@inheritDoc}
