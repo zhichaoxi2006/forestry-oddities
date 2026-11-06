@@ -1,4 +1,4 @@
-package com.zhichaoxi.forestryoddities.content;
+package com.zhichaoxi.forestryoddities.init;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingBlock;

@@ -3,6 +3,7 @@ package com.zhichaoxi.forestryoddities.content;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.zhichaoxi.forestryoddities.init.ModRecipes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;

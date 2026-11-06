@@ -1,5 +1,6 @@
-package com.zhichaoxi.forestryoddities.content;
+package com.zhichaoxi.forestryoddities.init;
 
+import com.zhichaoxi.forestryoddities.content.SoftLightFrameItem;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingBlockEntity;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationBlockEntity;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTransmissionBlockEntity;

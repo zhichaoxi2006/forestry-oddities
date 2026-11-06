@@ -1,6 +1,6 @@
 package com.zhichaoxi.forestryoddities.content.alveary;
 
-import com.zhichaoxi.forestryoddities.content.ModBlockEntities;
+import com.zhichaoxi.forestryoddities.init.ModBlockEntities;
 import forestry.api.core.multiblock.IAlvearyComponent;
 import forestry.apiculture.alveary.multiblock.AbstractAlvearyBlockEntity;
 import forestry.apiculture.alveary.multiblock.AlvearyMultiblockLogic;

@@ -1,5 +1,6 @@
 package com.zhichaoxi.forestryoddities.content;
 
+import com.zhichaoxi.forestryoddities.init.ModItems;
 import forestry.api.apiculture.IBeeHousing;
 import forestry.api.apiculture.IBeeModifier;
 import forestry.api.apiculture.genetics.IBee;

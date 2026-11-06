@@ -1,6 +1,6 @@
 package com.zhichaoxi.forestryoddities.content.alveary;
 
-import com.zhichaoxi.forestryoddities.content.ModBlockEntities;
+import com.zhichaoxi.forestryoddities.init.ModBlockEntities;
 import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationCircuit;
 import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationCircuits;
 import com.zhichaoxi.forestryoddities.content.alveary.circuit.CircuitFoundationProgram;

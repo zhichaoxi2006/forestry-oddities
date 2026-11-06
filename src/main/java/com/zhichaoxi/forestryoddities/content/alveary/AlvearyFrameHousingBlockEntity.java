@@ -1,6 +1,6 @@
 package com.zhichaoxi.forestryoddities.content.alveary;
 
-import com.zhichaoxi.forestryoddities.content.ModBlockEntities;
+import com.zhichaoxi.forestryoddities.init.ModBlockEntities;
 import forestry.api.apiculture.IBeeListener;
 import forestry.api.apiculture.IBeeModifier;
 import forestry.api.apiculture.genetics.IBee;

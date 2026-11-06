@@ -2,7 +2,7 @@ package com.zhichaoxi.forestryoddities.client;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.InfusionFrameItem;
-import com.zhichaoxi.forestryoddities.content.ModItems;
+import com.zhichaoxi.forestryoddities.init.ModItems;
 import com.zhichaoxi.forestryoddities.content.SoftLightFrameItem;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;

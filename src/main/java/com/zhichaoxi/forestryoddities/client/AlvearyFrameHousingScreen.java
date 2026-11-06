@@ -1,7 +1,7 @@
 package com.zhichaoxi.forestryoddities.client;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
-import com.zhichaoxi.forestryoddities.content.ModMenus;
+import com.zhichaoxi.forestryoddities.init.ModMenus;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingMenu;
 import forestry.core.platform.gui.GuiForestryTitled;
 import net.minecraft.network.chat.Component;

@@ -1,7 +1,8 @@
-package com.zhichaoxi.forestryoddities.content;
+package com.zhichaoxi.forestryoddities.init;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.mojang.serialization.Codec;
+import com.zhichaoxi.forestryoddities.content.SoftLightFrameItem;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;

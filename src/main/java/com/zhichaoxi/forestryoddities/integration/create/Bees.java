@@ -65,7 +65,7 @@ final class Bees {
      */
     static boolean trait(ItemStack stack, IChromosome<Boolean> chromosome) {
         IBee bee = of(stack);
-        return bee != null && Boolean.TRUE.equals(bee.getGenome().getActiveValue(chromosome));
+        return bee != null && bee.getGenome().getActiveValue(chromosome);
     }
 
     /**
@@ -75,7 +75,7 @@ final class Bees {
      */
     static boolean recessiveTrait(ItemStack stack, IChromosome<Boolean> chromosome) {
         IBee bee = of(stack);
-        return bee != null && Boolean.TRUE.equals(bee.getGenome().getInactiveValue(chromosome));
+        return bee != null && bee.getGenome().getInactiveValue(chromosome);
     }
 
     /**

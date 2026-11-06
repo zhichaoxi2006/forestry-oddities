@@ -1,6 +1,6 @@
 package com.zhichaoxi.forestryoddities.content.alveary;
 
-import com.zhichaoxi.forestryoddities.content.ModMenus;
+import com.zhichaoxi.forestryoddities.init.ModMenus;
 import forestry.core.platform.gui.ContainerSocketed;
 import forestry.core.platform.tile.TileUtil;
 import net.minecraft.core.BlockPos;

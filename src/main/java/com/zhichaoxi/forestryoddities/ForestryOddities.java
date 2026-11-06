@@ -4,14 +4,14 @@ import com.zhichaoxi.forestryoddities.apiculture.BeekeeperEvents;
 import com.zhichaoxi.forestryoddities.client.ForestryOdditiesClient;
 import com.zhichaoxi.forestryoddities.compat.energy.EnergyIntegrations;
 import com.zhichaoxi.forestryoddities.config.ForestryOdditiesConfig;
-import com.zhichaoxi.forestryoddities.content.ModBlockEntities;
-import com.zhichaoxi.forestryoddities.content.ModBlocks;
-import com.zhichaoxi.forestryoddities.content.ModCapabilities;
-import com.zhichaoxi.forestryoddities.content.ModDataComponents;
-import com.zhichaoxi.forestryoddities.content.ModItems;
-import com.zhichaoxi.forestryoddities.content.ModMenus;
-import com.zhichaoxi.forestryoddities.content.ModMutationConditionTypes;
-import com.zhichaoxi.forestryoddities.content.ModRecipes;
+import com.zhichaoxi.forestryoddities.init.ModBlockEntities;
+import com.zhichaoxi.forestryoddities.init.ModBlocks;
+import com.zhichaoxi.forestryoddities.init.ModCapabilities;
+import com.zhichaoxi.forestryoddities.init.ModDataComponents;
+import com.zhichaoxi.forestryoddities.init.ModItems;
+import com.zhichaoxi.forestryoddities.init.ModMenus;
+import com.zhichaoxi.forestryoddities.init.ModMutationConditionTypes;
+import com.zhichaoxi.forestryoddities.init.ModRecipes;
 import com.zhichaoxi.forestryoddities.integration.create.CreateIntegration;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
  * <p>Forestry: Community Edition is a hard dependency (see {@code gradle.properties} and
  * {@code META-INF/neoforge.mods.toml}), so its API is always available here and can be referenced
  * directly. Content is registered below through this mod's own {@code DeferredRegister}s
- * ({@link com.zhichaoxi.forestryoddities.content.ModItems}, {@link com.zhichaoxi.forestryoddities.content.ModDataComponents},
- * {@link com.zhichaoxi.forestryoddities.content.ModRecipes}, {@link com.zhichaoxi.forestryoddities.content.ModMutationConditionTypes});
+ * ({@link ModItems}, {@link ModDataComponents},
+ * {@link ModRecipes}, {@link ModMutationConditionTypes});
  * Forestry-specific hooks belong to
  * {@link com.zhichaoxi.forestryoddities.integration.ForestryOdditiesPlugin}, which Forestry discovers with
  * {@link java.util.ServiceLoader}.</p>
