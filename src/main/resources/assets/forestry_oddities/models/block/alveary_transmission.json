@@ -1,22 +1,22 @@
 {
-  "format_version": "1.21.11",
-  "credit": "Made with Blockbench",
-  "parent": "block/cube",
-  "textures": {
-    "particle": "forestry:block/apiculture/alveary_plain",
-    "north": "forestry:block/apiculture/alveary_plain"
-  },
-  "elements": [
-    {
-      "from": [0, 0, 0],
-      "to": [16, 16, 16],
-      "faces": {
-        "north": {"uv": [0, 0, 16, 16], "texture": "#north"},
-        "east": {"uv": [0, 0, 16, 16], "texture": "#north"},
-        "south": {"uv": [0, 0, 16, 16], "texture": "#north"},
-        "west": {"uv": [0, 0, 16, 16], "texture": "#north"},
-        "up": {"uv": [0, 0, 16, 16], "texture": "#north"},
-        "down": {"uv": [0, 0, 16, 16], "texture": "#north"}
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+    "parent": "minecraft:block/cube_all",
+    "textures": {
+      "particle": "forestry_oddities:block/alveary_transmission",
+      "all": "forestry_oddities:block/alveary_transmission"
+    },
+    "elements": [
+     {
+        "from": [0, 0, 0],
+        "to": [16, 16, 16],
+        "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#all"},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#all"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#all"},
+        "west": {"uv": [0, 0, 16, 16], "texture": "#all"},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#all"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#all"}
       }
     }
   ]
