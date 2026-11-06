@@ -1399,6 +1399,8 @@ cache.
 gradle.properties                  versions, mod metadata, Forestry + Create coordinates
 build.gradle                       NeoForge/ModDevGradle setup, Forestry + Create dependencies, runs
 settings.gradle                    pluginManagement repositories + project name
+LICENSE                            the LGPL-3.0, the license this mod is released under
+LICENSE.GPL-3.0                    the GNU GPL v3.0, which the LGPL incorporates by reference
 src/main/java/com/zhichaoxi/forestryoddities/
     ForestryOddities.java            mod entry point (@Mod): registers config, content and Create gate
     config/ForestryOdditiesConfig.java        common config (rainMode, biomeModeSkyLight,
@@ -1522,5 +1524,36 @@ libs/compat/                       compileOnly API jars, not in the repository (
 ## Mod properties
 
 `mod_id=forestry_oddities`, `mod_name=Forestry Oddities`, group `com.zhichaoxi.forestryoddities`, license
-LGPL-3.0 (the same license as ForestryCE). Rename these in `gradle.properties` and the package
-names if you want different identifiers.
+LGPL-3.0 (the same license as ForestryCE, see [License](#license)). Rename these in `gradle.properties`
+and the package names if you want different identifiers.
+
+## License
+
+Forestry Oddities is released under the **GNU Lesser General Public License, version 3.0** (LGPL-3.0,
+SPDX `LGPL-3.0`). That is the same license Forestry: Community Edition uses, and the one the code it
+builds on comes with: this mod compiles and runs against Forestry's API, and it redistributes
+material derived from Binnie's Mods / Extra Bees (nine of the circuit foundation's programs and its GUI
+art, see the credits in `docs/curseforge-description.md`), which is LGPL-3.0 as well.
+
+| File | Contents |
+|---|---|
+| `LICENSE` | The full text of the LGPL-3.0, unmodified. |
+| `LICENSE.GPL-3.0` | The full text of the GNU GPL v3.0, unmodified. The LGPL-3.0 is a set of additional permissions on top of the GPL v3.0 (§0), and it requires a copy of *both* documents to accompany the work (§3b, §4b), so both are shipped. |
+
+Both files are also packaged into `META-INF/` of the mod jar and of the sources jar
+(`build.gradle`, "License files"), so a jar taken out of a modpack carries its own license.
+`gradle.properties`' `mod_license=LGPL-3.0` is the same statement for
+`META-INF/neoforge.mods.toml`, i.e. for the in-game mod list:
+
+```toml
+# META-INF/neoforge.mods.toml, from gradle.properties' mod_license
+license = "LGPL-3.0"
+```
+
+What that means in practice:
+
+* You may use, study, modify and redistribute this mod, including in modpacks and monetised videos,
+  as long as the LGPL is kept (source available, notices intact, modifications marked).
+* Bundling it into a modpack is conveying an unmodified copy, which the license allows without
+  asking. A link back is appreciated, not required.
+* No warranty: the mod comes `AS IS`, as §15/§16 of the GPL say.

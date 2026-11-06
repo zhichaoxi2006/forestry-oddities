@@ -327,7 +327,7 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 ## Links
 
 * Source and issue tracker: [github.com/zhichaoxi2006/Forestry-Oddities](https://github.com/zhichaoxi2006/Forestry-Oddities)
-* License: **GNU Lesser General Public License v3.0 (LGPL-3.0)**
+* License: **GNU Lesser General Public License v3.0 (LGPL-3.0)** — the full text is the repository's `LICENSE`, and it also ships inside the jar at `META-INF/LICENSE`, together with the GNU GPL v3.0 it incorporates by reference (`LICENSE.GPL-3.0` / `META-INF/LICENSE.GPL-3.0`).
 * Permission is granted to use this mod in modpacks, videos and streams, including monetised ones. A link back is appreciated, not required.
 
 ---
@@ -651,5 +651,5 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 ## 链接
 
 * 源码与问题反馈：[github.com/zhichaoxi2006/Forestry-Oddities](https://github.com/zhichaoxi2006/Forestry-Oddities)
-* 许可：**GNU Lesser General Public License v3.0（LGPL-3.0）**
+* 许可：**GNU Lesser General Public License v3.0（LGPL-3.0）** —— 完整条文见仓库根目录的 `LICENSE`，jar 内 `META-INF/LICENSE` 也带一份；同时附上其所引用的 GNU GPL v3.0 全文（`LICENSE.GPL-3.0` / `META-INF/LICENSE.GPL-3.0`）。
 * 允许在整合包、视频与直播（包括营利内容）中使用本模组；标注来源是加分项，不是义务。

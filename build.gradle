@@ -219,6 +219,24 @@ tasks.withType(ProcessResources).configureEach {
     }
 }
 
+// License files ----------------------------------------------------------------------------------
+// `LICENSE` is the LGPL-3.0 the mod is released under, `LICENSE.GPL-3.0` is the GNU GPL v3.0 the
+// LGPL incorporates by reference. LGPL-3.0 asks for a copy of the GNU GPL *and* of the LGPL to
+// accompany the work (sections 3b and 4b), so both files are put into META-INF/ of the mod jar and
+// of the sources jar, next to the mod metadata that names the license.
+tasks.named('processResources', ProcessResources).configure {
+    from(rootDir) {
+        include 'LICENSE', 'LICENSE.GPL-3.0'
+        into 'META-INF'
+    }
+}
+tasks.named('sourcesJar', Jar).configure {
+    from(rootDir) {
+        include 'LICENSE', 'LICENSE.GPL-3.0'
+        into 'META-INF'
+    }
+}
+
 // Datagen output lives in the source tree so it can be committed.
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
