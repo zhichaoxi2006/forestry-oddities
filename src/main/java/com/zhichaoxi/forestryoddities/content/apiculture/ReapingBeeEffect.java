@@ -3,10 +3,8 @@ package com.zhichaoxi.forestryoddities.content.apiculture;
 import com.mojang.authlib.GameProfile;
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.config.ForestryOdditiesConfig;
-import forestry.api.IForestryApi;
 import forestry.api.apiculture.IBeeHousing;
 import forestry.api.apiculture.IBeeHousingInventory;
-import forestry.api.apiculture.IBeeModifier;
 import forestry.api.apiculture.genetics.BeeLifeStage;
 import forestry.api.apiculture.genetics.IBeeEffect;
 import forestry.api.apiculture.hives.IHiveTile;
@@ -309,12 +307,7 @@ public final class ReapingBeeEffect implements IBeeEffect {
      * @return The territory, every axis at least 1
      */
     static Vec3i territory(IGenome genome, IBeeHousing housing) {
-        IBeeModifier modifier = IForestryApi.INSTANCE.getHiveManager().createBeeHousingModifier(housing);
-        Vec3i modified = modifier.modifyTerritory(genome, genome.getActiveValue(BeeChromosomes.TERRITORY));
-        return new Vec3i(
-            Math.max(1, modified.getX()),
-            Math.max(1, modified.getY()),
-            Math.max(1, modified.getZ()));
+        return BeeTerritory.of(genome, housing);
     }
 
     private static boolean inside(BlockPos pos, BlockPos min, BlockPos max) {
