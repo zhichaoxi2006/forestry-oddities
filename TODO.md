@@ -135,8 +135,16 @@
 
 | 部件 | 配方 |
 |---|---|
-| 蜂房组电路巢础 | `KIK` / `IXI` / ` T `：K 精制电路板、I 金粒、X 蜂房组、T 闪耀电子管 |
-| 蜂房组配电 | ` G ` / `GXG` / ` G `：G 锡齿轮（`c:gears/tin`）、X 蜂房组 |
+| 蜂房组电路巢础 | `KTK` / `RXR` / `CCC`：K 先进电路板、T 金电子管、R 红石粉（`c:dusts/redstone`）、C 铜锭（`c:ingots/copper`）、X 蜂房组 |
+| 蜂房组配电 | `GRG` / `RXR` / `GRG`：G 铜齿轮（`c:gears/copper`）、R 红石粉、X 蜂房组 |
+
+**配方为什么不照搬参照实现**：Binnie's Mod 的电刺激器与蜂房组配电用的就是 `kik` / `iai` / ` t ` 与
+` t ` / `tat` / ` t `——和参照实现原来那两条逐格相同。`RecipeManager#getRecipeFor` 只返回第一条匹配的
+配方（`byType(type).stream().filter(matches).findFirst()`），所以两条网格一旦相同，两件里必有一件永远
+合不出来，而 JEI 和配方书仍然两条都列。机器、程序、数值、贴图照搬，**格子必须重画**：铜与红石绕蜂房组
+走线，电路板与金电子管组成插座；配电则是四角铜齿轮 + 四边红石母线。三个标签（`c:dusts/redstone`、
+`c:ingots/copper`、`c:gears/copper`）都是现成的通用标签，不依赖锡的来源；`tools/check_recipes.py`
+扫描开发包里所有 `crafting_shaped` 配方，同网格不同产物即报错。
 
 ### 实现的细节
 

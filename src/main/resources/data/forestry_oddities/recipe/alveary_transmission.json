@@ -4,16 +4,19 @@
   "group": "alveary",
   "key": {
     "G": {
-      "tag": "c:gears/tin"
+      "tag": "c:gears/copper"
+    },
+    "R": {
+      "tag": "c:dusts/redstone"
     },
     "X": {
       "item": "forestry:alveary_block"
     }
   },
   "pattern": [
-    " G ",
-    "GXG",
-    " G "
+    "GRG",
+    "RXR",
+    "GRG"
   ],
   "result": {
     "count": 1,

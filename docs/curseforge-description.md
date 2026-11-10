@@ -183,12 +183,12 @@ Because the alveary has none of the apiary's `0.1x` production penalty, a proven
 ### Alveary Circuit Foundation / 蜂房组电路巢础
 
 ```
- KIK
- IXI
-  T
+ KTK
+ RXR
+ CCC
 ```
 
-`K` refined circuit board · `I` gold nugget · `X` alveary block · `T` golden electron tube
+`K` refined circuit board · `T` golden electron tube · `R` redstone · `C` copper ingot · `X` alveary block
 
 Turns **FE** into bee modifiers by running a programmed circuit board. Take a Forestry **Soldering Iron**, select the *Circuit Foundation* circuit layout, and each electron tube means one program:
 
@@ -216,12 +216,12 @@ Turns **FE** into bee modifiers by running a programmed circuit board. Take a Fo
 ### Alveary Transmission / 蜂房组配电
 
 ```
-  G
- GXG
-  G
+ GRG
+ RXR
+ GRG
 ```
 
-`G` tin gear · `X` alveary block
+`G` copper gear · `R` redstone · `X` alveary block
 
 A power distributor — it **never touches the bees**. It buffers 1 000 FE and hands it to the other parts of the assembled alveary **once per tick** through the energy capability, splitting the 500 FE-per-tick output evenly over the parts that can receive. So an alveary full of circuit foundations needs **one cable** instead of one per block face. A transmission never feeds another transmission (the one behavioural fix over the original implementation, which had that infinite-bounce hole), it only walks the multiblock while it actually holds energy, and it has no GUI — right-clicking opens the alveary's own screen.
 
@@ -511,9 +511,9 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 ### 蜂房组电路巢础
 
 ```
-先进电路板 金粒 先进电路板
-金粒 蜂房组 金粒
-     金电子管
+先进电路板 金电子管 先进电路板
+红石粉 蜂房组 红石粉
+铜锭 铜锭 铜锭
 ```
 
 消耗 **FE**，通过运行已编程电路板把电力变成蜜蜂修正。拿一把林业**电烙铁**，选择 *电路巢础* 电路布局，之后每种电子管就代表一个程序：
@@ -542,9 +542,9 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 ### 蜂房组配电
 
 ```
-     锡齿轮
-锡齿轮 蜂房组 锡齿轮
-     锡齿轮
+铜齿轮 红石粉 铜齿轮
+红石粉 蜂房组 红石粉
+铜齿轮 红石粉 铜齿轮
 ```
 
 纯粹的电力分配器，**完全不碰蜜蜂**。它缓冲 1 000 FE，每 tick 通过能量能力输送给已组装蜂房组的其他部件，把每 tick 500 FE 的输出均分给能接收的部件——所以一整组蜂房组只需要**一根线**，而不是每个面一根。配电永远不会给另一个配电供电（相对原始实现的唯一行为修正，原实现存在无限互推的漏洞），只在确实有能量时才遍历多方块，也没有界面——右键打开的是蜂房组自身的界面。

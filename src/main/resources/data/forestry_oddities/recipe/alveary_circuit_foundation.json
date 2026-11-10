@@ -3,11 +3,14 @@
   "category": "building",
   "group": "alveary",
   "key": {
-    "I": {
-      "tag": "c:nuggets/gold"
+    "C": {
+      "tag": "c:ingots/copper"
     },
     "K": {
       "item": "forestry:refined_circuit_board"
+    },
+    "R": {
+      "tag": "c:dusts/redstone"
     },
     "T": {
       "item": "forestry:golden_electron_tube"
@@ -17,9 +20,9 @@
     }
   },
   "pattern": [
-    "KIK",
-    "IXI",
-    " T "
+    "KTK",
+    "RXR",
+    "CCC"
   ],
   "result": {
     "count": 1,

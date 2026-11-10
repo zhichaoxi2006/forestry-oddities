@@ -805,32 +805,45 @@ Forestry's own heater or sieve. They cannot go into the top layer or the interio
 
 | 蜂房组电路巢础 | | |
 |:---:|:---:|:---:|
-| 精制电路板 | 金粒 | 精制电路板 |
-| 金粒 | 蜂房组 | 金粒 |
-| | 闪耀电子管 | |
+| 先进电路板 | 金电子管 | 先进电路板 |
+| 红石粉 | 蜂房组 | 红石粉 |
+| 铜锭 | 铜锭 | 铜锭 |
 
 ```text
-KIK
-IXI
- T
+KTK
+RXR
+CCC
 ```
 
 | 蜂房组配电 | | |
 |:---:|:---:|:---:|
-| | 锡齿轮 | |
-| 锡齿轮 | 蜂房组 | 锡齿轮 |
-| | 锡齿轮 | |
+| 铜齿轮 | 红石粉 | 铜齿轮 |
+| 红石粉 | 蜂房组 | 红石粉 |
+| 铜齿轮 | 红石粉 | 铜齿轮 |
 
 ```text
- G
-GXG
- G
+GRG
+RXR
+GRG
 ```
 
-`K` = `forestry:refined_circuit_board`, `I` = `c:nuggets/gold`, `X` = `forestry:alveary_block`,
-`T` = `forestry:golden_electron_tube`, `G` = `c:gears/tin`. Both are the reference implementation's
-recipes; the tags are the common tags NeoForge and Forestry already fill (`c:gears/tin` holds
-`forestry:tin_gear`), as are all the ingredients. Each ships a recipe-book unlock that fires once the
+`K` = `forestry:refined_circuit_board`, `T` = `forestry:golden_electron_tube`,
+`R` = `c:dusts/redstone`, `C` = `c:ingots/copper`, `G` = `c:gears/copper`,
+`X` = `forestry:alveary_block`. The recipes are this mod's own, **not** the reference
+implementation's, and that is deliberate: Binnie's Mods ships the reference's two grids verbatim -
+`kik` / `iai` / ` t ` with gold nuggets, and ` t ` / `tat` / ` t ` with tin gears - so while this mod
+kept them, exactly one of the two parts could ever be crafted whenever both mods were installed.
+Vanilla's `RecipeManager#getRecipeFor` answers with the *first* matching recipe
+(`byType(type).stream().filter(matches).findFirst()`), not with all of them, so the loser is simply
+unobtainable while JEI and the recipe book keep listing both. The machine is still the reference's -
+layout, fourteen programs, 500 FE offers, GUI and block art are untouched - only the grid says
+something of its own: copper and redstone wiring hugging the hive block, the socket's two circuit
+boards and the golden tube on top, and four copper gear ports wired by redstone on the transmission.
+The ingredients are common tags NeoForge and Forestry already fill (`c:dusts/redstone`,
+`c:ingots/copper`, and `c:gears/copper` holds `forestry:copper_gear`, which is four vanilla copper
+ingots and an iron nugget), so neither part needs a tin provider to stay craftable.
+`tools/check_recipes.py` re-checks every shaped recipe in the pack for the "same grid, different
+result" collision this rewrite exists to avoid. Each ships a recipe-book unlock that fires once the
 player has held an alveary block.
 
 ### 蜂房组电路巢础 / Alveary Circuit Foundation
