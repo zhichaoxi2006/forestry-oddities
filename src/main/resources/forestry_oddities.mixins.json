@@ -10,6 +10,7 @@
     "AbstractBeeHousingBlockEntityMixin",
     "AlvearyControllerMixin",
     "BeeMixin",
-    "EventHandlerApicultureMixin"
+    "EventHandlerApicultureMixin",
+    "IndividualLivingMixin"
   ]
 }
