@@ -42,6 +42,9 @@ public final class ForestryOdditiesConfig {
     private static final ModConfigSpec.BooleanValue BEEKEEPER_REQUIRE_SAME_SPECIES;
     private static final ModConfigSpec.IntValue BEEKEEPER_SEARCH_RADIUS;
 
+    private static final boolean DEFAULT_BACKPACK_QUICK_COLLECT = true;
+    private static final ModConfigSpec.BooleanValue BACKPACK_QUICK_COLLECT;
+
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("apiculture");
@@ -163,6 +166,28 @@ public final class ForestryOdditiesConfig {
                 .defineInRange("searchRadius", DEFAULT_BEEKEEPER_SEARCH_RADIUS, 4, 32);
 
         builder.pop();
+
+        builder.push("backpacks");
+
+        BACKPACK_QUICK_COLLECT = builder
+                .comment(
+                        "Bundle-style quick collect for Forestry's backpacks (tweak.BackpackQuickCollect):",
+                        "right-clicking an item onto a backpack in an inventory GUI stows that item without",
+                        "opening the backpack's own screen.",
+                        "Holding the item, right-click the backpack: the item goes in. Holding the backpack,",
+                        "right-click a stack: that stack goes in. Only stacks the backpack accepts are moved",
+                        "(a beekeeper's backpack takes bee items, a miner's backpack what its item tags allow),",
+                        "and a backpack that Forestry reports as Locked (BackpackItem#getMode) takes nothing.",
+                        "A right-click the backpack refuses keeps its vanilla behaviour, so the backpack can still",
+                        "be placed into a chest by right-clicking it onto a stack it has no interest in.",
+                        "Left-click is not affected, and nothing is ever taken out of a backpack by clicking.",
+                        "Applies to every backpack built on forestry's BackpackItem, including the woven",
+                        "variants, the three naturalist backpacks (apiarist, arborist, lepidopterist) and",
+                        "backpacks that other mods create through Forestry's backpack API.",
+                        "Read on every click, so an edit applies live.")
+                .define("quickCollect", DEFAULT_BACKPACK_QUICK_COLLECT);
+
+        builder.pop();
         SPEC = builder.build();
     }
 
@@ -253,5 +278,14 @@ public final class ForestryOdditiesConfig {
      */
     public static int beekeeperSearchRadius() {
         return SPEC.isLoaded() ? BEEKEEPER_SEARCH_RADIUS.get() : DEFAULT_BEEKEEPER_SEARCH_RADIUS;
+    }
+
+    /**
+     * @return whether Forestry's backpacks accept the bundle-style quick collect (see
+     * {@code tweak.BackpackQuickCollect}). Falls back to {@link #DEFAULT_BACKPACK_QUICK_COLLECT} when
+     * the config has not been loaded yet.
+     */
+    public static boolean backpackQuickCollect() {
+        return SPEC.isLoaded() ? BACKPACK_QUICK_COLLECT.get() : DEFAULT_BACKPACK_QUICK_COLLECT;
     }
 }

@@ -398,6 +398,99 @@ The same self-test was run again against the `3.0.0-alpha9` jars (dev server, de
 * the goal, driven by the vanilla goal selector, tends the apiary the villager stands next to
   (5 ticks after the apiary was emptied).
 
+### Backpack quick collect (背包快速收集)
+
+Vanilla's bundle (`minecraft:bundle`, "收纳袋") can be fed from inside an inventory GUI: before its own
+"take one / swap / place" logic, the container calls `Item#overrideStackedOnOther` and
+`Item#overrideOtherStackedOnMe` on the two stacks being clicked together. Forestry's `BackpackItem`
+implements neither, so right-clicking an item onto a backpack in the player inventory swaps the item
+into the backpack's own slot (the backpack jumps to the cursor), and the only ways to put something
+in are the backpack's screen and shift-right-clicking a container while the backpack is in `RECEIVE`
+mode (see the note on modes at the end of this section).
+
+This tweak adds the bundle's gesture to **every** backpack built on `BackpackItem`: the three
+naturalist backpacks (`forestry:apiarists_backpack` plus its arborist and lepidopterist siblings),
+the seven normal backpacks, their seven woven variants, and backpacks other mods create through
+Forestry's backpack API. NeoForge turns the two item hooks into one cancellable
+`net.neoforged.neoforge.event.ItemStackedOnOtherEvent`, fired on both sides, so
+`tweak.BackpackQuickCollect` is a single game-bus listener and no mixin is involved.
+
+| Gesture | Result |
+|---|---|
+| An item on the cursor, right-click the backpack | the stack goes in, as much as fits |
+| The backpack on the cursor, right-click a stack | that stack goes in, as much as fits |
+| The backpack on the cursor, right-click an empty slot | unchanged: the backpack is put down |
+| Left-click, any stack | unchanged |
+
+What goes in is exactly what the backpack would have accepted anyway, because the stow itself goes
+through `BackpackItem#tryStowing`: the definition's item filter (a beekeeper's backpack only takes
+bee items, a miner's backpack what its item tags allow), the `BackpackMode` the backpack reports, the
+15/45/128 slots of the three sizes, and Forestry's own
+`forestry.api.core.backpacks.BackpackStowEvent`, which other mods can still cancel.
+
+Three behaviours are deliberate:
+
+* **A right-click the backpack refuses is not consumed.** Right-clicking dirt onto a beekeeper's
+  backpack still does what it did before (the two stacks swap), so a backpack can still be put into
+  a chest by right-clicking it onto a stack the backpack has no interest in.
+* **A backpack that wants the stack but is full consumes the click.** Nothing happens; the backpack
+  is not swapped out of its slot. The bundle behaves the same way, and it turns the common accident
+  ("the bag is full, now the item replaced it") into a no-op.
+* **Nothing is ever taken *out* of a backpack by clicking.** The bundle's other half — right-clicking
+  an empty slot with the bundle on the cursor to pull an item out — would take over the gesture that
+  *places* a backpack into that slot, and a backpack is moved around far more often than one bee is
+  pulled out of it. The backpack's screen keeps that job.
+
+The stow runs on the client as well as on the server, so the GUI shows the result immediately instead
+of waiting for the server's slot update; a backpack's contents live in the `minecraft:container`
+component of the item stack, which the client has, so both sides compute the same result. The
+bundle's insert sound is played on the client only — the server would echo every click back to the
+player who made it.
+
+Configuration (`config/forestry_oddities-common.toml`):
+
+```toml
+[backpacks]
+    # false = backpacks behave exactly as in Forestry again.
+    quickCollect = true
+```
+
+`quickCollect` is read on every click, so an edit applies live (each side reads its own copy).
+
+Verification: a temporary development-server self-test (removed again afterwards) drove 29 checks
+through real inventory clicks (`AbstractContainerMenu#clicked` on a fake player) and all of them
+passed:
+
+* a bee stowed into an apiarist's backpack from the cursor, and a second one on top of it, with the
+  clicked slot and the backpack's mode component left untouched;
+* dirt refused by the naturalist filter: nothing stowed, and the vanilla swap still ran;
+* a left-click stowing nothing, and a backpack whose damage value was set to `LOCKED` stowing only
+  when Forestry's `BackpackItem#getMode` actually reports `LOCKED` — the check confirmed the tweak
+  asks the mode accessor instead of reading the damage value itself (see the note below: the accessor
+  answers `NEUTRAL`, so nothing is refused for that reason today);
+* a bee stowed in the other direction (backpack on the cursor, bee in the clicked slot), the emptied
+  slot left empty and the backpack on the cursor;
+* a refused stack left untouched by the slot direction, with the dirt surviving the vanilla swap;
+* a full 128-slot naturalist backpack and a full 45-slot woven backpack stowing nothing, the offered
+  stack going back into its slot and the backpack staying on the cursor, with no item created or lost;
+* an empty slot still accepting the backpack on a right-click;
+* the arborist's backpack refusing a bee (its naturalist filter is a different species type), the
+  miner's backpack taking iron and refusing a bee, and the woven miner's backpack taking iron;
+* 128 stows in a row into one naturalist backpack;
+* `quickCollect` reporting its default of `true`.
+
+Found while verifying, and worth knowing (upstream, not changed here): a Forestry backpack's mode
+never leaves `NEUTRAL` with the alpha9 jar on NeoForge 21.1. `BackpackItem` stores its mode in the
+stack's damage value, but NeoForge's `ItemStack#getDamageValue`/`setDamageValue` go through its
+`IItemExtension#getDamage`/`#setDamage`, which clamp to `ItemStack#getMaxDamage()` — and a Forestry
+backpack has no `MAX_DAMAGE` component, so a probe read `maxDamage=0 damage=0` after
+`setDamageValue(1)` and `BackpackItem#getMode` answered `NEUTRAL`. Shift-right-clicking still cycles
+the damage component, but `LOCKED`, `RECEIVE` and `RESUPPLY` have no observable effect, so `RECEIVE`
+mode does not drain a chest either. The quick collect asks the same `BackpackItem#getMode`, so it
+behaves exactly like Forestry's own stow path: a backpack Forestry reports as `LOCKED` takes nothing,
+and in the current state the item filter alone decides.
+
+
 ### Mixin setup
 
 * `src/main/resources/forestry_oddities.mixins.json` — the mixin config. It has no `refmap`: NeoForge runs
@@ -1406,10 +1499,11 @@ src/main/java/com/zhichaoxi/forestryoddities/
     config/ForestryOdditiesConfig.java        common config (rainMode, biomeModeSkyLight,
                                             ignobleDecayStartGeneration, voltaicBeePowerMultiplier,
                                             reaperReapIntervalTicks, reaperSparesSameOwner,
-                                            beekeeper.*)
+                                            beekeeper.*, backpacks.quickCollect)
     config/RainMode.java           VANILLA / POSITION / BIOME
     tweak/RainChecks.java          the rain rule shared by both mixins
     tweak/IgnobleDecay.java        configurable ignoble ("卑贱") decay threshold
+    tweak/BackpackQuickCollect.java  bundle-style right-click stow for every Forestry backpack
     apiculture/BeekeeperEvents.java         attaches the beekeeper goal to villagers (game bus)
     apiculture/BeekeeperGoal.java           the smarter apiary AI (a MoveToBlockGoal)
     apiculture/BeekeeperTending.java        what a beekeeper does inside a housing

@@ -13,6 +13,7 @@ import com.zhichaoxi.forestryoddities.init.ModMenus;
 import com.zhichaoxi.forestryoddities.init.ModMutationConditionTypes;
 import com.zhichaoxi.forestryoddities.init.ModRecipes;
 import com.zhichaoxi.forestryoddities.integration.create.CreateIntegration;
+import com.zhichaoxi.forestryoddities.tweak.BackpackQuickCollect;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
@@ -102,6 +103,11 @@ public final class ForestryOddities {
         // joins a level, and mixin.EventHandlerApicultureMixin keeps Forestry from adding its own
         // apiary AI next to it.
         NeoForge.EVENT_BUS.addListener(BeekeeperEvents::onEntityJoinLevel);
+
+        // Bundle-style quick collect for every Forestry backpack (Tweaks): right-clicking an item onto
+        // a backpack in an inventory GUI stows it, without opening the backpack. The event is the
+        // NeoForge form of the two Item#override*StackedOn* hooks vanilla's bundle uses.
+        NeoForge.EVENT_BUS.addListener(BackpackQuickCollect::onItemStackedOn);
 
         // Client-only registration (item model property and item colour). The guard keeps the class
         // out of a dedicated server's class loading, where ItemProperties does not exist.
