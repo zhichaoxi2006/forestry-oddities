@@ -3,8 +3,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "minecraft:block/cube_all",
 	"textures": {
-		"1": "forestry:block/apiculture/alveary_bottom",
 		"2": "forestry_oddities:block/alveary_circuit_foundation",
+		"3": "forestry:block/apiculture/alveary_bottom",
 		"particle": "forestry_oddities:block/alveary_circuit_foundation"
 	},
 	"elements": [
@@ -16,8 +16,8 @@
 				"east": {"uv": [0, 0, 16, 16], "texture": "#2"},
 				"south": {"uv": [0, 0, 16, 16], "texture": "#2"},
 				"west": {"uv": [0, 0, 16, 16], "texture": "#2"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#1"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#1"}
+				"up": {"uv": [0, 0, 16, 16], "texture": "#3"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#3"}
 			}
 		}
 	]
