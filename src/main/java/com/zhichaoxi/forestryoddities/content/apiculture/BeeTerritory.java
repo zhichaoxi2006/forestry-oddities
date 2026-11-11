@@ -12,7 +12,7 @@ import net.minecraft.core.Vec3i;
  *
  * <p>Forestry lays out a bee's work area from the {@code forestry:territory} allele run through the
  * housing's modifiers, and this is the same call {@code Bee#getAdjustedTerritory} makes. The area is
- * not only for pollination: the Reaper's soul reaping and the Corrupted Bee's chunk scan both use it, so
+ * not only for pollination: the Reaper's soul reaping uses it, so
  * a territory program soldered onto this mod's circuit foundation (or an alveary's own territory
  * part) really does change how far an effect reaches - including the inhibitor, which is the one
  * that lets a player shrink an effect that would otherwise reach a neighbour's base.</p>
