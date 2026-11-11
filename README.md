@@ -782,13 +782,17 @@ texture is 256×256): the frame slot's 16×16 interior lands exactly on the menu
 the recessed display, the player inventory (rows at y=87/105/123, hotbar at 145) lines up with the drawn
 slot backgrounds, and the title is centred in the top row like Forestry's own part screens.
 
-## Alveary electrical parts (蜂房组电路巢础 / 蜂房组配电)
+## Alveary electrical parts (蜂房组电路巢础 / 蜂房组配电 / 蜂房组进刻器)
 
 Two more alveary wall parts, ported from Binnie's Mod - Extra Bees' **Electrical Stimulator**
 (电刺激器) and **Alveary Transmission** (蜂房组配电) - through that mod's NeoForge 1.21.1 port. The pair
 is one feature in two blocks: the circuit foundation turns FE into bee modifiers by running a
 **Forestry circuit board**, and the transmission is the part that feeds it from a single power line, so
 an alveary full of circuit foundations needs one cable instead of one per block face.
+
+The section's third part, the **ticker** (蜂房组进刻器), is this mod's own rather than a port. It
+spends the same FE on changing *when* the bees work instead of what they do: every tick it advances
+the housing's work-cycle counter, up to one whole cycle per game tick.
 
 **Why it is called the circuit foundation.** Binnie's Mod and this mod would otherwise ship two
 blocks called *Alveary Stimulator* (电刺激器) and two soldering-iron layouts called *Electrical
@@ -986,17 +990,120 @@ mod's circuit foundation.
 * Block art: `textures/block/alveary_transmission.png` is Binnie's own transmission face (see the
   circuit foundation's note above): the same creviced alveary side with the power grid worked into it.
 
+### 蜂房组进刻器 / Alveary Ticker
+
+| 蜂房组进刻器 | | |
+|:---:|:---:|:---:|
+| | 精制电路板 | |
+| 时钟 | 蜂房组 | 时钟 |
+| | 精制电路板 | |
+
+```text
+ K
+CXC
+ K
+```
+
+`K` = `forestry:refined_circuit_board`, `C` = `minecraft:clock`, `X` = `forestry:alveary_block`. It is
+the only part in this section that is not a port: it is this mod's own answer to the alveary's fixed
+27.5-second work cycle, and it spends the FE the other two parts deliver.
+
+Forestry runs a queen's work cycle on a **550-tick throttle**: `BeeHousingBeekeepingLogic` adds one
+to a private counter every game tick and works once the counter reaches `maxWorkThrottle`. The ticker
+buys extra counter ticks with FE:
+
+* It is an `IAlvearyComponent.Active`, so the alveary calls `updateServer` once per server tick,
+  before the bee logic works. Every tick it adds up to `speed - 1` ticks to the counter and pays
+  **10 FE for each one**. The natural +1 per game tick still happens, so speed **x1** is exactly the
+  unaccelerated alveary and speed **x`maxWorkThrottle`** is exactly **one work cycle per game tick** -
+  a higher speed could not buy anything, because the counter is checked once per tick.
+* The maximum is the housing's *current* `maxWorkThrottle`, re-read every tick. Another mod can call
+  `IBeekeepingLogic#setWorkThrottle`; the ticker's slider and clamp follow it, and a throttle that is
+  lowered also lowers the saved speed.
+* Only whole ticks are bought: with `n` FE in the buffer the part adds
+  `min(speed - 1, n / 10)` ticks and spends exactly that many times 10 FE. A half-empty buffer slows
+  the acceleration down instead of giving away progress for free. An empty queen slot (or a princess
+  that is still breeding) spends nothing, because there is no work cycle to advance - the breeding
+  counter is not the throttled one.
+* The buffer is **20 000 FE**, accepts **10 000 FE** per offer and is **receive-only**, exposed as a
+  NeoForge block energy capability like the other powered parts. 20 kFE is about 3.6 seconds at full
+  speed, and a 1 kFE buffer would last a fifth of a tick there - the transmission (500 FE per tick)
+  can feed a lower setting from one cable, while a direct line covers the top end.
+* Right-clicking the assembled part opens its GUI: a **speed slider** from x1 to the housing's work
+  throttle, and the clock face. The 176x166 window is laid out as a small instrument panel: the speed
+  row across the top (caption, brass-gauge slider, and a brass plate with the current multiplier), a
+  **32x32 vanilla clock** in a brass bezel below it, and a readout panel beside the clock. The panel
+  lists the FE per tick and the seconds per work cycle and draws the buffer with the same Binnie
+  `ControlEnergyBar` gauge the circuit foundation uses. Hovering the clock repeats the numbers as a
+  tooltip, hovering the gauge shows the charge. A click jumps the knob to the pointer and holding it
+  drags the speed live - a container screen drops mouse drags before any widget sees them, so the
+  screen forwards them to the slider itself - and every change is sent as a menu-button packet, so no
+  custom network packet is needed; the block entity clamps it, saves it and sends the block update the
+  clock needs.
+* The block texture is Forestry's alveary side with **Minecraft's own clock item sprite** (the
+  `clock_00` frame) worked into it, on all four sides (top and bottom keep `alveary_bottom`); the item
+  icon uses the same texture, so the inventory icon is the same vanilla clock. The in-world animation
+  draws the vanilla clock's 64 frames (`textures/item/clock_00.png` ... `clock_63.png`) as a quad just
+  in front of each exposed side, and the frame rate is the setting - one full turn of the dial every
+  1280 ticks at x1, down to 64 ticks (3.2 s) at the throttle. A side that would not render its block
+  face is skipped with `Block#shouldRenderFace`, so a ticker in the middle of the wall never paints a
+  clock onto its neighbour, while the GUI's 32x32 copy uses the same frames. Each quad takes its
+  light from the air cell in front of the face, not from the part's own position: an alveary part is
+  a full solid block and stores no light, so the position's light is 0 and would draw the clock
+  almost black. The clock sprite is Mojang's vanilla art: it is composited only into the static
+  block/item texture, while the animated frames are loaded from the vanilla assets at runtime.
+* The one thing Forestry does not expose is the counter: `workThrottleCounter` and
+  `maxWorkThrottle` are private, and `setWorkThrottle` changes the cycle length rather than
+  advancing the current one. `mixin/BeeHousingBeekeepingLogicMixin` therefore adds
+  `WorkThrottleAccess` to `BeeHousingBeekeepingLogic` - a getter for the throttle and an add method
+  that clamps at it - and the part casts the controller's logic to that interface. If another mod
+  replaced the beekeeping logic, the part falls back to `IBeekeepingLogic.DEFAULT_WORK_THROTTLE` and
+  simply does nothing. Everything else uses the public alveary and beekeeping API.
+
+Verification: a temporary development-server self-test (removed again afterwards), **33 checks**, all
+passing:
+
+* the block, item, block entity type and menu register under `forestry_oddities:alveary_ticker`, and
+  the block entity type accepts the block;
+* a 3x3x3 alveary of plain blocks with a wooden slab cap assembles with the ticker in an exterior
+  cell, and the ticker ends up in the controller's component set;
+* the mixin applies to the controller's `BeeHousingBeekeepingLogic` (`instanceof WorkThrottleAccess`)
+  and its throttle reads the expected 550;
+* the speed clamps to [1, maxWorkThrottle]: 0 becomes 1 and 99 999 becomes 550;
+* the buffer takes 10 000 FE per offer, fills to 20 000 on a second offer and refuses extraction;
+* at speed 10 one tick adds 9 to the counter and spends 90 FE, a second tick doubles both, and adding
+  1 000 ticks at once clamps the counter at the throttle;
+* an empty queen slot changes neither the counter nor the buffer, and a buffer with 5 FE buys no tick;
+* speed, throttle and buffer survive a `saveAdditional`/`loadAdditional` round trip, and
+  `getUpdateTag` carries `Speed`, `MaxSpeed` and `Power` - Forestry's multiblock base already returns
+  that tag from `getUpdatePacket`, so the block update sent when the slider moves reaches the client
+  without this mod adding a packet of its own;
+* the shaped recipe loads and crafts the part.
+
+The client-side half - the screen, the slider drawing, the vanilla clock frames, the model and the
+block texture - is client-only. It was compiled, and a temporary client probe (removed afterwards)
+then loaded a development world, placed the part on a lit stage and screenshotted the block and its
+screen: the clock renders on all four sides with its frames advancing at the setting, the gauge slider
+tracks the setting, the clock fills its bezel and the buffer gauge follows the charge. A second probe
+drove the screen's mouse entry points the way the mouse handler does - click on the groove, drag to
+the right end, drag back, release, then drag again - and logged 1, 550, 205, 205, 205: the knob follows
+the held pointer across the whole range and a release stops it, which is the check that caught
+vanilla's container screen swallowing drags in the first place. That in-game check also caught a real bug: the quad
+was taking the light at the part's own position, which a full solid block stores as 0, so the clock
+was drawn almost black. The renderer now reads each face's light from the air cell in front of it
+(`LevelRenderer#getLightColor` on the neighbour), and the screenshot shows the clock as bright as the
+wall it is on.
+
 ### How the parts join the multiblock
 
-Both are `AbstractAlvearyBlockEntity` subclasses (this mod's third one is the frame housing) in
-`content/alveary`:
+All four are `AbstractAlvearyBlockEntity` subclasses in `content/alveary`:
 
 * `AlvearyPartBlock` is the shared block plumbing: Forestry's `BlockStructure` (right-click opens the
   part's menu once assembled, the placer becomes the owner, a part's inventory drops when it breaks)
   plus the anchor-only multiblock ticker and the neighbour check that re-validates the structure.
 * The alveary discovers parts by interface while it collects its components: the circuit foundation is
-  `IAlvearyComponent.BeeModifier` + `IAlvearyComponent.BeeListener`, and the transmission is
-  `IAlvearyComponent.Active` (the hook that gives an alveary part a server tick). The circuit foundation's board
+  `IAlvearyComponent.BeeModifier` + `IAlvearyComponent.BeeListener`, and the transmission and the
+  ticker are `IAlvearyComponent.Active` (the hook that gives an alveary part a server tick). The circuit foundation's board
   is a Forestry `ISocketable` socket - the interface Forestry's own machines implement - so the board is
   neither a part inventory nor a menu slot: it is saved in the part's own NBT and dropped by
   `AlvearyCircuitFoundationBlock#onRemove`, which is the same thing `BlockBase` does for a Forestry machine.
@@ -1522,18 +1629,19 @@ src/main/java/com/zhichaoxi/forestryoddities/
     apiculture/BeekeeperTending.java        what a beekeeper does inside a housing
     mixin/AbstractBeeHousingBlockEntityMixin.java  apiary/bee house rain check
     mixin/AlvearyControllerMixin.java              alveary rain check
+    mixin/BeeHousingBeekeepingLogicMixin.java      exposes the work-cycle counter to the ticker
     mixin/BeeMixin.java                            ignoble decay threshold
     mixin/EventHandlerApicultureMixin.java         keeps Forestry's beekeeper AI out
     content/ModItems.java             the two frames + their creative tab entries
     content/ModDataComponents.java    soft_light_frame_energy (persistent + synced)
     content/ModRecipes.java           the infusion frame recipe serializer
     content/ModCapabilities.java      FE item capability of the soft light frame; frame slot of
-                                      the alveary frame housing; FE buffers of the circuit foundation and
-                                      the transmission (the circuit foundation's board is a socket, not an
-                                      inventory, so it has no item capability)
-    content/ModBlocks.java            the three alveary part blocks + their block items
+                                      the alveary frame housing; FE buffers of the circuit foundation,
+                                      the transmission and the ticker (the circuit foundation's board is
+                                      a socket, not an inventory, so it has no item capability)
+    content/ModBlocks.java            the four alveary part blocks + their block items
     content/ModBlockEntities.java     their block entity types
-    content/ModMenus.java             the frame housing and circuit foundation menu types
+    content/ModMenus.java             the frame housing, circuit foundation and ticker menu types
     content/SoftLightFrameItem.java   柔光框架: sunlight simulation, 1 MFE buffer, 80 FE/cycle
     content/InfusionFrameItem.java    灌注框架: potion component, durability, tooltip
     content/InfusionModifiers.java    potion effect -> IBeeModifier mapping
@@ -1549,7 +1657,11 @@ src/main/java/com/zhichaoxi/forestryoddities/
     content/alveary/AlvearyCircuitFoundationMenu.java         socket + FE readouts for the screen
     content/alveary/AlvearyTransmissionBlock.java             蜂房组配电: block, tooltip
     content/alveary/AlvearyTransmissionBlockEntity.java       the part: buffer + per-tick distribution
-    content/alveary/AlvearyPartEnergy.java                    the receive-only FE buffer both parts use
+    content/alveary/AlvearyTickerBlock.java                   蜂房组进刻器: block, tooltip
+    content/alveary/AlvearyTickerBlockEntity.java             the part: speed, work-cycle progress, 20 kFE buffer
+    content/alveary/AlvearyTickerMenu.java                    the ticker's speed slider menu
+    content/alveary/WorkThrottleAccess.java                   the counter bridge the mixin adds to Forestry's logic
+    content/alveary/AlvearyPartEnergy.java                    the receive-only FE buffer the powered parts use
     content/alveary/circuit/CircuitFoundationProgram.java   the fourteen programs (each an IBeeModifier)
     content/alveary/circuit/CircuitFoundationCircuit.java   one program as a Forestry circuit + the layout
     content/alveary/circuit/CircuitFoundationCircuits.java  circuit board -> mounted programs
@@ -1557,10 +1669,15 @@ src/main/java/com/zhichaoxi/forestryoddities/
                                               push, sparks)
     content/apiculture/ReapingBeeEffect.java  收魂: the Reaper Bee's effect (period, territory scan,
                                               kindred check, queen removal)
-    client/ForestryOdditiesClient.java          charged item model property + potion tint (client only)
+    client/ForestryOdditiesClient.java          charged item model property, potion tint, ticker screen and
+                                                renderer (client only)
     client/AlvearyFrameHousingScreen.java       the frame housing GUI (client only)
     client/AlvearyCircuitFoundationScreen.java  the circuit foundation GUI: socket widget, charge bar, status line
                                                 (client only)
+    client/AlvearyTickerScreen.java             the ticker GUI: brass clock housing, speed row, readout (client only)
+    client/AlvearyTickerRenderer.java           the running vanilla clock on the four exposed sides (client only)
+    client/TickerSpeedSlider.java               the speed gauge widget: brass knob on a grey groove (client only)
+    client/TickerClock.java                     the vanilla clock frame rate shared by the screen and renderer (client only)
     integration/ForestryOdditiesPlugin.java  Forestry plugin (ServiceLoader): the circuit foundation's circuit
                                              layout + circuits, and the two bee effects
     integration/create/CreateIntegration.java      Create hook-up (RegisterEvent)
@@ -1606,12 +1723,20 @@ src/main/resources/
     assets/forestry_oddities/models/item/alveary_frame_housing.json  the part's item model
     assets/forestry_oddities/textures/block/alveary_frame_housing.png the part's side texture
     assets/forestry_oddities/textures/gui/alveary_frame_housing.png   the part's GUI background
+    assets/forestry_oddities/blockstates/alveary_ticker.json         the ticker's block state
+    assets/forestry_oddities/models/block/alveary_ticker.json        the ticker's block model
+    assets/forestry_oddities/models/item/alveary_ticker.json         the ticker's item model
+    assets/forestry_oddities/textures/block/alveary_ticker.png       the alveary face with the vanilla clock sprite
+    assets/forestry_oddities/textures/gui/alveary_ticker.png         the ticker's GUI background
     data/forestry_oddities/recipe/soft_light_frame.json              the soft light frame recipe
     data/forestry_oddities/recipe/infusion_frame.json                infusion recipe (custom type)
     data/forestry_oddities/recipe/alveary_frame_housing.json         the frame housing recipe
+    data/forestry_oddities/recipe/alveary_ticker.json                the ticker recipe
     data/forestry_oddities/advancement/recipes/misc/*.json           recipe-book unlocks (frames)
     data/forestry_oddities/advancement/recipes/building_blocks/alveary_frame_housing.json
+    data/forestry_oddities/advancement/recipes/building_blocks/alveary_ticker.json
     data/forestry_oddities/loot_table/blocks/alveary_frame_housing.json   the part's block drop
+    data/forestry_oddities/loot_table/blocks/alveary_ticker.json          the ticker's block drop
     data/forestry_oddities/tags/item/potions.json                     potion tag (normal/splash/lingering)
     data/forestry_oddities/taxon/electrapis.json                     the Voltaic Bee's genus (琥珀 / Electrum)
     data/forestry_oddities/bee_species/voltaicus.json                the Voltaic Bee (伏打蜂)

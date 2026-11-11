@@ -64,11 +64,12 @@ public final class ForestryOddities {
         // dedicated servers both read it locally; values are re-read on use, so edits apply live.
         modContainer.registerConfig(ModConfig.Type.COMMON, ForestryOdditiesConfig.SPEC);
 
-        // Content: the apiary frames from TODO.md (content.*) and the three alveary parts
-        // (content.alveary): the frame housing plus the circuit foundation and transmission ported from
-        // Binnie's Mod. Data components and the recipe serializer have to be registered before the
-        // items are built, hence the order; blocks before their block entities so the block entity
-        // type can name an already registered block.
+        // Content: the apiary frames from TODO.md (content.*) and the four alveary parts
+        // (content.alveary): the frame housing, the circuit foundation and transmission ported from
+        // Binnie's Mod, and the ticker that spends FE on bee work-cycle progress. Data components and
+        // the recipe serializer have to be registered before the items are built, hence the order;
+        // blocks before their block entities so the block entity type can name an already registered
+        // block.
         ModDataComponents.register(modBus);
         ModRecipes.register(modBus);
         // Forestry's mutation condition types. Registered here rather than through the Forestry plugin

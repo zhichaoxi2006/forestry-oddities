@@ -2,6 +2,7 @@ package com.zhichaoxi.forestryoddities.client;
 
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.InfusionFrameItem;
+import com.zhichaoxi.forestryoddities.init.ModBlockEntities;
 import com.zhichaoxi.forestryoddities.init.ModItems;
 import com.zhichaoxi.forestryoddities.content.SoftLightFrameItem;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
@@ -10,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
 /**
@@ -29,6 +31,18 @@ public final class ForestryOdditiesClient {
         // Screens are client-only; the menu types themselves are registered on both sides.
         modBus.addListener(AlvearyFrameHousingScreen::registerScreens);
         modBus.addListener(AlvearyCircuitFoundationScreen::registerScreens);
+        modBus.addListener(AlvearyTickerScreen::registerScreens);
+        // The ticker's clock hand is drawn by a block entity renderer; a baked model cannot animate
+        // per block, so it lives here with the other client-only registrations.
+        modBus.addListener(ForestryOdditiesClient::onRegisterRenderers);
+    }
+
+    /**
+     * The ticker's clock hand. Only the ticker needs a block entity renderer; the dial is part of the
+     * block texture, so nothing else is drawn.
+     */
+    private static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ModBlockEntities.ALVEARY_TICKER.get(), AlvearyTickerRenderer::new);
     }
 
     /**

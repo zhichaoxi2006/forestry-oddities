@@ -3,6 +3,7 @@ package com.zhichaoxi.forestryoddities.init;
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingMenu;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationMenu;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTickerMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.bus.api.IEventBus;
@@ -16,7 +17,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * <p>Each menu is opened by its own alveary part, so the menu type is only needed for the client to
  * build the matching screen; the block position travels in the menu open data, the same way
  * Forestry's own alveary part menus do it. The transmission has no menu: it has nothing to show or
- * configure, so right-clicking it opens the alveary's own GUI.</p>
+ * configure, so right-clicking it opens the alveary's own GUI. The ticker's menu holds the speed
+ * slider, so it is registered like the other two.</p>
  */
 public final class ModMenus {
     private static final DeferredRegister<MenuType<?>> MENUS =
@@ -29,6 +31,10 @@ public final class ModMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<AlvearyCircuitFoundationMenu>> ALVEARY_CIRCUIT_FOUNDATION =
         MENUS.register("alveary_circuit_foundation",
             () -> IMenuTypeExtension.create(AlvearyCircuitFoundationMenu::fromNetwork));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<AlvearyTickerMenu>> ALVEARY_TICKER =
+        MENUS.register("alveary_ticker",
+            () -> IMenuTypeExtension.create(AlvearyTickerMenu::fromNetwork));
 
     private ModMenus() {
     }

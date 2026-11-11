@@ -3,6 +3,7 @@ package com.zhichaoxi.forestryoddities.init;
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingBlockEntity;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationBlockEntity;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTickerBlockEntity;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTransmissionBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -13,7 +14,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 /**
  * The block entities this mod adds.
  *
- * <p>All three extend Forestry's {@code AbstractAlvearyBlockEntity}, which is what makes them members
+ * <p>All four extend Forestry's {@code AbstractAlvearyBlockEntity}, which is what makes them members
  * of the alveary multiblock: the alveary discovers parts by {@code instanceof} while it collects its
  * components, so no additional registration with Forestry is needed.</p>
  */
@@ -40,6 +41,13 @@ public final class ModBlockEntities {
             "alveary_transmission",
             () -> BlockEntityType.Builder
                 .of(AlvearyTransmissionBlockEntity::new, ModBlocks.ALVEARY_TRANSMISSION.get())
+                .build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlvearyTickerBlockEntity>>
+        ALVEARY_TICKER = BLOCK_ENTITIES.register(
+            "alveary_ticker",
+            () -> BlockEntityType.Builder
+                .of(AlvearyTickerBlockEntity::new, ModBlocks.ALVEARY_TICKER.get())
                 .build(null));
 
     private ModBlockEntities() {

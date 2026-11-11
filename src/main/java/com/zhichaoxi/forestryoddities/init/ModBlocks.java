@@ -3,6 +3,7 @@ package com.zhichaoxi.forestryoddities.init;
 import com.zhichaoxi.forestryoddities.ForestryOddities;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingBlock;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationBlock;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTickerBlock;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTransmissionBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -24,9 +25,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.List;
 
 /**
- * The blocks this mod adds: the three alveary parts.
+ * The blocks this mod adds: the four alveary parts.
  *
- * <p>All three are alveary wall parts with the same block properties (wood, no harder than the rest of
+ * <p>All four are alveary wall parts with the same block properties (wood, no harder than the rest of
  * the structure); what they do lives in their block entities in {@link ModBlockEntities}. They are
  * registered like regular blocks, and their block items are registered here rather than in
  * {@link ModItems}, because they share the block's properties and the item is a plain
@@ -61,12 +62,22 @@ public final class ModBlocks {
         AlvearyTransmissionBlock::new,
         alvearyPartProperties());
 
+    /**
+     * Alveary part that spends FE to advance the bee work cycle (蜂房组进刻器).
+     */
+    public static final DeferredBlock<AlvearyTickerBlock> ALVEARY_TICKER = BLOCKS.registerBlock(
+        "alveary_ticker",
+        AlvearyTickerBlock::new,
+        alvearyPartProperties());
+
     public static final DeferredItem<BlockItem> ALVEARY_FRAME_HOUSING_ITEM =
         ITEMS.registerSimpleBlockItem(ALVEARY_FRAME_HOUSING);
     public static final DeferredItem<BlockItem> ALVEARY_CIRCUIT_FOUNDATION_ITEM =
         ITEMS.registerSimpleBlockItem(ALVEARY_CIRCUIT_FOUNDATION);
     public static final DeferredItem<BlockItem> ALVEARY_TRANSMISSION_ITEM =
         ITEMS.registerSimpleBlockItem(ALVEARY_TRANSMISSION);
+    public static final DeferredItem<BlockItem> ALVEARY_TICKER_ITEM =
+        ITEMS.registerSimpleBlockItem(ALVEARY_TICKER);
 
     /** The same tab Forestry puts its own alveary parts in. */
     private static final ResourceKey<CreativeModeTab> FORESTRY_APICULTURE_TAB = ResourceKey.create(
@@ -96,11 +107,12 @@ public final class ModBlocks {
     }
 
     /**
-     * Adds the three alveary parts to the {@code forestry:apiculture} tab, directly after Forestry's
+     * Adds the four alveary parts to the {@code forestry:apiculture} tab, directly after Forestry's
      * own alveary parts when they are present (they always are, Forestry is a required dependency) and
-     * at the end of the tab otherwise. The order is the frame housing, the circuit foundation, then the
-     * transmission - which is the order they are meant to be discovered in: a frame, the part that
-     * gives the alveary frame slots, and the pair that powers it.
+     * at the end of the tab otherwise. The order is the frame housing, the circuit foundation, the
+     * transmission, then the ticker - which is the order they are meant to be discovered in: a frame,
+     * the part that gives the alveary frame slots, the pair that powers it, and the part that spends
+     * that power to speed the bees up.
      */
     public static void addToCreativeTabs(BuildCreativeModeTabContentsEvent event) {
         if (!event.getTabKey().equals(FORESTRY_APICULTURE_TAB)) {
@@ -110,7 +122,8 @@ public final class ModBlocks {
         List<ItemStack> parts = List.of(
             new ItemStack(ALVEARY_FRAME_HOUSING_ITEM.get()),
             new ItemStack(ALVEARY_CIRCUIT_FOUNDATION_ITEM.get()),
-            new ItemStack(ALVEARY_TRANSMISSION_ITEM.get()));
+            new ItemStack(ALVEARY_TRANSMISSION_ITEM.get()),
+            new ItemStack(ALVEARY_TICKER_ITEM.get()));
 
         ItemStack anchor = findAnchor(event);
         for (ItemStack part : parts) {
@@ -125,7 +138,7 @@ public final class ModBlocks {
                 event.accept(part, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             }
 
-            // The part that was just inserted becomes the anchor of the next one, so the three stay
+            // The part that was just inserted becomes the anchor of the next one, so the four stay
             // in their intended order even when the tab already contains other addon parts.
             anchor = part;
         }

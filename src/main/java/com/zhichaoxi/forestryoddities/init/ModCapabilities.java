@@ -3,6 +3,7 @@ package com.zhichaoxi.forestryoddities.init;
 import com.zhichaoxi.forestryoddities.content.SoftLightFrameItem;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyFrameHousingBlockEntity;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyCircuitFoundationBlockEntity;
+import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTickerBlockEntity;
 import com.zhichaoxi.forestryoddities.content.alveary.AlvearyTransmissionBlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -17,9 +18,10 @@ import net.minecraft.world.item.ItemStack;
  * without this mod knowing about them. The frame is not externally drainable: it spends the energy
  * itself, per work cycle.</p>
  *
- * <p>The two powered alveary parts expose receive-only block buffers for the same reason: any FE
- * source can charge a circuit foundation, and a transmission hands that energy to the rest of the alveary.
- * Neither part can be drained through its capability.</p>
+ * <p>The three powered alveary parts expose receive-only block buffers for the same reason: any FE
+ * source can charge a circuit foundation, a transmission hands that energy to the rest of the alveary,
+ * and the ticker spends it on work-cycle progress. None of them can be drained through its
+ * capability.</p>
  *
  * <p>The capability handlers are cached per stack / block entity by NeoForge, so the item storage
  * below must read and write the stack's component on every call instead of holding the value in a
@@ -37,11 +39,15 @@ public final class ModCapabilities {
 
         // The alveary frame housing's one frame slot, so pipes and hoppers can insert and pull frames.
         AlvearyFrameHousingBlockEntity.registerCapabilities(event);
-        // The FE buffers of the two powered parts. Neither has an item handler: the circuit foundation's
+        // The FE buffers of the three powered parts. None has an item handler: the circuit foundation's
         // board sits in a Forestry socket, which automation cannot reach.
 
         AlvearyCircuitFoundationBlockEntity.registerCapabilities(event);
         AlvearyTransmissionBlockEntity.registerCapabilities(event);
+
+        // The ticker's FE buffer. Like the other parts it is receive-only: the part spends the energy
+        // itself, one work-cycle tick at a time.
+        AlvearyTickerBlockEntity.registerCapabilities(event);
 
         // Long energy (long 能量): nothing of this mod holds more than an int of FE yet, so no source
         // capability is registered here. The insert side is in use - the Voltaic Bee's effect offers

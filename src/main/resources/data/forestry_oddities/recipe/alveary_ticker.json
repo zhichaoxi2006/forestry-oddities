@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "alveary",
+  "key": {
+    "K": {
+      "item": "forestry:refined_circuit_board"
+    },
+    "C": {
+      "item": "minecraft:clock"
+    },
+    "X": {
+      "item": "forestry:alveary_block"
+    }
+  },
+  "pattern": [
+    " K ",
+    "CXC",
+    " K "
+  ],
+  "result": {
+    "count": 1,
+    "id": "forestry_oddities:alveary_ticker"
+  }
+}

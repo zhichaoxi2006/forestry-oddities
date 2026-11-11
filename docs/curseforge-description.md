@@ -4,7 +4,7 @@
 
 Forestry: CE gives you bees. It does not give the alveary a frame slot, a way to power an alveary, a way to sort bees on an automated factory floor, or a bee that turns a queen's working speed into energy. Forestry Oddities adds exactly those missing pieces — small, self-contained, and written the way Forestry would have written them itself.
 
-Nothing is taken away: Forestry's own blocks, frames, circuits and bees keep working exactly as before. Every change is either **new content** (two frames, three alveary parts, two bees) or a **config-gated tweak**, implemented with a handful of Mixins instead of a patched Forestry build.
+Nothing is taken away: Forestry's own blocks, frames, circuits and bees keep working exactly as before. Every change is either **new content** (two frames, four alveary parts, two bees) or a **config-gated tweak**, implemented with a handful of Mixins instead of a patched Forestry build.
 
 ## Requirements
 
@@ -24,7 +24,7 @@ Nothing is taken away: Forestry's own blocks, frames, circuits and bees keep wor
 * Create Attribute Filter support for bees — 25 attributes
 * Three tweaks — rain detection, ignoble decay, beekeeper villagers
 * Two apiary frames — Soft Light Frame / 柔光框架, Infusion Frame / 灌注框架
-* Three alveary parts — Frame Housing / 蜂房组框架外壳, Circuit Foundation / 蜂房组电路巢础, Transmission / 蜂房组配电
+* Four alveary parts — Frame Housing / 蜂房组框架外壳, Circuit Foundation / 蜂房组电路巢础, Transmission / 蜂房组配电, Ticker / 蜂房组进刻器
 * Two bees — the Voltaic Bee / 伏打蜂, which discharges FE, and its opposite the Reaper Bee / 死神蜂, which takes the queens of every housing in its territory
 
 ---
@@ -164,7 +164,7 @@ The icon is the same proven-frame silhouette with its window filled by liquid, t
 
 ## Alveary parts
 
-Forestry's alveary has **no frame slots** — the Forester's Manual says as much — and no electricity. These three wall parts fix both. Build them into the exterior of an assembled 3×3×3 alveary like Forestry's own heater or sieve (not the top layer, not the interior), and break them to get their contents back.
+Forestry's alveary has **no frame slots** — the Forester's Manual says as much — and no electricity. These four wall parts fix both, and the last one spends that electricity on making the bees work faster. Build them into the exterior of an assembled 3×3×3 alveary like Forestry's own heater or sieve (not the top layer, not the interior), and break them to get their contents back.
 
 ### Alveary Frame Housing / 蜂房组框架外壳
 
@@ -224,6 +224,18 @@ Turns **FE** into bee modifiers by running a programmed circuit board. Take a Fo
 `G` copper gear · `R` redstone · `X` alveary block
 
 A power distributor — it **never touches the bees**. It buffers 1 000 FE and hands it to the other parts of the assembled alveary **once per tick** through the energy capability, splitting the 500 FE-per-tick output evenly over the parts that can receive. So an alveary full of circuit foundations needs **one cable** instead of one per block face. A transmission never feeds another transmission (the one behavioural fix over the original implementation, which had that infinite-bounce hole), it only walks the multiblock while it actually holds energy, and it has no GUI — right-clicking opens the alveary's own screen.
+
+### Alveary Ticker / 蜂房组进刻器
+
+```
+ K
+CXC
+ K
+```
+
+`K` refined circuit board · `C` clock · `X` alveary block
+
+The part that makes the alveary work faster. It runs every tick and spends **10 FE per extra work-cycle tick**: at ×1 the alveary is unaccelerated, at the housing's work throttle (550 ticks by default) it produces once per game tick. The hidden counter is advanced through a small mixin; the speed limit is the housing's *current* `maxWorkThrottle`, so a throttle changed by another mod is respected. It buys only whole ticks it can pay for, spends nothing without a queen, and buffers **20 000 FE** (10 000 per offer, receive only) so a Transmission or a cable can feed it. Right-click for the speed screen — a brass clock housing, a gauge slider you press and drag and a buffer bar; the block is Forestry's alveary face with **Minecraft's clock item** worked into all four sides, and a block entity renderer cycles the vanilla clock's 64 frames faster as the speed rises.
 
 ---
 
@@ -315,7 +327,7 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 * The alveary parts must go into an **assembled** alveary's exterior; they cannot go into the top layer or the interior. While the structure is incomplete, right-clicking prints the pattern error like Forestry's own parts.
 * The Frame Housing holds **one** frame. The bee house still has no frame slot, in Forestry or here.
 * Forestry's sources are not patched: the tweaks are Mixins on Forestry's own methods plus this mod's own goal, so a locally modified Forestry build is never involved.
-* Recipes: all five new recipes (two frames, three alveary parts) ship recipe-book unlock advancements. Both bee mutations are ordinary Forestry mutations and show up in JEI like any other.
+* Recipes: all six new recipes (two frames, four alveary parts) ship recipe-book unlock advancements. Both bee mutations are ordinary Forestry mutations and show up in JEI like any other.
 
 ## Credits
 
@@ -338,7 +350,7 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 
 林业社区版给了你蜜蜂，却没有给蜂房组框架槽、没有给蜂房组供电的方式、没有让自动化工厂按基因分拣蜜蜂的手段，也没有一只把蜂后工作速度变成电能的蜜蜂。本模组补的就是这几块——每一样都自成一体，并且按林业自己的做法去实现。
 
-**没有拆掉任何东西**：林业原有的方块、框架、电路与蜜蜂行为全部保持原样。所有改动要么是**新内容**（两个框架、三个蜂房组部件、两只新蜂），要么是**可配置的微调**（用少量 Mixin 实现，而不是修改林业源码）。
+**没有拆掉任何东西**：林业原有的方块、框架、电路与蜜蜂行为全部保持原样。所有改动要么是**新内容**（两个框架、四个蜂房组部件、两只新蜂），要么是**可配置的微调**（用少量 Mixin 实现，而不是修改林业源码）。
 
 ## 需求
 
@@ -358,7 +370,7 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 * Create 属性过滤器支持 —— 25 种蜜蜂属性
 * 三项微调 —— 雨天判定、卑贱种衰退、养蜂人村民
 * 两个蜂房框架 —— 柔光框架、灌注框架
-* 三个蜂房组部件 —— 框架外壳、蜂房组电路巢础、蜂房组配电
+* 四个蜂房组部件 —— 框架外壳、蜂房组电路巢础、蜂房组配电、蜂房组进刻器
 * 两只新蜂 —— 伏打蜂，放电产出 FE；死神蜂，摘掉活动范围内所有蜂房的蜂后
 
 ---
@@ -549,6 +561,18 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 
 纯粹的电力分配器，**完全不碰蜜蜂**。它缓冲 1 000 FE，每 tick 通过能量能力输送给已组装蜂房组的其他部件，把每 tick 500 FE 的输出均分给能接收的部件——所以一整组蜂房组只需要**一根线**，而不是每个面一根。配电永远不会给另一个配电供电（相对原始实现的唯一行为修正，原实现存在无限互推的漏洞），只在确实有能量时才遍历多方块，也没有界面——右键打开的是蜂房组自身的界面。
 
+### 蜂房组进刻器
+
+```
+ K
+CXC
+ K
+```
+
+`K` 先进电路板 · `C` 时钟 · `X` 蜂房组
+
+让蜂房组变快的部件。每 tick 都会运行，**每多加一刻工作周期就消耗 10 FE**：×1 时蜂房组保持原速，达到蜂房组的工作节流值（默认 550 刻）时，每个游戏刻就完成一个工作周期。隐藏的计数器通过一个小 Mixin 推进；速度上限是蜂房组**当前**的 `maxWorkThrottle`，其他模组修改过节流值时也会跟随。它只会购买付得起的整刻，没有蜂后时不消耗能量；缓冲 **20 000 FE**（每次进料 10 000 FE，只进不出），配电或电缆都能给它供电。右键打开调速界面（黄铜表框、可按住拖动的滑条与电量条）；方块外观是林业蜂房组的侧面加上四面**原版时钟**，方块实体渲染器会让原版时钟的 64 帧随倍速转得更快。
+
 ---
 
 ## 伏打蜂
@@ -639,7 +663,7 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 * 蜂房组部件必须放进**已组装**蜂房组的外壳，不能放顶层或内部。结构不完整时右键会像林业自己的部件一样提示图案错误。
 * 框架外壳只容纳**一个**框架。简易蜂房至今仍没有框架槽（林业如此，这里也如此）。
 * 不修改林业源码：微调是打在林业自身方法上的 Mixin 加本模组自己的目标，不涉及任何本地修改版林业。
-* 全部五个新配方（两个框架、三个蜂房组部件）都带配方书解锁进度；两种蜜蜂突变都是标准林业突变，会在 JEI 中像其他突变一样显示。
+* 全部六个新配方（两个框架、四个蜂房组部件）都带配方书解锁进度；两种蜜蜂突变都是标准林业突变，会在 JEI 中像其他突变一样显示。
 
 ## 致谢
 
