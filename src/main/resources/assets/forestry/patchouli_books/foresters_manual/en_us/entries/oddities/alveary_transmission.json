@@ -1,0 +1,23 @@
+{
+  "name": "forestry_oddities.patchouli.entry.oddities.alveary_transmission",
+  "category": "forestry:oddities",
+  "icon": "forestry_oddities:alveary_transmission",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "forestry_oddities:alveary_transmission",
+      "link_recipe": true,
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_transmission.spotlight"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "forestry_oddities:alveary_transmission",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_transmission.recipe"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_transmission.use"
+    }
+  ]
+}

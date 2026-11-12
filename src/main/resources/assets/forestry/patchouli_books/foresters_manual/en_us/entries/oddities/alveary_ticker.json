@@ -1,0 +1,27 @@
+{
+  "name": "forestry_oddities.patchouli.entry.oddities.alveary_ticker",
+  "category": "forestry:oddities",
+  "icon": "forestry_oddities:alveary_ticker",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "forestry_oddities:alveary_ticker",
+      "link_recipe": true,
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_ticker.spotlight"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "forestry_oddities:alveary_ticker",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_ticker.recipe"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_ticker.use"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_ticker.power"
+    }
+  ]
+}

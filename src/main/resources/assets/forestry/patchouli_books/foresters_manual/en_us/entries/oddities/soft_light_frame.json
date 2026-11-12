@@ -1,0 +1,27 @@
+{
+  "name": "forestry_oddities.patchouli.entry.oddities.soft_light_frame",
+  "category": "forestry:oddities",
+  "icon": "forestry_oddities:soft_light_frame",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "forestry_oddities:soft_light_frame",
+      "link_recipe": true,
+      "text": "forestry_oddities.patchouli.entry.oddities.soft_light_frame.spotlight"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "forestry_oddities:soft_light_frame",
+      "text": "forestry_oddities.patchouli.entry.oddities.soft_light_frame.recipe"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.soft_light_frame.charge"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.soft_light_frame.use"
+    }
+  ]
+}

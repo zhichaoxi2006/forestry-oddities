@@ -1,0 +1,39 @@
+{
+  "name": "forestry_oddities.patchouli.entry.oddities.alveary_circuit_foundation",
+  "category": "forestry:oddities",
+  "icon": "forestry_oddities:alveary_circuit_foundation",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "forestry_oddities:alveary_circuit_foundation",
+      "link_recipe": true,
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_circuit_foundation.spotlight"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "forestry_oddities:alveary_circuit_foundation",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_circuit_foundation.recipe"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_circuit_foundation.board"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_circuit_foundation.programs"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_circuit_foundation.programs2"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_circuit_foundation.programs3"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_circuit_foundation.power"
+    }
+  ]
+}

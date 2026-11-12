@@ -1,0 +1,27 @@
+{
+  "name": "forestry_oddities.patchouli.entry.oddities.infusion_frame",
+  "category": "forestry:oddities",
+  "icon": "forestry_oddities:infusion_frame",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "forestry_oddities:infusion_frame",
+      "link_recipe": true,
+      "text": "forestry_oddities.patchouli.entry.oddities.infusion_frame.spotlight"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "forestry_oddities:infusion_frame",
+      "text": "forestry_oddities.patchouli.entry.oddities.infusion_frame.recipe"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.infusion_frame.potions"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.infusion_frame.wearing"
+    }
+  ]
+}

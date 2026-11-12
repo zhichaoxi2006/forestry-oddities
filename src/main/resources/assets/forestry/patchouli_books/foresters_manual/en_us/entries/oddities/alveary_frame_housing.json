@@ -1,0 +1,27 @@
+{
+  "name": "forestry_oddities.patchouli.entry.oddities.alveary_frame_housing",
+  "category": "forestry:oddities",
+  "icon": "forestry_oddities:alveary_frame_housing",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "forestry_oddities:alveary_frame_housing",
+      "link_recipe": true,
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_frame_housing.spotlight"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "forestry_oddities:alveary_frame_housing",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_frame_housing.recipe"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_frame_housing.use"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "forestry_oddities.patchouli.entry.oddities.alveary_frame_housing.work"
+    }
+  ]
+}
