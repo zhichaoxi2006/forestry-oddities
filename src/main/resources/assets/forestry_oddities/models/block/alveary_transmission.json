@@ -1,23 +1,24 @@
 {
 	"format_version": "1.21.11",
 	"credit": "Made with Blockbench",
-    "parent": "minecraft:block/cube_all",
-    "textures": {
-      "particle": "forestry_oddities:block/alveary_transmission",
-      "all": "forestry_oddities:block/alveary_transmission"
-    },
-    "elements": [
-     {
-        "from": [0, 0, 0],
-        "to": [16, 16, 16],
-        "faces": {
-        "north": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "east": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "south": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "west": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "up": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "down": {"uv": [0, 0, 16, 16], "texture": "#all"}
-      }
-    }
-  ]
+	"parent": "minecraft:block/cube_all",
+	"textures": {
+		"4": "forestry_oddities:block/alveary_transmission_buttom",
+		"particle": "forestry_oddities:block/alveary_transmission",
+		"all": "forestry_oddities:block/alveary_transmission"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#all"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#all"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#all"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#all"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#4"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#4"}
+			}
+		}
+	]
 }
