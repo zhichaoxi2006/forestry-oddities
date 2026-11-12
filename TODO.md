@@ -297,3 +297,35 @@ Forestry: CE 的蜂房自带一个把产量速度 **×0.1** 的修正（`ApiaryB
 > `data/forestry_oddities/{taxon,bee_species,flower_type,tags,recipe/bee_mutation}`，
 > 机制、自查与逐项验证结果见 README 的 “Reaper Bee (死神蜂)” 一节；`docs/reaper-bee-design.md` §17
 > 列了全部可改的决定。
+
+## 林业员手册条目
+
+不新开手册，往林业员手册（`forestry:foresters_manual`）里加一章，六个条目：两块框架 + 四个蜂房组部件。
+
+* **Patchouli 1.20 删掉了 `extend`**（`Book` 构造遇到 `extend` 直接抛异常），取而代之的是“资源包往里塞”：
+  一本书的内容从 `assets/<命名空间>/patchouli_books/<书>/en_us/{categories,entries}/<id>.json` 汇总，
+  页面 id 的命名空间就是文件所在的命名空间（`BookContentResourceListenerLoader` 按资源位置分桶）。
+  所以页面放在 `assets/forestry/patchouli_books/foresters_manual/` 下，林业员手册会和它自己的页面一起
+  加载它们：不新增书、不覆盖林业的任何文件。
+* **新开一章 `forestry:oddities`（异闻，`sortnum` 100 排在最后）**，而不是往 `categories/alveary.json`
+  或 `beekeeping.json` 里加条目——覆盖林业的分类文件会在林业更新时出问题。条目自带 `category`，
+  `BookEntry#initCategory` 会把它挂到所指分类上，所以新分类不需要林业配合。
+* **`book.json` 是 `"i18n": true`**：名称走 `Component.translatable`，正文走 `I18n.get`，两者都是翻译键。
+  所以章节 JSON 里只有 `forestry_oddities.patchouli.*` 键，正文写在本模组自己的 `lang/en_us.json`
+  与 `zh_cn.json`；其他语言由原版语言管理器回退到英文，不会出现裸键。
+* **只放 `en_us`**：`BookContentsBuilder.findFiles` 只枚举 `en_us`，客户端按当前语言先试 `zh_cn/...`、
+  取不到再回退 `en_us`。正文都在语言文件里，因此不存在第二套 JSON。
+* **合成页只写配方 id**（`forestry_oddities:<name>`），由配方管理器渲染，不会和
+  `data/forestry_oddities/recipe/` 脱节；灌注框架的自定义序列化器同样实现 `CraftingRecipe`，
+  `Recipe#getType()` 仍是 `RecipeType.CRAFTING`，`patchouli:crafting` 认得它。
+* **行文照手册自己的写法**：先翻了一遍林业的原文——通篇第一人称、短段落用 `$(br2)` 分隔、数字写进句子里
+  （“快上五成，每周期 10 FE”）、名字用 `$(item)`/`$(thing)`、条目之间用 `$(l:xx)……$(/l)` 互链；
+  **林业全书没有一个 `$(li)`**，所以本章也不用项目符号，十四道程序按家族写成三段散文而不是表格
+  （结果就是电路巢础那条从 6 页变成 7 页）。中文按 `zh_cn` 的译法走："须"、"可"、"我"、"你"，
+  语气与“我至今仍未成功将框架塞进蜂房组”一类句子对齐。
+* **验证**：`tools/check_manual.py`，16 条链接、34 个键、6 个配方全部解出，0 问题。它存在的原因是
+  这些错误全是“软失败”：缺键显示键名、链接目标错了就不再是链接、配方 id 错了画一张空页、JSON 或
+  `$(/l)` 出错则整本书变成 “Error loading and compiling book”，而 Gradle 一概不报。脚本按路径重算
+  Patchouli 会算出的 id，检查分类与链接目标、命令名、两种语言的键、配方 id、物品模型；与林业撞同一
+  条 id（会顶掉林业自己的页面）也算错误。反例都注入验证过：改坏的链接、未知命令、不存在的配方 id、
+  被改名的键、未知页面类型，全部报出。书页的实际排版没有在游戏里看过，见 README 同一节的说明。

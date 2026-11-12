@@ -26,6 +26,7 @@ Nothing is taken away: Forestry's own blocks, frames, circuits and bees keep wor
 * Two apiary frames — Soft Light Frame / 柔光框架, Infusion Frame / 灌注框架
 * Four alveary parts — Frame Housing / 蜂房组框架外壳, Circuit Foundation / 蜂房组电路巢础, Transmission / 蜂房组配电, Ticker / 蜂房组进刻器
 * Two bees — the Voltaic Bee / 伏打蜂, which discharges FE, and its opposite the Reaper Bee / 死神蜂, which takes the queens of every housing in its territory
+* A chapter of its own in Forestry's **Forester's Manual** — *Oddities*, with an entry for every item above
 
 ---
 
@@ -372,6 +373,7 @@ Modern Industrialization (EU) · Mekanism (Joules) · Flux Networks · GrandPowe
 * 两个蜂房框架 —— 柔光框架、灌注框架
 * 四个蜂房组部件 —— 框架外壳、蜂房组电路巢础、蜂房组配电、蜂房组进刻器
 * 两只新蜂 —— 伏打蜂，放电产出 FE；死神蜂，摘掉活动范围内所有蜂房的蜂后
+* 林业员手册里多出一章「林业异闻」——上面每一样东西都有自己的一条
 
 ---
 
@@ -506,7 +508,7 @@ Create 的**属性过滤器**按物品的*属性*而不是物品 ID 匹配，这
 
 ## 蜂房组部件
 
-林业的蜂房组**没有框架槽**——林业手册里也这么写——也没有电。下面三个壁面部件把这些补齐。像林业自己的蜂房组加热器或筛网那样，放进已组装好的 3×3×3 蜂房组的**外壳**（不是顶层，也不是内部），破坏即可取回内容物。
+林业的蜂房组**没有框架槽**——林业手册里也这么写——也没有电。下面四个壁面部件把这些补齐。像林业自己的蜂房组加热器或筛网那样，放进已组装好的 3×3×3 蜂房组的**外壳**（不是顶层，也不是内部），破坏即可取回内容物。
 
 ### 蜂房组框架外壳
 

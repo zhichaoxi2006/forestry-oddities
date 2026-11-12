@@ -1181,6 +1181,95 @@ Forestry ships. The two names Forestry's language file still carries without an 
 reads the program ids off the enum and derives the runtime-built tooltip keys from the same file, so a
 new program that forgets a translation fails the check instead of printing a raw key in game.
 
+## The Forester's manual (林业员手册条目)
+
+This mod does not ship a book. It adds a chapter to Forestry's own **Forester's Manual**
+(`forestry:foresters_manual`) instead: a root category `forestry:oddities` titled *Oddities*
+(林业异闻), holding six entries - the two frames and the four alveary parts.
+
+How the pages get into someone else's book:
+
+* Patchouli 1.20 removed the `extend` flag that used to bolt one book onto another, and in
+  exchange the content of a book is no longer read from a single namespace: it is collected
+  from `assets/<namespace>/patchouli_books/<book>/en_us/{categories,entries}/<id>.json`
+  across **every** pack the resource manager knows
+  (`BookContentResourceListenerLoader`, keyed on the resource location, so the namespace of
+  the path is the namespace of the page id). Shipping
+  `assets/forestry/patchouli_books/foresters_manual/...` is therefore the supported way for
+  an addon to write into Forestry's book: the manual loads these pages next to Forestry's
+  own, none of Forestry's files is replaced, and no second book appears in the item list.
+* Entries name their own `category` and `BookEntry#initCategory` adds the entry to the
+  category it names, so the category file does not have to list it. That is what makes a new
+  chapter possible without touching Forestry's `categories/beekeeping.json`.
+* `book.json` sets `"i18n": true`, and Patchouli then reads every `name` and every page text
+  as a **translation key** (`Component.translatable` for the names, `I18n.get` for the text
+  of a page). The JSON of this chapter therefore holds keys only
+  (`forestry_oddities.patchouli.*`), and the prose lives in this mod's own
+  `assets/forestry_oddities/lang/en_us.json` and `zh_cn.json`. Other languages fall back to
+  English through the vanilla language manager, so no raw key can reach a page.
+* Only the `en_us` files are enumerated (`BookContentsBuilder.findFiles`); a client tries the
+  selected language first and falls back to `en_us` per file. Since all of the text is in the
+  language files, there is no `zh_cn` copy of the chapter JSON at all - one set of pages, two
+  languages.
+
+The chapter, in `sortnum` order (the order they are meant to be discovered in):
+
+| Entry | Id | Pages |
+|---|---|---|
+| Soft Light Frame (柔光框架) | `forestry:oddities/soft_light_frame` | spotlight, recipe, the charge, where it fits |
+| Infusion Frame (灌注框架) | `forestry:oddities/infusion_frame` | spotlight, recipe, the five potion rows, the wear |
+| Alveary Frame Housing (蜂房组框架外壳) | `forestry:oddities/alveary_frame_housing` | spotlight, recipe, building it in, what the slot does |
+| Circuit Foundation (电路巢础) | `forestry:oddities/alveary_circuit_foundation` | spotlight, recipe, how to solder a board, the tubes that give numbers (two pages), the five that answer questions, the rules |
+| Alveary Transmission (蜂房组配电) | `forestry:oddities/alveary_transmission` | spotlight, recipe, how it distributes |
+| Alveary Ticker (蜂房组进刻器) | `forestry:oddities/alveary_ticker` | spotlight, recipe, the slider, the buffer |
+
+Crafting pages point at the recipe ids the mod ships (`forestry_oddities:<name>`) and are
+drawn from the recipe manager, so they cannot drift away from `data/forestry_oddities/recipe/`.
+`patchouli:crafting` keeps a recipe only when `Recipe#getType() == RecipeType.CRAFTING`, which
+the infusion frame's recipe answers through `CraftingRecipe` even though its serializer is the
+mod's own.
+
+The prose is written the way the rest of the manual is written, which was checked against
+Forestry's own pages first: the first person of the almanac ("For years this book has said...",
+"I never liked breeding that in"), short paragraphs separated by `$(br2)`, numbers spelled into
+the sentence ("half again as fast for ten FE a cycle"), `$(item)` and `$(thing)` on names, and
+`$(l:...)...$(/l)` links into Forestry's own pages (apiary, soldering iron, circuit board) as
+well as into this chapter. **No bullet lists**: `$(li)` appears nowhere in Forestry's language
+files (checked in all eleven of them), so a list would have been the one thing in the chapter
+that looked foreign, and the fourteen programs are grouped into prose families instead of a
+table.
+
+Verification: `tools/check_manual.py`, no problems. The script exists because Patchouli fails
+*softly* in every way that matters here - a missing key prints the key, a wrong link target
+stops being a link, a wrong recipe id draws an empty page, and a broken JSON or an unclosed
+`$(/l)` leaves the **whole manual** at "Error loading and compiling book" - and none of that
+fails a build. It re-derives everything Patchouli derives from the file paths and checks:
+
+* the layout (namespace `forestry`, book `foresters_manual`, language `en_us`) that decides
+  which page ids the chapter gets, and that no page of ours sits on an id Forestry already
+  ships (that would silently replace Forestry's page);
+* entry `category`, category `parent` and all `16` `$(l:...)` targets, against Forestry's own
+  entries and categories read out of a sibling `ForestryCE` checkout or a jar;
+* every `$(...)` command against Patchouli's command set, and that no `$(/l)` outlives its
+  `$(l:...)`;
+* all `34` translation keys in both languages (a missing `en_us` key is an error, a missing
+  `zh_cn` one a warning, since the game falls back to English), and that no manual key is
+  left unused;
+* every `recipe` / `recipe2` id against the recipe that exists and that it is a crafting
+  recipe;
+* every icon and spotlight item this mod names against its item model.
+
+The negative cases are the interesting half, so they were tested by mutation: a mis-spelled
+link target, an unknown `$(items)` command, a `recipe` id that does not exist, a page whose
+key was renamed away, and a page type Patchouli does not know were each injected into the
+chapter, each was reported (the last one as a warning, because a future Patchouli may add page
+types), and each was reverted. The built jar was inspected as well: `.\gradlew.bat jar` puts
+the category and the six entry files under
+`assets/forestry/patchouli_books/foresters_manual/en_us/`, unchanged. What none of this checks
+is how the pages *look*: they were not opened in a running client here, so the chapter is
+verified exactly as far as the files go - every key, link, recipe and id resolved, and nothing
+about the drawing assumed.
+
 ## Long energy (long 能量适配)
 
 Ported from Career Bees (`CareerBees-CE`), so that a part that needs to move more than an `int` of FE
@@ -1601,6 +1690,8 @@ cache.
 .\gradlew.bat --offline runServer              # dev server (game dir: run/, needs run/eula.txt)
 .\gradlew.bat --offline runData                # datagen -> src/generated/resources
 .\gradlew.bat --offline verifyForestryDependency
+python tools/check_manual.py                   # the Forester's manual chapter: ids, links, keys, recipes
+python tools/check_recipes.py                  # the same-grid-different-result check
 ```
 
 `runServer` writes its world, config and logs to `run/`; accept the EULA once with
@@ -1710,7 +1801,12 @@ src/main/resources/
     forestry_oddities.mixins.json     mixin config (listed in neoforge.mods.toml)
     META-INF/neoforge.mods.toml    mod metadata + dependencies + mixin declarations
     META-INF/services/forestry.api.plugin.IForestryPlugin
-    assets/forestry_oddities/lang/en_us.json, zh_cn.json   filter + item + block strings
+    assets/forestry_oddities/lang/en_us.json, zh_cn.json   filter + item + block strings, and the
+                                                          chapter's prose (forestry_oddities.patchouli.*)
+    assets/forestry/patchouli_books/foresters_manual/en_us/categories/oddities.json  the chapter this
+                                                                                    mod adds to Forestry's manual
+    assets/forestry/patchouli_books/foresters_manual/en_us/entries/oddities/*.json   its six entries
+                                                                                    (two frames, four parts)
     assets/forestry_oddities/models/item/soft_light_frame.json       unlit lamp in the frame, override on charge
     assets/forestry_oddities/models/item/soft_light_frame_on.json    lit lamp in the frame
     assets/forestry_oddities/models/item/infusion_frame.json         frame + liquid, liquid on layer1 (tinted)
@@ -1750,6 +1846,9 @@ src/main/resources/
     data/forestry_oddities/recipe/bee_mutation/reaper_1.json         phantasmal x demonic + night + wither rose
     data/minecraft/tags/block/mineable/axe.json                    axes mine the part faster
     pack.mcmeta
+tools/
+    check_recipes.py               shaped-recipe grid collisions across the pack
+    check_manual.py                the Forester's manual chapter: page ids, links, keys, recipes
 libs/compat/                       compileOnly API jars, not in the repository (see its README.md)
 ```
 
