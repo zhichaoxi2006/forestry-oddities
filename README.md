@@ -12,6 +12,7 @@ an **optional** dependency for the attribute filter integration.
 
 | Component | Version |
 |---|---|
+| Forestry Oddities | 0.2.0 (`mod_version`; see [CHANGELOG.md](CHANGELOG.md)) |
 | Minecraft | 1.21.1 |
 | NeoForge | 21.1.230 |
 | ModDevGradle | 2.0.140 |
@@ -1703,6 +1704,7 @@ python tools/check_recipes.py                  # the same-grid-different-result 
 gradle.properties                  versions, mod metadata, Forestry + Create coordinates
 build.gradle                       NeoForge/ModDevGradle setup, Forestry + Create dependencies, runs
 settings.gradle                    pluginManagement repositories + project name
+CHANGELOG.md                       the released versions, newest first (Keep a Changelog)
 LICENSE                            the LGPL-3.0, the license this mod is released under
 LICENSE.GPL-3.0                    the GNU GPL v3.0, which the LGPL incorporates by reference
 src/main/java/com/zhichaoxi/forestryoddities/
